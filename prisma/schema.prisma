@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  emailVerified DateTime?
+  image        String?
+  passwordHash String
+  createdAt    DateTime  @default(now())
+
+  places      Place[]        @relation("PlaceCreator")
+  events      Event[]        @relation("EventHost")
+  rsvps       Rsvp[]
+  feedbacks   Feedback[]
+  memberships Membership[]
+  aiChats     AiChat[]
+  chatMessages ChatMessage[]
+  threads     ChatThread[]   @relation("ThreadCreator")
+}
+
+model Place {
+  id            String   @id @default(cuid())
+  googlePlaceId String?  @unique
+  name          String
+  description   String   @default("")
+  type          String   @default("other") // park | plaza | cafe | trail | other
+  lat           Float
+  lng           Float
+  address       String?
+  photoUrl      String?
+  approved      Boolean  @default(true)
+  createdById   String?
+  createdAt     DateTime @default(now())
+
+  createdBy User?          @relation("PlaceCreator", fields: [createdById], references: [id])
+  amenities PlaceAmenity[]
+  events    Event[]
+  feedbacks Feedback[]
+}
+
+model Amenity {
+  id    String @id @default(cuid())
+  slug  String @unique
+  label String
+  icon  String @default("check")
+
+  places PlaceAmenity[]
+}
+
+model PlaceAmenity {
+  placeId   String
+  amenityId String
+
+  place   Place   @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  amenity Amenity @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([placeId, amenityId])
+}
+
+model Community {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String   @default("")
+  emoji       String   @default("📍")
+  createdAt   DateTime @default(now())
+
+  memberships Membership[]
+  events      Event[]
+  threads     ChatThread[]
+}
+
+model Membership {
+  userId      String
+  communityId String
+  role        String   @default("member") // member | organizer
+  joinedAt    DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@id([userId, communityId])
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String    @default("")
+  startsAt    DateTime
+  endsAt      DateTime?
+  placeId     String?
+  communityId String?
+  hostId      String
+  createdAt   DateTime  @default(now())
+
+  place     Place?     @relation(fields: [placeId], references: [id])
+  community Community? @relation(fields: [communityId], references: [id])
+  host      User       @relation("EventHost", fields: [hostId], references: [id])
+  rsvps     Rsvp[]
+  feedbacks Feedback[]
+}
+
+model Rsvp {
+  id        String   @id @default(cuid())
+  eventId   String
+  userId    String
+  status    String   @default("going") // going | maybe | cant
+  createdAt DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  placeId   String?
+  eventId   String?
+  userId    String
+  rating    Int
+  comment   String   @default("")
+  createdAt DateTime @default(now())
+
+  place Place? @relation(fields: [placeId], references: [id])
+  event Event? @relation(fields: [eventId], references: [id])
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AiChat {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String   @default("New chat")
+  createdAt DateTime @default(now())
+
+  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages AiMessage[]
+}
+
+model AiMessage {
+  id        String   @id @default(cuid())
+  chatId    String
+  role      String // user | assistant
+  content   String
+  createdAt DateTime @default(now())
+
+  chat AiChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+}
+
+model ChatThread {
+  id           String   @id @default(cuid())
+  kind         String   @default("community") // direct | community
+  communityId  String?
+  name         String?
+  createdById  String
+  createdAt    DateTime @default(now())
+
+  createdBy User          @relation("ThreadCreator", fields: [createdById], references: [id])
+  community Community?    @relation(fields: [communityId], references: [id])
+  messages  ChatMessage[]
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  threadId  String
+  userId    String
+  body      String
+  createdAt DateTime @default(now())
+
+  thread ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

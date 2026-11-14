@@ -1,10 +1,13 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import { SiteHeader } from '@/components/site-header'
+import { Providers } from '@/components/session-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'Hangout — Find your people, find your place',
+  description:
+    'A community map of parks, plazas, cafes and trails with amenity tags, events, RSVPs, communities, chat and an AI guide.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -26,11 +29,9 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'light dark',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
-  ],
+  colorScheme: 'light',
+  themeColor: '#1b4332',
+  userScalable: true,
 }
 
 export default function RootLayout({
@@ -40,8 +41,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
-        {children}
+      <body className="flex min-h-screen flex-col bg-background text-foreground antialiased">
+        <Providers>
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+        </Providers>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

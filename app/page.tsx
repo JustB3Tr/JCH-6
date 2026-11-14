@@ -1,16 +1,13 @@
-export default function Home() {
+import { prisma } from '@/lib/prisma'
+import { MapView } from '@/components/map/map-view'
+
+export default async function MapPage() {
+  const amenities = await prisma.amenity.findMany({ orderBy: { label: 'asc' } })
+
   return (
-    <div className="flex min-h-screen items-center justify-center font-sans">
-      <main className="flex w-full max-w-3xl flex-col items-center gap-8 px-6 py-16 text-center sm:items-start sm:text-left">
-        <div className="flex flex-col gap-4">
-          <h1 className="text-4xl font-bold tracking-tight">
-            JCH-6.0
-          </h1>
-          <p className="max-w-md text-lg text-muted-foreground">
-            To get started, send a prompt or modify this page directly.
-          </p>
-        </div>
-      </main>
-    </div>
-  );
+    <MapView
+      apiKey={process.env.GOOGLE_MAPS_API_KEY ?? ''}
+      amenities={amenities.map((a) => ({ id: a.id, slug: a.slug, label: a.label, icon: a.icon }))}
+    />
+  )
 }
