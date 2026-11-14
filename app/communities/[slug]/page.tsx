@@ -1,103 +1,140 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, CalendarDays, MessagesSquare, Users } from 'lucide-react'
-import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
-import { JoinCommunityButton } from '@/components/communities/join-community-button'
+import { CalendarDays, MapPin, MessageCircle } from 'lucide-react'
+import { getUserId } from '@/lib/api'
+import { getCommunity } from '@/lib/data/communities'
+import { TINT_HEX, type Tint } from '@/lib/constants'
 import { formatDateTime } from '@/lib/format'
+import { GlassCard, PageShell } from '@/components/shell/page-shell'
+import { CommunityIcon } from '@/components/communities/community-icon'
+import { JoinButton } from '@/components/communities/join-button'
 
-export default async function CommunityPage({ params }: { params: Promise<{ slug: string }> }) {
+type Props = { params: Promise<{ slug: string }> }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const session = await auth()
+  try {
+    const community = await getCommunity(slug, null)
+    return { title: `${community.name} — Hangout`, description: community.description }
+  } catch {
+    return { title: 'Group — Hangout' }
+  }
+}
 
-  const community = await prisma.community.findUnique({
-    where: { slug },
-    include: {
-      memberships: { include: { user: { select: { id: true, name: true } } } },
-      events: {
-        where: { startsAt: { gte: new Date() } },
-        orderBy: { startsAt: 'asc' },
-        include: { place: { select: { name: true } }, rsvps: { where: { status: 'going' }, select: { id: true } } },
-      },
-      threads: { select: { id: true, name: true } },
-    },
-  })
+export default async function CommunityPage({ params }: Props) {
+  const { slug } = await params
+  const viewerId = await getUserId()
+
+  const community = await getCommunity(slug, viewerId).catch(() => null)
   if (!community) notFound()
 
-  const joined = session?.user?.id
-    ? community.memberships.some((m) => m.userId === session.user.id)
-    : false
+  const tint = TINT_HEX[community.tint as Tint] ?? TINT_HEX.gray
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-6">
-      <Link href="/communities" className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="size-4" aria-hidden /> All communities
-      </Link>
-
-      <div className="rounded-3xl border border-border bg-card p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex items-start gap-4">
-            <span className="flex size-14 items-center justify-center rounded-2xl bg-secondary text-2xl" aria-hidden>
-              {community.emoji}
-            </span>
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight">{community.name}</h1>
-              <p className="mt-1 max-w-xl text-sm text-muted-foreground">{community.description}</p>
-              <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
-                <Users className="size-4" aria-hidden /> {community.memberships.length} members
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-col items-end gap-2">
-            <JoinCommunityButton communityId={community.id} joined={joined} />
-            {joined && community.threads[0] && (
-              <Link
-                href={`/chat?thread=${community.threads[0].id}`}
-                className="flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-              >
-                <MessagesSquare className="size-4" aria-hidden /> Open community chat
-              </Link>
-            )}
+    <PageShell
+      title={community.name}
+      subtitle={`${community.memberCount} ${community.memberCount === 1 ? 'member' : 'members'}`}
+      back={{ href: '/communities', label: 'Back to groups' }}
+    >
+      <GlassCard className="animate-rise">
+        <div className="flex items-start gap-3">
+          <span
+            className="flex size-12 shrink-0 items-center justify-center rounded-2xl text-white shadow-sm"
+            style={{ backgroundColor: tint }}
+          >
+            <CommunityIcon name={community.icon} className="size-6" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-[17px] font-semibold leading-tight tracking-[-0.01em]">{community.name}</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{community.description}</p>
           </div>
         </div>
 
-        <h2 className="mt-6 text-lg font-semibold tracking-tight">Upcoming events</h2>
-        {community.events.length ? (
-          <ul className="mt-3 flex flex-col gap-2">
-            {community.events.map((e) => (
-              <li key={e.id}>
-                <Link
-                  href={`/events#${e.id}`}
-                  className="flex items-center justify-between gap-3 rounded-2xl border border-border px-4 py-3 hover:bg-secondary"
-                >
-                  <div>
-                    <p className="font-medium">{e.title}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {formatDateTime(e.startsAt)}
-                      {e.place ? ` · ${e.place.name}` : ''}
-                    </p>
-                  </div>
-                  <span className="flex shrink-0 items-center gap-1 text-sm text-muted-foreground">
-                    <CalendarDays className="size-4" aria-hidden /> {e.rsvps.length} going
+        <div className="mt-3 flex gap-2">
+          <JoinButton communityId={community.id} joined={community.joined} className="flex-1" />
+          {community.threadId && community.joined && (
+            <Link
+              href={`/chat?thread=${community.threadId}`}
+              className="glass-press flex h-10 items-center justify-center gap-1.5 rounded-full bg-foreground/[0.06] px-4 text-[13px] font-semibold"
+            >
+              <MessageCircle className="size-4" aria-hidden />
+              Chat
+            </Link>
+          )}
+        </div>
+      </GlassCard>
+
+      <section className="mt-4">
+        <h2 className="mb-2 px-1 text-[12px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          Upcoming
+        </h2>
+        {community.events.length === 0 ? (
+          <GlassCard>
+            <p className="text-[13px] text-muted-foreground">
+              Nothing scheduled. Post a meetup and it will show up here and in the group chat.
+            </p>
+          </GlassCard>
+        ) : (
+          <ul className="space-y-2">
+            {community.events.map((event) => (
+              <GlassCard as="li" key={event.id}>
+                <div className="flex items-start gap-3">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary">
+                    <CalendarDays className="size-4" aria-hidden />
                   </span>
-                </Link>
-              </li>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-[14.5px] font-semibold leading-snug">{event.title}</h3>
+                    <p className="mt-0.5 text-[12px] text-muted-foreground">
+                      {formatDateTime(event.startsAt)} · {event.goingCount} going
+                    </p>
+                    {event.place && (
+                      <Link
+                        href={`/places/${event.place.id}`}
+                        className="mt-1 inline-flex items-center gap-1 text-[12px] text-primary"
+                      >
+                        <MapPin className="size-3.5" aria-hidden />
+                        {event.place.name}
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </GlassCard>
             ))}
           </ul>
-        ) : (
-          <p className="mt-2 text-sm text-muted-foreground">No upcoming events yet.</p>
         )}
+      </section>
 
-        <h2 className="mt-6 text-lg font-semibold tracking-tight">Members</h2>
-        <ul className="mt-3 flex flex-wrap gap-2">
-          {community.memberships.map((m) => (
-            <li key={m.userId} className="rounded-full bg-secondary px-3 py-1 text-sm">
-              {m.user.name}
-              {m.role === 'organizer' && <span className="ms-1 text-xs text-muted-foreground">· organizer</span>}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+      <section className="mt-4">
+        <h2 className="mb-2 px-1 text-[12px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          Members
+        </h2>
+        <GlassCard>
+          <ul className="flex flex-wrap gap-2">
+            {community.members.map((member) => (
+              <li
+                key={member.person.id ?? member.person.name}
+                className="flex items-center gap-2 rounded-full bg-foreground/[0.06] py-1 pl-1 pr-3"
+              >
+                <span className="flex size-7 items-center justify-center rounded-full bg-primary/15 text-[11px] font-semibold text-primary">
+                  {member.person.name.slice(0, 1).toUpperCase()}
+                </span>
+                <span className="text-[12.5px] font-medium">{member.person.name}</span>
+                {member.role === 'organizer' && (
+                  <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    host
+                  </span>
+                )}
+              </li>
+            ))}
+            {community.privateMembers > 0 && (
+              <li className="flex items-center rounded-full bg-foreground/[0.06] px-3 py-1.5 text-[12.5px] text-muted-foreground">
+                +{community.privateMembers} private
+              </li>
+            )}
+          </ul>
+        </GlassCard>
+      </section>
+    </PageShell>
   )
 }

@@ -28,7 +28,7 @@ export type RsvpMinAggregateOutputType = {
   id: string | null
   eventId: string | null
   userId: string | null
-  status: string | null
+  status: $Enums.RsvpStatus | null
   createdAt: Date | null
 }
 
@@ -36,7 +36,7 @@ export type RsvpMaxAggregateOutputType = {
   id: string | null
   eventId: string | null
   userId: string | null
-  status: string | null
+  status: $Enums.RsvpStatus | null
   createdAt: Date | null
 }
 
@@ -151,7 +151,7 @@ export type RsvpGroupByOutputType = {
   id: string
   eventId: string
   userId: string
-  status: string
+  status: $Enums.RsvpStatus
   createdAt: Date
   _count: RsvpCountAggregateOutputType | null
   _min: RsvpMinAggregateOutputType | null
@@ -180,7 +180,7 @@ export type RsvpWhereInput = {
   id?: Prisma.StringFilter<"Rsvp"> | string
   eventId?: Prisma.StringFilter<"Rsvp"> | string
   userId?: Prisma.StringFilter<"Rsvp"> | string
-  status?: Prisma.StringFilter<"Rsvp"> | string
+  status?: Prisma.EnumRsvpStatusFilter<"Rsvp"> | $Enums.RsvpStatus
   createdAt?: Prisma.DateTimeFilter<"Rsvp"> | Date | string
   event?: Prisma.XOR<Prisma.EventScalarRelationFilter, Prisma.EventWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -204,7 +204,7 @@ export type RsvpWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.RsvpWhereInput | Prisma.RsvpWhereInput[]
   eventId?: Prisma.StringFilter<"Rsvp"> | string
   userId?: Prisma.StringFilter<"Rsvp"> | string
-  status?: Prisma.StringFilter<"Rsvp"> | string
+  status?: Prisma.EnumRsvpStatusFilter<"Rsvp"> | $Enums.RsvpStatus
   createdAt?: Prisma.DateTimeFilter<"Rsvp"> | Date | string
   event?: Prisma.XOR<Prisma.EventScalarRelationFilter, Prisma.EventWhereInput>
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -228,13 +228,13 @@ export type RsvpScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Rsvp"> | string
   eventId?: Prisma.StringWithAggregatesFilter<"Rsvp"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Rsvp"> | string
-  status?: Prisma.StringWithAggregatesFilter<"Rsvp"> | string
+  status?: Prisma.EnumRsvpStatusWithAggregatesFilter<"Rsvp"> | $Enums.RsvpStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Rsvp"> | Date | string
 }
 
 export type RsvpCreateInput = {
   id?: string
-  status?: string
+  status?: $Enums.RsvpStatus
   createdAt?: Date | string
   event: Prisma.EventCreateNestedOneWithoutRsvpsInput
   user: Prisma.UserCreateNestedOneWithoutRsvpsInput
@@ -244,13 +244,13 @@ export type RsvpUncheckedCreateInput = {
   id?: string
   eventId: string
   userId: string
-  status?: string
+  status?: $Enums.RsvpStatus
   createdAt?: Date | string
 }
 
 export type RsvpUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRsvpStatusFieldUpdateOperationsInput | $Enums.RsvpStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   event?: Prisma.EventUpdateOneRequiredWithoutRsvpsNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutRsvpsNestedInput
@@ -260,7 +260,7 @@ export type RsvpUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   eventId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRsvpStatusFieldUpdateOperationsInput | $Enums.RsvpStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -268,13 +268,13 @@ export type RsvpCreateManyInput = {
   id?: string
   eventId: string
   userId: string
-  status?: string
+  status?: $Enums.RsvpStatus
   createdAt?: Date | string
 }
 
 export type RsvpUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRsvpStatusFieldUpdateOperationsInput | $Enums.RsvpStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -282,7 +282,7 @@ export type RsvpUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   eventId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRsvpStatusFieldUpdateOperationsInput | $Enums.RsvpStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -409,9 +409,13 @@ export type RsvpUncheckedUpdateManyWithoutEventNestedInput = {
   deleteMany?: Prisma.RsvpScalarWhereInput | Prisma.RsvpScalarWhereInput[]
 }
 
+export type EnumRsvpStatusFieldUpdateOperationsInput = {
+  set?: $Enums.RsvpStatus
+}
+
 export type RsvpCreateWithoutUserInput = {
   id?: string
-  status?: string
+  status?: $Enums.RsvpStatus
   createdAt?: Date | string
   event: Prisma.EventCreateNestedOneWithoutRsvpsInput
 }
@@ -419,7 +423,7 @@ export type RsvpCreateWithoutUserInput = {
 export type RsvpUncheckedCreateWithoutUserInput = {
   id?: string
   eventId: string
-  status?: string
+  status?: $Enums.RsvpStatus
   createdAt?: Date | string
 }
 
@@ -456,13 +460,13 @@ export type RsvpScalarWhereInput = {
   id?: Prisma.StringFilter<"Rsvp"> | string
   eventId?: Prisma.StringFilter<"Rsvp"> | string
   userId?: Prisma.StringFilter<"Rsvp"> | string
-  status?: Prisma.StringFilter<"Rsvp"> | string
+  status?: Prisma.EnumRsvpStatusFilter<"Rsvp"> | $Enums.RsvpStatus
   createdAt?: Prisma.DateTimeFilter<"Rsvp"> | Date | string
 }
 
 export type RsvpCreateWithoutEventInput = {
   id?: string
-  status?: string
+  status?: $Enums.RsvpStatus
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutRsvpsInput
 }
@@ -470,7 +474,7 @@ export type RsvpCreateWithoutEventInput = {
 export type RsvpUncheckedCreateWithoutEventInput = {
   id?: string
   userId: string
-  status?: string
+  status?: $Enums.RsvpStatus
   createdAt?: Date | string
 }
 
@@ -503,13 +507,13 @@ export type RsvpUpdateManyWithWhereWithoutEventInput = {
 export type RsvpCreateManyUserInput = {
   id?: string
   eventId: string
-  status?: string
+  status?: $Enums.RsvpStatus
   createdAt?: Date | string
 }
 
 export type RsvpUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRsvpStatusFieldUpdateOperationsInput | $Enums.RsvpStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   event?: Prisma.EventUpdateOneRequiredWithoutRsvpsNestedInput
 }
@@ -517,27 +521,27 @@ export type RsvpUpdateWithoutUserInput = {
 export type RsvpUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   eventId?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRsvpStatusFieldUpdateOperationsInput | $Enums.RsvpStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RsvpUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   eventId?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRsvpStatusFieldUpdateOperationsInput | $Enums.RsvpStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RsvpCreateManyEventInput = {
   id?: string
   userId: string
-  status?: string
+  status?: $Enums.RsvpStatus
   createdAt?: Date | string
 }
 
 export type RsvpUpdateWithoutEventInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRsvpStatusFieldUpdateOperationsInput | $Enums.RsvpStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutRsvpsNestedInput
 }
@@ -545,14 +549,14 @@ export type RsvpUpdateWithoutEventInput = {
 export type RsvpUncheckedUpdateWithoutEventInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRsvpStatusFieldUpdateOperationsInput | $Enums.RsvpStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RsvpUncheckedUpdateManyWithoutEventInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumRsvpStatusFieldUpdateOperationsInput | $Enums.RsvpStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -620,7 +624,7 @@ export type $RsvpPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     id: string
     eventId: string
     userId: string
-    status: string
+    status: $Enums.RsvpStatus
     createdAt: Date
   }, ExtArgs["result"]["rsvp"]>
   composites: {}
@@ -1050,7 +1054,7 @@ export interface RsvpFieldRefs {
   readonly id: Prisma.FieldRef<"Rsvp", 'String'>
   readonly eventId: Prisma.FieldRef<"Rsvp", 'String'>
   readonly userId: Prisma.FieldRef<"Rsvp", 'String'>
-  readonly status: Prisma.FieldRef<"Rsvp", 'String'>
+  readonly status: Prisma.FieldRef<"Rsvp", 'RsvpStatus'>
   readonly createdAt: Prisma.FieldRef<"Rsvp", 'DateTime'>
 }
     

@@ -29,6 +29,7 @@ export type AiChatMinAggregateOutputType = {
   userId: string | null
   title: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type AiChatMaxAggregateOutputType = {
@@ -36,6 +37,7 @@ export type AiChatMaxAggregateOutputType = {
   userId: string | null
   title: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type AiChatCountAggregateOutputType = {
@@ -43,6 +45,7 @@ export type AiChatCountAggregateOutputType = {
   userId: number
   title: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -52,6 +55,7 @@ export type AiChatMinAggregateInputType = {
   userId?: true
   title?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type AiChatMaxAggregateInputType = {
@@ -59,6 +63,7 @@ export type AiChatMaxAggregateInputType = {
   userId?: true
   title?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type AiChatCountAggregateInputType = {
@@ -66,6 +71,7 @@ export type AiChatCountAggregateInputType = {
   userId?: true
   title?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -146,6 +152,7 @@ export type AiChatGroupByOutputType = {
   userId: string
   title: string
   createdAt: Date
+  updatedAt: Date
   _count: AiChatCountAggregateOutputType | null
   _min: AiChatMinAggregateOutputType | null
   _max: AiChatMaxAggregateOutputType | null
@@ -174,6 +181,7 @@ export type AiChatWhereInput = {
   userId?: Prisma.StringFilter<"AiChat"> | string
   title?: Prisma.StringFilter<"AiChat"> | string
   createdAt?: Prisma.DateTimeFilter<"AiChat"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"AiChat"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   messages?: Prisma.AiMessageListRelationFilter
 }
@@ -183,6 +191,7 @@ export type AiChatOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   messages?: Prisma.AiMessageOrderByRelationAggregateInput
 }
@@ -195,6 +204,7 @@ export type AiChatWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.StringFilter<"AiChat"> | string
   title?: Prisma.StringFilter<"AiChat"> | string
   createdAt?: Prisma.DateTimeFilter<"AiChat"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"AiChat"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   messages?: Prisma.AiMessageListRelationFilter
 }, "id">
@@ -204,6 +214,7 @@ export type AiChatOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.AiChatCountOrderByAggregateInput
   _max?: Prisma.AiChatMaxOrderByAggregateInput
   _min?: Prisma.AiChatMinOrderByAggregateInput
@@ -217,12 +228,14 @@ export type AiChatScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"AiChat"> | string
   title?: Prisma.StringWithAggregatesFilter<"AiChat"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AiChat"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AiChat"> | Date | string
 }
 
 export type AiChatCreateInput = {
   id?: string
   title?: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAiChatsInput
   messages?: Prisma.AiMessageCreateNestedManyWithoutChatInput
 }
@@ -232,6 +245,7 @@ export type AiChatUncheckedCreateInput = {
   userId: string
   title?: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   messages?: Prisma.AiMessageUncheckedCreateNestedManyWithoutChatInput
 }
 
@@ -239,6 +253,7 @@ export type AiChatUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAiChatsNestedInput
   messages?: Prisma.AiMessageUpdateManyWithoutChatNestedInput
 }
@@ -248,6 +263,7 @@ export type AiChatUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.AiMessageUncheckedUpdateManyWithoutChatNestedInput
 }
 
@@ -256,12 +272,14 @@ export type AiChatCreateManyInput = {
   userId: string
   title?: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AiChatUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AiChatUncheckedUpdateManyInput = {
@@ -269,6 +287,7 @@ export type AiChatUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AiChatListRelationFilter = {
@@ -286,6 +305,7 @@ export type AiChatCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type AiChatMaxOrderByAggregateInput = {
@@ -293,6 +313,7 @@ export type AiChatMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type AiChatMinOrderByAggregateInput = {
@@ -300,6 +321,7 @@ export type AiChatMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type AiChatScalarRelationFilter = {
@@ -367,6 +389,7 @@ export type AiChatCreateWithoutUserInput = {
   id?: string
   title?: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   messages?: Prisma.AiMessageCreateNestedManyWithoutChatInput
 }
 
@@ -374,6 +397,7 @@ export type AiChatUncheckedCreateWithoutUserInput = {
   id?: string
   title?: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   messages?: Prisma.AiMessageUncheckedCreateNestedManyWithoutChatInput
 }
 
@@ -411,12 +435,14 @@ export type AiChatScalarWhereInput = {
   userId?: Prisma.StringFilter<"AiChat"> | string
   title?: Prisma.StringFilter<"AiChat"> | string
   createdAt?: Prisma.DateTimeFilter<"AiChat"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"AiChat"> | Date | string
 }
 
 export type AiChatCreateWithoutMessagesInput = {
   id?: string
   title?: string
   createdAt?: Date | string
+  updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAiChatsInput
 }
 
@@ -425,6 +451,7 @@ export type AiChatUncheckedCreateWithoutMessagesInput = {
   userId: string
   title?: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AiChatCreateOrConnectWithoutMessagesInput = {
@@ -447,6 +474,7 @@ export type AiChatUpdateWithoutMessagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAiChatsNestedInput
 }
 
@@ -455,18 +483,21 @@ export type AiChatUncheckedUpdateWithoutMessagesInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AiChatCreateManyUserInput = {
   id?: string
   title?: string
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type AiChatUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.AiMessageUpdateManyWithoutChatNestedInput
 }
 
@@ -474,6 +505,7 @@ export type AiChatUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.AiMessageUncheckedUpdateManyWithoutChatNestedInput
 }
 
@@ -481,6 +513,7 @@ export type AiChatUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -519,6 +552,7 @@ export type AiChatSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   userId?: boolean
   title?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   messages?: boolean | Prisma.AiChat$messagesArgs<ExtArgs>
   _count?: boolean | Prisma.AiChatCountOutputTypeDefaultArgs<ExtArgs>
@@ -529,6 +563,7 @@ export type AiChatSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   userId?: boolean
   title?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aiChat"]>
 
@@ -537,6 +572,7 @@ export type AiChatSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   userId?: boolean
   title?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aiChat"]>
 
@@ -545,9 +581,10 @@ export type AiChatSelectScalar = {
   userId?: boolean
   title?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type AiChatOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "title" | "createdAt", ExtArgs["result"]["aiChat"]>
+export type AiChatOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "title" | "createdAt" | "updatedAt", ExtArgs["result"]["aiChat"]>
 export type AiChatInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   messages?: boolean | Prisma.AiChat$messagesArgs<ExtArgs>
@@ -571,6 +608,7 @@ export type $AiChatPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     userId: string
     title: string
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["aiChat"]>
   composites: {}
 }
@@ -1000,6 +1038,7 @@ export interface AiChatFieldRefs {
   readonly userId: Prisma.FieldRef<"AiChat", 'String'>
   readonly title: Prisma.FieldRef<"AiChat", 'String'>
   readonly createdAt: Prisma.FieldRef<"AiChat", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"AiChat", 'DateTime'>
 }
     
 

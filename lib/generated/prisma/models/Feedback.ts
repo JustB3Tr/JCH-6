@@ -252,6 +252,7 @@ export type FeedbackOrderByWithRelationInput = {
 
 export type FeedbackWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  placeId_userId?: Prisma.FeedbackPlaceIdUserIdCompoundUniqueInput
   AND?: Prisma.FeedbackWhereInput | Prisma.FeedbackWhereInput[]
   OR?: Prisma.FeedbackWhereInput[]
   NOT?: Prisma.FeedbackWhereInput | Prisma.FeedbackWhereInput[]
@@ -264,7 +265,7 @@ export type FeedbackWhereUniqueInput = Prisma.AtLeast<{
   place?: Prisma.XOR<Prisma.PlaceNullableScalarRelationFilter, Prisma.PlaceWhereInput> | null
   event?: Prisma.XOR<Prisma.EventNullableScalarRelationFilter, Prisma.EventWhereInput> | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "id">
+}, "id" | "placeId_userId">
 
 export type FeedbackOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -369,6 +370,11 @@ export type FeedbackListRelationFilter = {
 
 export type FeedbackOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type FeedbackPlaceIdUserIdCompoundUniqueInput = {
+  placeId: string
+  userId: string
 }
 
 export type FeedbackCountOrderByAggregateInput = {
@@ -533,14 +539,6 @@ export type FeedbackUncheckedUpdateManyWithoutEventNestedInput = {
   update?: Prisma.FeedbackUpdateWithWhereUniqueWithoutEventInput | Prisma.FeedbackUpdateWithWhereUniqueWithoutEventInput[]
   updateMany?: Prisma.FeedbackUpdateManyWithWhereWithoutEventInput | Prisma.FeedbackUpdateManyWithWhereWithoutEventInput[]
   deleteMany?: Prisma.FeedbackScalarWhereInput | Prisma.FeedbackScalarWhereInput[]
-}
-
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
 }
 
 export type FeedbackCreateWithoutUserInput = {

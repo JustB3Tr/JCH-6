@@ -1,82 +1,61 @@
-import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
-import { getUserId } from '@/lib/api-auth'
+import { created, getUserId, handle, intParam, listParam, readJson, requireUserId, throttle } from '@/lib/api'
+import { PLACE_TYPES } from '@/lib/constants'
+import { parseBounds, parseLatLng } from '@/lib/geo'
+import { createPlace, listPlaces } from '@/lib/data/places'
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const q = searchParams.get('q')?.trim() ?? ''
-  const type = searchParams.get('type')?.trim() ?? ''
-  const amenitiesParam = searchParams.get('amenities')?.trim() ?? ''
-  const amenitySlugs = amenitiesParam ? amenitiesParam.split(',').filter(Boolean) : []
+const SORTS = ['relevance', 'distance', 'rating', 'name'] as const
 
-  const places = await prisma.place.findMany({
-    where: {
-      approved: true,
-      AND: [
-        q ? { OR: [{ name: { contains: q, mode: 'insensitive' } }, { description: { contains: q, mode: 'insensitive' } }] } : {},
-        type ? { type } : {},
-        ...amenitySlugs.map((slug) => ({ amenities: { some: { amenity: { slug } } } })),
-      ],
-    },
-    include: {
-      amenities: { include: { amenity: true } },
-      feedbacks: { select: { rating: true } },
-    },
-    orderBy: { name: 'asc' },
+/**
+ * GET /api/places
+ *   q          text search (search-as-you-type prefix matching)
+ *   types      comma-separated place types
+ *   amenities  comma-separated amenity slugs; a place must have all of them
+ *   bounds     south,west,north,east viewport
+ *   near       lat,lng — adds distanceKm and sorts by distance
+ *   radius     kilometers around `near`
+ *   saved      1 to return only the viewer's saved places
+ *   sort       relevance | distance | rating | name
+ *   limit      1-500
+ */
+export const GET = handle(async (request) => {
+  const params = new URL(request.url).searchParams
+  const viewerId = await getUserId()
+  const sort = SORTS.find((s) => s === params.get('sort'))
+
+  if (params.get('saved') === '1' && !viewerId) return { places: [] }
+
+  const places = await listPlaces({
+    q: params.get('q') ?? undefined,
+    types: listParam(params.get('types')),
+    amenities: listParam(params.get('amenities')),
+    bounds: parseBounds(params.get('bounds')),
+    near: parseLatLng(params.get('near')),
+    radiusKm: params.get('radius') ? Math.min(Math.max(Number(params.get('radius')) || 8, 0.2), 100) : undefined,
+    savedBy: params.get('saved') === '1' && viewerId ? viewerId : undefined,
+    sort,
+    limit: intParam(params.get('limit'), 500, 1, 500),
+    viewerId,
   })
-
-  const data = places.map((p) => {
-    const ratings = p.feedbacks.map((f) => f.rating)
-    return {
-      id: p.id,
-      name: p.name,
-      description: p.description,
-      type: p.type,
-      lat: p.lat,
-      lng: p.lng,
-      address: p.address,
-      photoUrl: p.photoUrl,
-      amenities: p.amenities.map((pa) => pa.amenity),
-      feedbackCount: ratings.length,
-      avgRating: ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : null,
-    }
-  })
-
-  return NextResponse.json({ places: data })
-}
-
-const createPlaceSchema = z.object({
-  name: z.string().trim().min(1).max(120),
-  description: z.string().trim().max(2000).default(''),
-  type: z.enum(['park', 'plaza', 'cafe', 'trail', 'other']).default('other'),
-  lat: z.number().min(-90).max(90),
-  lng: z.number().min(-180).max(180),
-  address: z.string().trim().max(300).optional().nullable(),
-  amenitySlugs: z.array(z.string()).max(20).default([]),
+  return { places }
 })
 
-export async function POST(request: Request) {
-  const userId = await getUserId()
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+const createPlaceSchema = z.object({
+  name: z.string().trim().min(2).max(120),
+  description: z.string().trim().max(2000).default(''),
+  type: z.enum(PLACE_TYPES).default('other'),
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
+  address: z.string().trim().max(300).nullish(),
+  googlePlaceId: z.string().trim().min(5).max(200).nullish(),
+  amenities: z.array(z.string().max(40)).max(20).default([]),
+})
 
-  const parsed = createPlaceSchema.safeParse(await request.json().catch(() => null))
-  if (!parsed.success) {
-    return NextResponse.json({ error: 'Invalid place data.' }, { status: 400 })
-  }
+export const POST = handle(async (request) => {
+  const userId = await requireUserId()
+  throttle(`place:create:${userId}`, 10, 60 * 60_000)
 
-  const { amenitySlugs, ...data } = parsed.data
-  const amenities = await prisma.amenity.findMany({ where: { slug: { in: amenitySlugs } } })
-
-  const place = await prisma.place.create({
-    data: {
-      ...data,
-      address: data.address ?? null,
-      createdById: userId,
-      amenities: { create: amenities.map((a) => ({ amenityId: a.id })) },
-    },
-    include: { amenities: { include: { amenity: true } } },
-  })
-
-  return NextResponse.json({ place }, { status: 201 })
-}
+  const input = await readJson(request, createPlaceSchema)
+  const result = await createPlace(userId, input)
+  return created(result)
+})

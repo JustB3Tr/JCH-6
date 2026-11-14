@@ -26,20 +26,24 @@ export type AggregateChatThread = {
 
 export type ChatThreadMinAggregateOutputType = {
   id: string | null
-  kind: string | null
+  kind: $Enums.ThreadKind | null
   communityId: string | null
   name: string | null
+  directKey: string | null
   createdById: string | null
   createdAt: Date | null
+  lastMessageAt: Date | null
 }
 
 export type ChatThreadMaxAggregateOutputType = {
   id: string | null
-  kind: string | null
+  kind: $Enums.ThreadKind | null
   communityId: string | null
   name: string | null
+  directKey: string | null
   createdById: string | null
   createdAt: Date | null
+  lastMessageAt: Date | null
 }
 
 export type ChatThreadCountAggregateOutputType = {
@@ -47,8 +51,10 @@ export type ChatThreadCountAggregateOutputType = {
   kind: number
   communityId: number
   name: number
+  directKey: number
   createdById: number
   createdAt: number
+  lastMessageAt: number
   _all: number
 }
 
@@ -58,8 +64,10 @@ export type ChatThreadMinAggregateInputType = {
   kind?: true
   communityId?: true
   name?: true
+  directKey?: true
   createdById?: true
   createdAt?: true
+  lastMessageAt?: true
 }
 
 export type ChatThreadMaxAggregateInputType = {
@@ -67,8 +75,10 @@ export type ChatThreadMaxAggregateInputType = {
   kind?: true
   communityId?: true
   name?: true
+  directKey?: true
   createdById?: true
   createdAt?: true
+  lastMessageAt?: true
 }
 
 export type ChatThreadCountAggregateInputType = {
@@ -76,8 +86,10 @@ export type ChatThreadCountAggregateInputType = {
   kind?: true
   communityId?: true
   name?: true
+  directKey?: true
   createdById?: true
   createdAt?: true
+  lastMessageAt?: true
   _all?: true
 }
 
@@ -155,11 +167,13 @@ export type ChatThreadGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 
 export type ChatThreadGroupByOutputType = {
   id: string
-  kind: string
+  kind: $Enums.ThreadKind
   communityId: string | null
   name: string | null
-  createdById: string
+  directKey: string | null
+  createdById: string | null
   createdAt: Date
+  lastMessageAt: Date
   _count: ChatThreadCountAggregateOutputType | null
   _min: ChatThreadMinAggregateOutputType | null
   _max: ChatThreadMaxAggregateOutputType | null
@@ -185,14 +199,17 @@ export type ChatThreadWhereInput = {
   OR?: Prisma.ChatThreadWhereInput[]
   NOT?: Prisma.ChatThreadWhereInput | Prisma.ChatThreadWhereInput[]
   id?: Prisma.StringFilter<"ChatThread"> | string
-  kind?: Prisma.StringFilter<"ChatThread"> | string
+  kind?: Prisma.EnumThreadKindFilter<"ChatThread"> | $Enums.ThreadKind
   communityId?: Prisma.StringNullableFilter<"ChatThread"> | string | null
   name?: Prisma.StringNullableFilter<"ChatThread"> | string | null
-  createdById?: Prisma.StringFilter<"ChatThread"> | string
+  directKey?: Prisma.StringNullableFilter<"ChatThread"> | string | null
+  createdById?: Prisma.StringNullableFilter<"ChatThread"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ChatThread"> | Date | string
-  createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  lastMessageAt?: Prisma.DateTimeFilter<"ChatThread"> | Date | string
+  createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   community?: Prisma.XOR<Prisma.CommunityNullableScalarRelationFilter, Prisma.CommunityWhereInput> | null
   messages?: Prisma.ChatMessageListRelationFilter
+  members?: Prisma.ThreadMemberListRelationFilter
 }
 
 export type ChatThreadOrderByWithRelationInput = {
@@ -200,35 +217,43 @@ export type ChatThreadOrderByWithRelationInput = {
   kind?: Prisma.SortOrder
   communityId?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrderInput | Prisma.SortOrder
-  createdById?: Prisma.SortOrder
+  directKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  lastMessageAt?: Prisma.SortOrder
   createdBy?: Prisma.UserOrderByWithRelationInput
   community?: Prisma.CommunityOrderByWithRelationInput
   messages?: Prisma.ChatMessageOrderByRelationAggregateInput
+  members?: Prisma.ThreadMemberOrderByRelationAggregateInput
 }
 
 export type ChatThreadWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  directKey?: string
   AND?: Prisma.ChatThreadWhereInput | Prisma.ChatThreadWhereInput[]
   OR?: Prisma.ChatThreadWhereInput[]
   NOT?: Prisma.ChatThreadWhereInput | Prisma.ChatThreadWhereInput[]
-  kind?: Prisma.StringFilter<"ChatThread"> | string
+  kind?: Prisma.EnumThreadKindFilter<"ChatThread"> | $Enums.ThreadKind
   communityId?: Prisma.StringNullableFilter<"ChatThread"> | string | null
   name?: Prisma.StringNullableFilter<"ChatThread"> | string | null
-  createdById?: Prisma.StringFilter<"ChatThread"> | string
+  createdById?: Prisma.StringNullableFilter<"ChatThread"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ChatThread"> | Date | string
-  createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  lastMessageAt?: Prisma.DateTimeFilter<"ChatThread"> | Date | string
+  createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   community?: Prisma.XOR<Prisma.CommunityNullableScalarRelationFilter, Prisma.CommunityWhereInput> | null
   messages?: Prisma.ChatMessageListRelationFilter
-}, "id">
+  members?: Prisma.ThreadMemberListRelationFilter
+}, "id" | "directKey">
 
 export type ChatThreadOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   communityId?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrderInput | Prisma.SortOrder
-  createdById?: Prisma.SortOrder
+  directKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  lastMessageAt?: Prisma.SortOrder
   _count?: Prisma.ChatThreadCountOrderByAggregateInput
   _max?: Prisma.ChatThreadMaxOrderByAggregateInput
   _min?: Prisma.ChatThreadMinOrderByAggregateInput
@@ -239,76 +264,96 @@ export type ChatThreadScalarWhereWithAggregatesInput = {
   OR?: Prisma.ChatThreadScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ChatThreadScalarWhereWithAggregatesInput | Prisma.ChatThreadScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ChatThread"> | string
-  kind?: Prisma.StringWithAggregatesFilter<"ChatThread"> | string
+  kind?: Prisma.EnumThreadKindWithAggregatesFilter<"ChatThread"> | $Enums.ThreadKind
   communityId?: Prisma.StringNullableWithAggregatesFilter<"ChatThread"> | string | null
   name?: Prisma.StringNullableWithAggregatesFilter<"ChatThread"> | string | null
-  createdById?: Prisma.StringWithAggregatesFilter<"ChatThread"> | string
+  directKey?: Prisma.StringNullableWithAggregatesFilter<"ChatThread"> | string | null
+  createdById?: Prisma.StringNullableWithAggregatesFilter<"ChatThread"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ChatThread"> | Date | string
+  lastMessageAt?: Prisma.DateTimeWithAggregatesFilter<"ChatThread"> | Date | string
 }
 
 export type ChatThreadCreateInput = {
   id?: string
-  kind?: string
+  kind?: $Enums.ThreadKind
   name?: string | null
+  directKey?: string | null
   createdAt?: Date | string
-  createdBy: Prisma.UserCreateNestedOneWithoutThreadsInput
+  lastMessageAt?: Date | string
+  createdBy?: Prisma.UserCreateNestedOneWithoutThreadsInput
   community?: Prisma.CommunityCreateNestedOneWithoutThreadsInput
   messages?: Prisma.ChatMessageCreateNestedManyWithoutThreadInput
+  members?: Prisma.ThreadMemberCreateNestedManyWithoutThreadInput
 }
 
 export type ChatThreadUncheckedCreateInput = {
   id?: string
-  kind?: string
+  kind?: $Enums.ThreadKind
   communityId?: string | null
   name?: string | null
-  createdById: string
+  directKey?: string | null
+  createdById?: string | null
   createdAt?: Date | string
+  lastMessageAt?: Date | string
   messages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutThreadInput
+  members?: Prisma.ThreadMemberUncheckedCreateNestedManyWithoutThreadInput
 }
 
 export type ChatThreadUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumThreadKindFieldUpdateOperationsInput | $Enums.ThreadKind
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdBy?: Prisma.UserUpdateOneRequiredWithoutThreadsNestedInput
+  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneWithoutThreadsNestedInput
   community?: Prisma.CommunityUpdateOneWithoutThreadsNestedInput
   messages?: Prisma.ChatMessageUpdateManyWithoutThreadNestedInput
+  members?: Prisma.ThreadMemberUpdateManyWithoutThreadNestedInput
 }
 
 export type ChatThreadUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumThreadKindFieldUpdateOperationsInput | $Enums.ThreadKind
   communityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  directKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.ChatMessageUncheckedUpdateManyWithoutThreadNestedInput
+  members?: Prisma.ThreadMemberUncheckedUpdateManyWithoutThreadNestedInput
 }
 
 export type ChatThreadCreateManyInput = {
   id?: string
-  kind?: string
+  kind?: $Enums.ThreadKind
   communityId?: string | null
   name?: string | null
-  createdById: string
+  directKey?: string | null
+  createdById?: string | null
   createdAt?: Date | string
+  lastMessageAt?: Date | string
 }
 
 export type ChatThreadUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumThreadKindFieldUpdateOperationsInput | $Enums.ThreadKind
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ChatThreadUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumThreadKindFieldUpdateOperationsInput | $Enums.ThreadKind
   communityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  directKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ChatThreadListRelationFilter = {
@@ -326,8 +371,10 @@ export type ChatThreadCountOrderByAggregateInput = {
   kind?: Prisma.SortOrder
   communityId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  directKey?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  lastMessageAt?: Prisma.SortOrder
 }
 
 export type ChatThreadMaxOrderByAggregateInput = {
@@ -335,8 +382,10 @@ export type ChatThreadMaxOrderByAggregateInput = {
   kind?: Prisma.SortOrder
   communityId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  directKey?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  lastMessageAt?: Prisma.SortOrder
 }
 
 export type ChatThreadMinOrderByAggregateInput = {
@@ -344,8 +393,10 @@ export type ChatThreadMinOrderByAggregateInput = {
   kind?: Prisma.SortOrder
   communityId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  directKey?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  lastMessageAt?: Prisma.SortOrder
 }
 
 export type ChatThreadScalarRelationFilter = {
@@ -437,6 +488,24 @@ export type ChatThreadUncheckedUpdateManyWithoutCommunityNestedInput = {
   deleteMany?: Prisma.ChatThreadScalarWhereInput | Prisma.ChatThreadScalarWhereInput[]
 }
 
+export type EnumThreadKindFieldUpdateOperationsInput = {
+  set?: $Enums.ThreadKind
+}
+
+export type ChatThreadCreateNestedOneWithoutMembersInput = {
+  create?: Prisma.XOR<Prisma.ChatThreadCreateWithoutMembersInput, Prisma.ChatThreadUncheckedCreateWithoutMembersInput>
+  connectOrCreate?: Prisma.ChatThreadCreateOrConnectWithoutMembersInput
+  connect?: Prisma.ChatThreadWhereUniqueInput
+}
+
+export type ChatThreadUpdateOneRequiredWithoutMembersNestedInput = {
+  create?: Prisma.XOR<Prisma.ChatThreadCreateWithoutMembersInput, Prisma.ChatThreadUncheckedCreateWithoutMembersInput>
+  connectOrCreate?: Prisma.ChatThreadCreateOrConnectWithoutMembersInput
+  upsert?: Prisma.ChatThreadUpsertWithoutMembersInput
+  connect?: Prisma.ChatThreadWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ChatThreadUpdateToOneWithWhereWithoutMembersInput, Prisma.ChatThreadUpdateWithoutMembersInput>, Prisma.ChatThreadUncheckedUpdateWithoutMembersInput>
+}
+
 export type ChatThreadCreateNestedOneWithoutMessagesInput = {
   create?: Prisma.XOR<Prisma.ChatThreadCreateWithoutMessagesInput, Prisma.ChatThreadUncheckedCreateWithoutMessagesInput>
   connectOrCreate?: Prisma.ChatThreadCreateOrConnectWithoutMessagesInput
@@ -453,20 +522,26 @@ export type ChatThreadUpdateOneRequiredWithoutMessagesNestedInput = {
 
 export type ChatThreadCreateWithoutCreatedByInput = {
   id?: string
-  kind?: string
+  kind?: $Enums.ThreadKind
   name?: string | null
+  directKey?: string | null
   createdAt?: Date | string
+  lastMessageAt?: Date | string
   community?: Prisma.CommunityCreateNestedOneWithoutThreadsInput
   messages?: Prisma.ChatMessageCreateNestedManyWithoutThreadInput
+  members?: Prisma.ThreadMemberCreateNestedManyWithoutThreadInput
 }
 
 export type ChatThreadUncheckedCreateWithoutCreatedByInput = {
   id?: string
-  kind?: string
+  kind?: $Enums.ThreadKind
   communityId?: string | null
   name?: string | null
+  directKey?: string | null
   createdAt?: Date | string
+  lastMessageAt?: Date | string
   messages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutThreadInput
+  members?: Prisma.ThreadMemberUncheckedCreateNestedManyWithoutThreadInput
 }
 
 export type ChatThreadCreateOrConnectWithoutCreatedByInput = {
@@ -500,29 +575,37 @@ export type ChatThreadScalarWhereInput = {
   OR?: Prisma.ChatThreadScalarWhereInput[]
   NOT?: Prisma.ChatThreadScalarWhereInput | Prisma.ChatThreadScalarWhereInput[]
   id?: Prisma.StringFilter<"ChatThread"> | string
-  kind?: Prisma.StringFilter<"ChatThread"> | string
+  kind?: Prisma.EnumThreadKindFilter<"ChatThread"> | $Enums.ThreadKind
   communityId?: Prisma.StringNullableFilter<"ChatThread"> | string | null
   name?: Prisma.StringNullableFilter<"ChatThread"> | string | null
-  createdById?: Prisma.StringFilter<"ChatThread"> | string
+  directKey?: Prisma.StringNullableFilter<"ChatThread"> | string | null
+  createdById?: Prisma.StringNullableFilter<"ChatThread"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ChatThread"> | Date | string
+  lastMessageAt?: Prisma.DateTimeFilter<"ChatThread"> | Date | string
 }
 
 export type ChatThreadCreateWithoutCommunityInput = {
   id?: string
-  kind?: string
+  kind?: $Enums.ThreadKind
   name?: string | null
+  directKey?: string | null
   createdAt?: Date | string
-  createdBy: Prisma.UserCreateNestedOneWithoutThreadsInput
+  lastMessageAt?: Date | string
+  createdBy?: Prisma.UserCreateNestedOneWithoutThreadsInput
   messages?: Prisma.ChatMessageCreateNestedManyWithoutThreadInput
+  members?: Prisma.ThreadMemberCreateNestedManyWithoutThreadInput
 }
 
 export type ChatThreadUncheckedCreateWithoutCommunityInput = {
   id?: string
-  kind?: string
+  kind?: $Enums.ThreadKind
   name?: string | null
-  createdById: string
+  directKey?: string | null
+  createdById?: string | null
   createdAt?: Date | string
+  lastMessageAt?: Date | string
   messages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutThreadInput
+  members?: Prisma.ThreadMemberUncheckedCreateNestedManyWithoutThreadInput
 }
 
 export type ChatThreadCreateOrConnectWithoutCommunityInput = {
@@ -551,22 +634,92 @@ export type ChatThreadUpdateManyWithWhereWithoutCommunityInput = {
   data: Prisma.XOR<Prisma.ChatThreadUpdateManyMutationInput, Prisma.ChatThreadUncheckedUpdateManyWithoutCommunityInput>
 }
 
+export type ChatThreadCreateWithoutMembersInput = {
+  id?: string
+  kind?: $Enums.ThreadKind
+  name?: string | null
+  directKey?: string | null
+  createdAt?: Date | string
+  lastMessageAt?: Date | string
+  createdBy?: Prisma.UserCreateNestedOneWithoutThreadsInput
+  community?: Prisma.CommunityCreateNestedOneWithoutThreadsInput
+  messages?: Prisma.ChatMessageCreateNestedManyWithoutThreadInput
+}
+
+export type ChatThreadUncheckedCreateWithoutMembersInput = {
+  id?: string
+  kind?: $Enums.ThreadKind
+  communityId?: string | null
+  name?: string | null
+  directKey?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  lastMessageAt?: Date | string
+  messages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutThreadInput
+}
+
+export type ChatThreadCreateOrConnectWithoutMembersInput = {
+  where: Prisma.ChatThreadWhereUniqueInput
+  create: Prisma.XOR<Prisma.ChatThreadCreateWithoutMembersInput, Prisma.ChatThreadUncheckedCreateWithoutMembersInput>
+}
+
+export type ChatThreadUpsertWithoutMembersInput = {
+  update: Prisma.XOR<Prisma.ChatThreadUpdateWithoutMembersInput, Prisma.ChatThreadUncheckedUpdateWithoutMembersInput>
+  create: Prisma.XOR<Prisma.ChatThreadCreateWithoutMembersInput, Prisma.ChatThreadUncheckedCreateWithoutMembersInput>
+  where?: Prisma.ChatThreadWhereInput
+}
+
+export type ChatThreadUpdateToOneWithWhereWithoutMembersInput = {
+  where?: Prisma.ChatThreadWhereInput
+  data: Prisma.XOR<Prisma.ChatThreadUpdateWithoutMembersInput, Prisma.ChatThreadUncheckedUpdateWithoutMembersInput>
+}
+
+export type ChatThreadUpdateWithoutMembersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumThreadKindFieldUpdateOperationsInput | $Enums.ThreadKind
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneWithoutThreadsNestedInput
+  community?: Prisma.CommunityUpdateOneWithoutThreadsNestedInput
+  messages?: Prisma.ChatMessageUpdateManyWithoutThreadNestedInput
+}
+
+export type ChatThreadUncheckedUpdateWithoutMembersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumThreadKindFieldUpdateOperationsInput | $Enums.ThreadKind
+  communityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  messages?: Prisma.ChatMessageUncheckedUpdateManyWithoutThreadNestedInput
+}
+
 export type ChatThreadCreateWithoutMessagesInput = {
   id?: string
-  kind?: string
+  kind?: $Enums.ThreadKind
   name?: string | null
+  directKey?: string | null
   createdAt?: Date | string
-  createdBy: Prisma.UserCreateNestedOneWithoutThreadsInput
+  lastMessageAt?: Date | string
+  createdBy?: Prisma.UserCreateNestedOneWithoutThreadsInput
   community?: Prisma.CommunityCreateNestedOneWithoutThreadsInput
+  members?: Prisma.ThreadMemberCreateNestedManyWithoutThreadInput
 }
 
 export type ChatThreadUncheckedCreateWithoutMessagesInput = {
   id?: string
-  kind?: string
+  kind?: $Enums.ThreadKind
   communityId?: string | null
   name?: string | null
-  createdById: string
+  directKey?: string | null
+  createdById?: string | null
   createdAt?: Date | string
+  lastMessageAt?: Date | string
+  members?: Prisma.ThreadMemberUncheckedCreateNestedManyWithoutThreadInput
 }
 
 export type ChatThreadCreateOrConnectWithoutMessagesInput = {
@@ -587,88 +740,114 @@ export type ChatThreadUpdateToOneWithWhereWithoutMessagesInput = {
 
 export type ChatThreadUpdateWithoutMessagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumThreadKindFieldUpdateOperationsInput | $Enums.ThreadKind
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdBy?: Prisma.UserUpdateOneRequiredWithoutThreadsNestedInput
+  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneWithoutThreadsNestedInput
   community?: Prisma.CommunityUpdateOneWithoutThreadsNestedInput
+  members?: Prisma.ThreadMemberUpdateManyWithoutThreadNestedInput
 }
 
 export type ChatThreadUncheckedUpdateWithoutMessagesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumThreadKindFieldUpdateOperationsInput | $Enums.ThreadKind
   communityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  directKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.ThreadMemberUncheckedUpdateManyWithoutThreadNestedInput
 }
 
 export type ChatThreadCreateManyCreatedByInput = {
   id?: string
-  kind?: string
+  kind?: $Enums.ThreadKind
   communityId?: string | null
   name?: string | null
+  directKey?: string | null
   createdAt?: Date | string
+  lastMessageAt?: Date | string
 }
 
 export type ChatThreadUpdateWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumThreadKindFieldUpdateOperationsInput | $Enums.ThreadKind
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   community?: Prisma.CommunityUpdateOneWithoutThreadsNestedInput
   messages?: Prisma.ChatMessageUpdateManyWithoutThreadNestedInput
+  members?: Prisma.ThreadMemberUpdateManyWithoutThreadNestedInput
 }
 
 export type ChatThreadUncheckedUpdateWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumThreadKindFieldUpdateOperationsInput | $Enums.ThreadKind
   communityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.ChatMessageUncheckedUpdateManyWithoutThreadNestedInput
+  members?: Prisma.ThreadMemberUncheckedUpdateManyWithoutThreadNestedInput
 }
 
 export type ChatThreadUncheckedUpdateManyWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumThreadKindFieldUpdateOperationsInput | $Enums.ThreadKind
   communityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ChatThreadCreateManyCommunityInput = {
   id?: string
-  kind?: string
+  kind?: $Enums.ThreadKind
   name?: string | null
-  createdById: string
+  directKey?: string | null
+  createdById?: string | null
   createdAt?: Date | string
+  lastMessageAt?: Date | string
 }
 
 export type ChatThreadUpdateWithoutCommunityInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumThreadKindFieldUpdateOperationsInput | $Enums.ThreadKind
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdBy?: Prisma.UserUpdateOneRequiredWithoutThreadsNestedInput
+  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneWithoutThreadsNestedInput
   messages?: Prisma.ChatMessageUpdateManyWithoutThreadNestedInput
+  members?: Prisma.ThreadMemberUpdateManyWithoutThreadNestedInput
 }
 
 export type ChatThreadUncheckedUpdateWithoutCommunityInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumThreadKindFieldUpdateOperationsInput | $Enums.ThreadKind
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  directKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.ChatMessageUncheckedUpdateManyWithoutThreadNestedInput
+  members?: Prisma.ThreadMemberUncheckedUpdateManyWithoutThreadNestedInput
 }
 
 export type ChatThreadUncheckedUpdateManyWithoutCommunityInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumThreadKindFieldUpdateOperationsInput | $Enums.ThreadKind
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  directKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastMessageAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -678,10 +857,12 @@ export type ChatThreadUncheckedUpdateManyWithoutCommunityInput = {
 
 export type ChatThreadCountOutputType = {
   messages: number
+  members: number
 }
 
 export type ChatThreadCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   messages?: boolean | ChatThreadCountOutputTypeCountMessagesArgs
+  members?: boolean | ChatThreadCountOutputTypeCountMembersArgs
 }
 
 /**
@@ -701,17 +882,27 @@ export type ChatThreadCountOutputTypeCountMessagesArgs<ExtArgs extends runtime.T
   where?: Prisma.ChatMessageWhereInput
 }
 
+/**
+ * ChatThreadCountOutputType without action
+ */
+export type ChatThreadCountOutputTypeCountMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ThreadMemberWhereInput
+}
+
 
 export type ChatThreadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   kind?: boolean
   communityId?: boolean
   name?: boolean
+  directKey?: boolean
   createdById?: boolean
   createdAt?: boolean
-  createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  lastMessageAt?: boolean
+  createdBy?: boolean | Prisma.ChatThread$createdByArgs<ExtArgs>
   community?: boolean | Prisma.ChatThread$communityArgs<ExtArgs>
   messages?: boolean | Prisma.ChatThread$messagesArgs<ExtArgs>
+  members?: boolean | Prisma.ChatThread$membersArgs<ExtArgs>
   _count?: boolean | Prisma.ChatThreadCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["chatThread"]>
 
@@ -720,9 +911,11 @@ export type ChatThreadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   kind?: boolean
   communityId?: boolean
   name?: boolean
+  directKey?: boolean
   createdById?: boolean
   createdAt?: boolean
-  createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  lastMessageAt?: boolean
+  createdBy?: boolean | Prisma.ChatThread$createdByArgs<ExtArgs>
   community?: boolean | Prisma.ChatThread$communityArgs<ExtArgs>
 }, ExtArgs["result"]["chatThread"]>
 
@@ -731,9 +924,11 @@ export type ChatThreadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   kind?: boolean
   communityId?: boolean
   name?: boolean
+  directKey?: boolean
   createdById?: boolean
   createdAt?: boolean
-  createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  lastMessageAt?: boolean
+  createdBy?: boolean | Prisma.ChatThread$createdByArgs<ExtArgs>
   community?: boolean | Prisma.ChatThread$communityArgs<ExtArgs>
 }, ExtArgs["result"]["chatThread"]>
 
@@ -742,40 +937,46 @@ export type ChatThreadSelectScalar = {
   kind?: boolean
   communityId?: boolean
   name?: boolean
+  directKey?: boolean
   createdById?: boolean
   createdAt?: boolean
+  lastMessageAt?: boolean
 }
 
-export type ChatThreadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "communityId" | "name" | "createdById" | "createdAt", ExtArgs["result"]["chatThread"]>
+export type ChatThreadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "communityId" | "name" | "directKey" | "createdById" | "createdAt" | "lastMessageAt", ExtArgs["result"]["chatThread"]>
 export type ChatThreadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  createdBy?: boolean | Prisma.ChatThread$createdByArgs<ExtArgs>
   community?: boolean | Prisma.ChatThread$communityArgs<ExtArgs>
   messages?: boolean | Prisma.ChatThread$messagesArgs<ExtArgs>
+  members?: boolean | Prisma.ChatThread$membersArgs<ExtArgs>
   _count?: boolean | Prisma.ChatThreadCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ChatThreadIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  createdBy?: boolean | Prisma.ChatThread$createdByArgs<ExtArgs>
   community?: boolean | Prisma.ChatThread$communityArgs<ExtArgs>
 }
 export type ChatThreadIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  createdBy?: boolean | Prisma.ChatThread$createdByArgs<ExtArgs>
   community?: boolean | Prisma.ChatThread$communityArgs<ExtArgs>
 }
 
 export type $ChatThreadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ChatThread"
   objects: {
-    createdBy: Prisma.$UserPayload<ExtArgs>
+    createdBy: Prisma.$UserPayload<ExtArgs> | null
     community: Prisma.$CommunityPayload<ExtArgs> | null
     messages: Prisma.$ChatMessagePayload<ExtArgs>[]
+    members: Prisma.$ThreadMemberPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    kind: string
+    kind: $Enums.ThreadKind
     communityId: string | null
     name: string | null
-    createdById: string
+    directKey: string | null
+    createdById: string | null
     createdAt: Date
+    lastMessageAt: Date
   }, ExtArgs["result"]["chatThread"]>
   composites: {}
 }
@@ -1170,9 +1371,10 @@ readonly fields: ChatThreadFieldRefs;
  */
 export interface Prisma__ChatThreadClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  createdBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  createdBy<T extends Prisma.ChatThread$createdByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChatThread$createdByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   community<T extends Prisma.ChatThread$communityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChatThread$communityArgs<ExtArgs>>): Prisma.Prisma__CommunityClient<runtime.Types.Result.GetResult<Prisma.$CommunityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   messages<T extends Prisma.ChatThread$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChatThread$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  members<T extends Prisma.ChatThread$membersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ChatThread$membersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ThreadMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1203,11 +1405,13 @@ export interface Prisma__ChatThreadClient<T, Null = never, ExtArgs extends runti
  */
 export interface ChatThreadFieldRefs {
   readonly id: Prisma.FieldRef<"ChatThread", 'String'>
-  readonly kind: Prisma.FieldRef<"ChatThread", 'String'>
+  readonly kind: Prisma.FieldRef<"ChatThread", 'ThreadKind'>
   readonly communityId: Prisma.FieldRef<"ChatThread", 'String'>
   readonly name: Prisma.FieldRef<"ChatThread", 'String'>
+  readonly directKey: Prisma.FieldRef<"ChatThread", 'String'>
   readonly createdById: Prisma.FieldRef<"ChatThread", 'String'>
   readonly createdAt: Prisma.FieldRef<"ChatThread", 'DateTime'>
+  readonly lastMessageAt: Prisma.FieldRef<"ChatThread", 'DateTime'>
 }
     
 
@@ -1431,7 +1635,7 @@ export type ChatThreadCreateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * The data needed to create a ChatThread.
    */
-  data: Prisma.XOR<Prisma.ChatThreadCreateInput, Prisma.ChatThreadUncheckedCreateInput>
+  data?: Prisma.XOR<Prisma.ChatThreadCreateInput, Prisma.ChatThreadUncheckedCreateInput>
 }
 
 /**
@@ -1609,6 +1813,25 @@ export type ChatThreadDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
 }
 
 /**
+ * ChatThread.createdBy
+ */
+export type ChatThread$createdByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
  * ChatThread.community
  */
 export type ChatThread$communityArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1649,6 +1872,30 @@ export type ChatThread$messagesArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.ChatMessageScalarFieldEnum | Prisma.ChatMessageScalarFieldEnum[]
+}
+
+/**
+ * ChatThread.members
+ */
+export type ChatThread$membersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ThreadMember
+   */
+  select?: Prisma.ThreadMemberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ThreadMember
+   */
+  omit?: Prisma.ThreadMemberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ThreadMemberInclude<ExtArgs> | null
+  where?: Prisma.ThreadMemberWhereInput
+  orderBy?: Prisma.ThreadMemberOrderByWithRelationInput | Prisma.ThreadMemberOrderByWithRelationInput[]
+  cursor?: Prisma.ThreadMemberWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ThreadMemberScalarFieldEnum | Prisma.ThreadMemberScalarFieldEnum[]
 }
 
 /**

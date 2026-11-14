@@ -38,6 +38,11 @@ export type Amenity = Prisma.AmenityModel
  */
 export type PlaceAmenity = Prisma.PlaceAmenityModel
 /**
+ * Model SavedPlace
+ * 
+ */
+export type SavedPlace = Prisma.SavedPlaceModel
+/**
  * Model Community
  * 
  */
@@ -78,7 +83,17 @@ export type AiMessage = Prisma.AiMessageModel
  */
 export type ChatThread = Prisma.ChatThreadModel
 /**
+ * Model ThreadMember
+ * 
+ */
+export type ThreadMember = Prisma.ThreadMemberModel
+/**
  * Model ChatMessage
  * 
  */
 export type ChatMessage = Prisma.ChatMessageModel
+/**
+ * Model KnowledgeArticle
+ * 
+ */
+export type KnowledgeArticle = Prisma.KnowledgeArticleModel

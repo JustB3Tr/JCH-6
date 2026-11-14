@@ -27,7 +27,7 @@ export type AggregateAiMessage = {
 export type AiMessageMinAggregateOutputType = {
   id: string | null
   chatId: string | null
-  role: string | null
+  role: $Enums.MessageRole | null
   content: string | null
   createdAt: Date | null
 }
@@ -35,7 +35,7 @@ export type AiMessageMinAggregateOutputType = {
 export type AiMessageMaxAggregateOutputType = {
   id: string | null
   chatId: string | null
-  role: string | null
+  role: $Enums.MessageRole | null
   content: string | null
   createdAt: Date | null
 }
@@ -45,6 +45,7 @@ export type AiMessageCountAggregateOutputType = {
   chatId: number
   role: number
   content: number
+  meta: number
   createdAt: number
   _all: number
 }
@@ -71,6 +72,7 @@ export type AiMessageCountAggregateInputType = {
   chatId?: true
   role?: true
   content?: true
+  meta?: true
   createdAt?: true
   _all?: true
 }
@@ -150,8 +152,9 @@ export type AiMessageGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 export type AiMessageGroupByOutputType = {
   id: string
   chatId: string
-  role: string
+  role: $Enums.MessageRole
   content: string
+  meta: runtime.JsonValue | null
   createdAt: Date
   _count: AiMessageCountAggregateOutputType | null
   _min: AiMessageMinAggregateOutputType | null
@@ -179,8 +182,9 @@ export type AiMessageWhereInput = {
   NOT?: Prisma.AiMessageWhereInput | Prisma.AiMessageWhereInput[]
   id?: Prisma.StringFilter<"AiMessage"> | string
   chatId?: Prisma.StringFilter<"AiMessage"> | string
-  role?: Prisma.StringFilter<"AiMessage"> | string
+  role?: Prisma.EnumMessageRoleFilter<"AiMessage"> | $Enums.MessageRole
   content?: Prisma.StringFilter<"AiMessage"> | string
+  meta?: Prisma.JsonNullableFilter<"AiMessage">
   createdAt?: Prisma.DateTimeFilter<"AiMessage"> | Date | string
   chat?: Prisma.XOR<Prisma.AiChatScalarRelationFilter, Prisma.AiChatWhereInput>
 }
@@ -190,6 +194,7 @@ export type AiMessageOrderByWithRelationInput = {
   chatId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  meta?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   chat?: Prisma.AiChatOrderByWithRelationInput
 }
@@ -200,8 +205,9 @@ export type AiMessageWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.AiMessageWhereInput[]
   NOT?: Prisma.AiMessageWhereInput | Prisma.AiMessageWhereInput[]
   chatId?: Prisma.StringFilter<"AiMessage"> | string
-  role?: Prisma.StringFilter<"AiMessage"> | string
+  role?: Prisma.EnumMessageRoleFilter<"AiMessage"> | $Enums.MessageRole
   content?: Prisma.StringFilter<"AiMessage"> | string
+  meta?: Prisma.JsonNullableFilter<"AiMessage">
   createdAt?: Prisma.DateTimeFilter<"AiMessage"> | Date | string
   chat?: Prisma.XOR<Prisma.AiChatScalarRelationFilter, Prisma.AiChatWhereInput>
 }, "id">
@@ -211,6 +217,7 @@ export type AiMessageOrderByWithAggregationInput = {
   chatId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  meta?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.AiMessageCountOrderByAggregateInput
   _max?: Prisma.AiMessageMaxOrderByAggregateInput
@@ -223,15 +230,17 @@ export type AiMessageScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AiMessageScalarWhereWithAggregatesInput | Prisma.AiMessageScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"AiMessage"> | string
   chatId?: Prisma.StringWithAggregatesFilter<"AiMessage"> | string
-  role?: Prisma.StringWithAggregatesFilter<"AiMessage"> | string
+  role?: Prisma.EnumMessageRoleWithAggregatesFilter<"AiMessage"> | $Enums.MessageRole
   content?: Prisma.StringWithAggregatesFilter<"AiMessage"> | string
+  meta?: Prisma.JsonNullableWithAggregatesFilter<"AiMessage">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AiMessage"> | Date | string
 }
 
 export type AiMessageCreateInput = {
   id?: string
-  role: string
+  role: $Enums.MessageRole
   content: string
+  meta?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   chat: Prisma.AiChatCreateNestedOneWithoutMessagesInput
 }
@@ -239,15 +248,17 @@ export type AiMessageCreateInput = {
 export type AiMessageUncheckedCreateInput = {
   id?: string
   chatId: string
-  role: string
+  role: $Enums.MessageRole
   content: string
+  meta?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
 export type AiMessageUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chat?: Prisma.AiChatUpdateOneRequiredWithoutMessagesNestedInput
 }
@@ -255,31 +266,35 @@ export type AiMessageUpdateInput = {
 export type AiMessageUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   chatId?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AiMessageCreateManyInput = {
   id?: string
   chatId: string
-  role: string
+  role: $Enums.MessageRole
   content: string
+  meta?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
 export type AiMessageUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AiMessageUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   chatId?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -298,6 +313,7 @@ export type AiMessageCountOrderByAggregateInput = {
   chatId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  meta?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -359,17 +375,23 @@ export type AiMessageUncheckedUpdateManyWithoutChatNestedInput = {
   deleteMany?: Prisma.AiMessageScalarWhereInput | Prisma.AiMessageScalarWhereInput[]
 }
 
+export type EnumMessageRoleFieldUpdateOperationsInput = {
+  set?: $Enums.MessageRole
+}
+
 export type AiMessageCreateWithoutChatInput = {
   id?: string
-  role: string
+  role: $Enums.MessageRole
   content: string
+  meta?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
 export type AiMessageUncheckedCreateWithoutChatInput = {
   id?: string
-  role: string
+  role: $Enums.MessageRole
   content: string
+  meta?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -405,36 +427,41 @@ export type AiMessageScalarWhereInput = {
   NOT?: Prisma.AiMessageScalarWhereInput | Prisma.AiMessageScalarWhereInput[]
   id?: Prisma.StringFilter<"AiMessage"> | string
   chatId?: Prisma.StringFilter<"AiMessage"> | string
-  role?: Prisma.StringFilter<"AiMessage"> | string
+  role?: Prisma.EnumMessageRoleFilter<"AiMessage"> | $Enums.MessageRole
   content?: Prisma.StringFilter<"AiMessage"> | string
+  meta?: Prisma.JsonNullableFilter<"AiMessage">
   createdAt?: Prisma.DateTimeFilter<"AiMessage"> | Date | string
 }
 
 export type AiMessageCreateManyChatInput = {
   id?: string
-  role: string
+  role: $Enums.MessageRole
   content: string
+  meta?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
 export type AiMessageUpdateWithoutChatInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AiMessageUncheckedUpdateWithoutChatInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AiMessageUncheckedUpdateManyWithoutChatInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumMessageRoleFieldUpdateOperationsInput | $Enums.MessageRole
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  meta?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -445,6 +472,7 @@ export type AiMessageSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   chatId?: boolean
   role?: boolean
   content?: boolean
+  meta?: boolean
   createdAt?: boolean
   chat?: boolean | Prisma.AiChatDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aiMessage"]>
@@ -454,6 +482,7 @@ export type AiMessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   chatId?: boolean
   role?: boolean
   content?: boolean
+  meta?: boolean
   createdAt?: boolean
   chat?: boolean | Prisma.AiChatDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aiMessage"]>
@@ -463,6 +492,7 @@ export type AiMessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   chatId?: boolean
   role?: boolean
   content?: boolean
+  meta?: boolean
   createdAt?: boolean
   chat?: boolean | Prisma.AiChatDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aiMessage"]>
@@ -472,10 +502,11 @@ export type AiMessageSelectScalar = {
   chatId?: boolean
   role?: boolean
   content?: boolean
+  meta?: boolean
   createdAt?: boolean
 }
 
-export type AiMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "chatId" | "role" | "content" | "createdAt", ExtArgs["result"]["aiMessage"]>
+export type AiMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "chatId" | "role" | "content" | "meta" | "createdAt", ExtArgs["result"]["aiMessage"]>
 export type AiMessageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   chat?: boolean | Prisma.AiChatDefaultArgs<ExtArgs>
 }
@@ -494,8 +525,9 @@ export type $AiMessagePayload<ExtArgs extends runtime.Types.Extensions.InternalA
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     chatId: string
-    role: string
+    role: $Enums.MessageRole
     content: string
+    meta: runtime.JsonValue | null
     createdAt: Date
   }, ExtArgs["result"]["aiMessage"]>
   composites: {}
@@ -923,8 +955,9 @@ export interface Prisma__AiMessageClient<T, Null = never, ExtArgs extends runtim
 export interface AiMessageFieldRefs {
   readonly id: Prisma.FieldRef<"AiMessage", 'String'>
   readonly chatId: Prisma.FieldRef<"AiMessage", 'String'>
-  readonly role: Prisma.FieldRef<"AiMessage", 'String'>
+  readonly role: Prisma.FieldRef<"AiMessage", 'MessageRole'>
   readonly content: Prisma.FieldRef<"AiMessage", 'String'>
+  readonly meta: Prisma.FieldRef<"AiMessage", 'Json'>
   readonly createdAt: Prisma.FieldRef<"AiMessage", 'DateTime'>
 }
     

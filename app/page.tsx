@@ -1,13 +1,14 @@
-import { prisma } from '@/lib/prisma'
-import { MapView } from '@/components/map/map-view'
+import { getMeta } from '@/lib/data/places'
+import { MapScreen } from '@/components/map/map-screen'
 
 export default async function MapPage() {
-  const amenities = await prisma.amenity.findMany({ orderBy: { label: 'asc' } })
+  const meta = await getMeta()
 
   return (
-    <MapView
+    <MapScreen
       apiKey={process.env.GOOGLE_MAPS_API_KEY ?? ''}
-      amenities={amenities.map((a) => ({ id: a.id, slug: a.slug, label: a.label, icon: a.icon }))}
+      mapId={process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID ?? 'DEMO_MAP_ID'}
+      meta={meta}
     />
   )
 }

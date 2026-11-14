@@ -7,43 +7,100 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id           String    @id @default(cuid())
-  name         String
-  email        String    @unique
-  emailVerified DateTime?
-  image        String?
-  passwordHash String
-  createdAt    DateTime  @default(now())
+enum PlaceType {
+  park
+  beach
+  trail
+  garden
+  viewpoint
+  plaza
+  market
+  cafe
+  library
+  museum
+  sports
+  other
+}
 
-  places      Place[]        @relation("PlaceCreator")
-  events      Event[]        @relation("EventHost")
-  rsvps       Rsvp[]
-  feedbacks   Feedback[]
-  memberships Membership[]
-  aiChats     AiChat[]
-  chatMessages ChatMessage[]
-  threads     ChatThread[]   @relation("ThreadCreator")
+enum RsvpStatus {
+  going
+  maybe
+  cant
+}
+
+enum MemberRole {
+  member
+  organizer
+}
+
+enum ThreadKind {
+  direct
+  group
+  community
+}
+
+enum MessageRole {
+  user
+  assistant
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String
+  bio           String    @default("")
+  homeArea      String?
+  // Private accounts are hidden from people search, member and attendee
+  // lists, and public profiles. See lib/privacy.ts.
+  isPrivate     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+
+  places        Place[]        @relation("PlaceCreator")
+  savedPlaces   SavedPlace[]
+  events        Event[]        @relation("EventHost")
+  rsvps         Rsvp[]
+  feedbacks     Feedback[]
+  memberships   Membership[]
+  aiChats       AiChat[]
+  chatMessages  ChatMessage[]
+  threads       ChatThread[]   @relation("ThreadCreator")
+  threadMembers ThreadMember[]
+
+  @@index([isPrivate, name])
 }
 
 model Place {
-  id            String   @id @default(cuid())
-  googlePlaceId String?  @unique
+  id            String    @id @default(cuid())
+  googlePlaceId String?   @unique
   name          String
-  description   String   @default("")
-  type          String   @default("other") // park | plaza | cafe | trail | other
+  description   String    @default("")
+  type          PlaceType @default(other)
   lat           Float
   lng           Float
   address       String?
-  photoUrl      String?
-  approved      Boolean  @default(true)
+  // Google Places photo resource name; resolved by /api/places/[id]/photo.
+  photoRef      String?
+  // Denormalized from Feedback so map and list queries never aggregate.
+  ratingAvg     Float?
+  ratingCount   Int       @default(0)
+  approved      Boolean   @default(true)
   createdById   String?
-  createdAt     DateTime @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
 
-  createdBy User?          @relation("PlaceCreator", fields: [createdById], references: [id])
+  createdBy User?          @relation("PlaceCreator", fields: [createdById], references: [id], onDelete: SetNull)
   amenities PlaceAmenity[]
   events    Event[]
   feedbacks Feedback[]
+  savedBy   SavedPlace[]
+
+  @@index([approved, type])
+  @@index([lat, lng])
+  @@index([createdById])
 }
 
 model Amenity {
@@ -63,6 +120,19 @@ model PlaceAmenity {
   amenity Amenity @relation(fields: [amenityId], references: [id], onDelete: Cascade)
 
   @@id([placeId, amenityId])
+  @@index([amenityId])
+}
+
+model SavedPlace {
+  userId    String
+  placeId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, placeId])
+  @@index([placeId])
 }
 
 model Community {
@@ -70,7 +140,8 @@ model Community {
   slug        String   @unique
   name        String
   description String   @default("")
-  emoji       String   @default("📍")
+  icon        String   @default("users")
+  tint        String   @default("blue")
   createdAt   DateTime @default(now())
 
   memberships Membership[]
@@ -81,13 +152,14 @@ model Community {
 model Membership {
   userId      String
   communityId String
-  role        String   @default("member") // member | organizer
-  joinedAt    DateTime @default(now())
+  role        MemberRole @default(member)
+  joinedAt    DateTime   @default(now())
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
 
   @@id([userId, communityId])
+  @@index([communityId])
 }
 
 model Event {
@@ -101,24 +173,30 @@ model Event {
   hostId      String
   createdAt   DateTime  @default(now())
 
-  place     Place?     @relation(fields: [placeId], references: [id])
-  community Community? @relation(fields: [communityId], references: [id])
-  host      User       @relation("EventHost", fields: [hostId], references: [id])
+  place     Place?     @relation(fields: [placeId], references: [id], onDelete: SetNull)
+  community Community? @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  host      User       @relation("EventHost", fields: [hostId], references: [id], onDelete: Cascade)
   rsvps     Rsvp[]
   feedbacks Feedback[]
+
+  @@index([startsAt])
+  @@index([placeId, startsAt])
+  @@index([communityId, startsAt])
+  @@index([hostId])
 }
 
 model Rsvp {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   eventId   String
   userId    String
-  status    String   @default("going") // going | maybe | cant
-  createdAt DateTime @default(now())
+  status    RsvpStatus @default(going)
+  createdAt DateTime   @default(now())
 
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, userId])
+  @@index([userId, status])
 }
 
 model Feedback {
@@ -130,9 +208,15 @@ model Feedback {
   comment   String   @default("")
   createdAt DateTime @default(now())
 
-  place Place? @relation(fields: [placeId], references: [id])
-  event Event? @relation(fields: [eventId], references: [id])
+  place Place? @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  event Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
   user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // One review per person per place; posting again edits it.
+  @@unique([placeId, userId])
+  @@index([placeId, createdAt])
+  @@index([eventId])
+  @@index([userId])
 }
 
 model AiChat {
@@ -140,32 +224,61 @@ model AiChat {
   userId    String
   title     String   @default("New chat")
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages AiMessage[]
+
+  @@index([userId, updatedAt])
 }
 
 model AiMessage {
-  id        String   @id @default(cuid())
+  id        String      @id @default(cuid())
   chatId    String
-  role      String // user | assistant
+  role      MessageRole
   content   String
-  createdAt DateTime @default(now())
+  // Tools used and place ids cited, so the UI can re-render result cards.
+  meta      Json?
+  createdAt DateTime    @default(now())
 
   chat AiChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId, createdAt])
 }
 
 model ChatThread {
-  id           String   @id @default(cuid())
-  kind         String   @default("community") // direct | community
-  communityId  String?
-  name         String?
-  createdById  String
-  createdAt    DateTime @default(now())
+  id            String     @id @default(cuid())
+  kind          ThreadKind @default(community)
+  communityId   String?
+  name          String?
+  // Sorted pair of user ids for direct threads, so opening a DM is idempotent.
+  directKey     String?    @unique
+  createdById   String?
+  createdAt     DateTime   @default(now())
+  lastMessageAt DateTime   @default(now())
 
-  createdBy User          @relation("ThreadCreator", fields: [createdById], references: [id])
-  community Community?    @relation(fields: [communityId], references: [id])
+  createdBy User?          @relation("ThreadCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  community Community?     @relation(fields: [communityId], references: [id], onDelete: Cascade)
   messages  ChatMessage[]
+  members   ThreadMember[]
+
+  @@index([communityId])
+  @@index([lastMessageAt])
+}
+
+// Every participant of every thread kind has a row here. It is the single
+// source of truth for who may read or post in a thread.
+model ThreadMember {
+  threadId   String
+  userId     String
+  joinedAt   DateTime @default(now())
+  lastReadAt DateTime @default(now())
+
+  thread ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([threadId, userId])
+  @@index([userId])
 }
 
 model ChatMessage {
@@ -177,4 +290,20 @@ model ChatMessage {
 
   thread ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
   user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, createdAt])
+  @@index([userId])
+}
+
+// Curated facts the AI guide retrieves with the search_knowledge tool.
+model KnowledgeArticle {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  category  String
+  body      String
+  keywords  String   @default("")
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([category])
 }

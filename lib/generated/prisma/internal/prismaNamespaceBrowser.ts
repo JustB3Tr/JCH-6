@@ -55,6 +55,7 @@ export const ModelName = {
   Place: 'Place',
   Amenity: 'Amenity',
   PlaceAmenity: 'PlaceAmenity',
+  SavedPlace: 'SavedPlace',
   Community: 'Community',
   Membership: 'Membership',
   Event: 'Event',
@@ -63,7 +64,9 @@ export const ModelName = {
   AiChat: 'AiChat',
   AiMessage: 'AiMessage',
   ChatThread: 'ChatThread',
-  ChatMessage: 'ChatMessage'
+  ThreadMember: 'ThreadMember',
+  ChatMessage: 'ChatMessage',
+  KnowledgeArticle: 'KnowledgeArticle'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -89,7 +92,11 @@ export const UserScalarFieldEnum = {
   emailVerified: 'emailVerified',
   image: 'image',
   passwordHash: 'passwordHash',
-  createdAt: 'createdAt'
+  bio: 'bio',
+  homeArea: 'homeArea',
+  isPrivate: 'isPrivate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -104,10 +111,13 @@ export const PlaceScalarFieldEnum = {
   lat: 'lat',
   lng: 'lng',
   address: 'address',
-  photoUrl: 'photoUrl',
+  photoRef: 'photoRef',
+  ratingAvg: 'ratingAvg',
+  ratingCount: 'ratingCount',
   approved: 'approved',
   createdById: 'createdById',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type PlaceScalarFieldEnum = (typeof PlaceScalarFieldEnum)[keyof typeof PlaceScalarFieldEnum]
@@ -131,12 +141,22 @@ export const PlaceAmenityScalarFieldEnum = {
 export type PlaceAmenityScalarFieldEnum = (typeof PlaceAmenityScalarFieldEnum)[keyof typeof PlaceAmenityScalarFieldEnum]
 
 
+export const SavedPlaceScalarFieldEnum = {
+  userId: 'userId',
+  placeId: 'placeId',
+  createdAt: 'createdAt'
+} as const
+
+export type SavedPlaceScalarFieldEnum = (typeof SavedPlaceScalarFieldEnum)[keyof typeof SavedPlaceScalarFieldEnum]
+
+
 export const CommunityScalarFieldEnum = {
   id: 'id',
   slug: 'slug',
   name: 'name',
   description: 'description',
-  emoji: 'emoji',
+  icon: 'icon',
+  tint: 'tint',
   createdAt: 'createdAt'
 } as const
 
@@ -196,7 +216,8 @@ export const AiChatScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   title: 'title',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type AiChatScalarFieldEnum = (typeof AiChatScalarFieldEnum)[keyof typeof AiChatScalarFieldEnum]
@@ -207,6 +228,7 @@ export const AiMessageScalarFieldEnum = {
   chatId: 'chatId',
   role: 'role',
   content: 'content',
+  meta: 'meta',
   createdAt: 'createdAt'
 } as const
 
@@ -218,11 +240,23 @@ export const ChatThreadScalarFieldEnum = {
   kind: 'kind',
   communityId: 'communityId',
   name: 'name',
+  directKey: 'directKey',
   createdById: 'createdById',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  lastMessageAt: 'lastMessageAt'
 } as const
 
 export type ChatThreadScalarFieldEnum = (typeof ChatThreadScalarFieldEnum)[keyof typeof ChatThreadScalarFieldEnum]
+
+
+export const ThreadMemberScalarFieldEnum = {
+  threadId: 'threadId',
+  userId: 'userId',
+  joinedAt: 'joinedAt',
+  lastReadAt: 'lastReadAt'
+} as const
+
+export type ThreadMemberScalarFieldEnum = (typeof ThreadMemberScalarFieldEnum)[keyof typeof ThreadMemberScalarFieldEnum]
 
 
 export const ChatMessageScalarFieldEnum = {
@@ -236,12 +270,33 @@ export const ChatMessageScalarFieldEnum = {
 export type ChatMessageScalarFieldEnum = (typeof ChatMessageScalarFieldEnum)[keyof typeof ChatMessageScalarFieldEnum]
 
 
+export const KnowledgeArticleScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  title: 'title',
+  category: 'category',
+  body: 'body',
+  keywords: 'keywords',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KnowledgeArticleScalarFieldEnum = (typeof KnowledgeArticleScalarFieldEnum)[keyof typeof KnowledgeArticleScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -258,4 +313,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

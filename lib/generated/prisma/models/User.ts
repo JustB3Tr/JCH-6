@@ -31,7 +31,11 @@ export type UserMinAggregateOutputType = {
   emailVerified: Date | null
   image: string | null
   passwordHash: string | null
+  bio: string | null
+  homeArea: string | null
+  isPrivate: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -41,7 +45,11 @@ export type UserMaxAggregateOutputType = {
   emailVerified: Date | null
   image: string | null
   passwordHash: string | null
+  bio: string | null
+  homeArea: string | null
+  isPrivate: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -51,7 +59,11 @@ export type UserCountAggregateOutputType = {
   emailVerified: number
   image: number
   passwordHash: number
+  bio: number
+  homeArea: number
+  isPrivate: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -63,7 +75,11 @@ export type UserMinAggregateInputType = {
   emailVerified?: true
   image?: true
   passwordHash?: true
+  bio?: true
+  homeArea?: true
+  isPrivate?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -73,7 +89,11 @@ export type UserMaxAggregateInputType = {
   emailVerified?: true
   image?: true
   passwordHash?: true
+  bio?: true
+  homeArea?: true
+  isPrivate?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -83,7 +103,11 @@ export type UserCountAggregateInputType = {
   emailVerified?: true
   image?: true
   passwordHash?: true
+  bio?: true
+  homeArea?: true
+  isPrivate?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -166,7 +190,11 @@ export type UserGroupByOutputType = {
   emailVerified: Date | null
   image: string | null
   passwordHash: string
+  bio: string
+  homeArea: string | null
+  isPrivate: boolean
   createdAt: Date
+  updatedAt: Date
   _count: UserCountAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
@@ -197,8 +225,13 @@ export type UserWhereInput = {
   emailVerified?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   image?: Prisma.StringNullableFilter<"User"> | string | null
   passwordHash?: Prisma.StringFilter<"User"> | string
+  bio?: Prisma.StringFilter<"User"> | string
+  homeArea?: Prisma.StringNullableFilter<"User"> | string | null
+  isPrivate?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   places?: Prisma.PlaceListRelationFilter
+  savedPlaces?: Prisma.SavedPlaceListRelationFilter
   events?: Prisma.EventListRelationFilter
   rsvps?: Prisma.RsvpListRelationFilter
   feedbacks?: Prisma.FeedbackListRelationFilter
@@ -206,6 +239,7 @@ export type UserWhereInput = {
   aiChats?: Prisma.AiChatListRelationFilter
   chatMessages?: Prisma.ChatMessageListRelationFilter
   threads?: Prisma.ChatThreadListRelationFilter
+  threadMembers?: Prisma.ThreadMemberListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -215,8 +249,13 @@ export type UserOrderByWithRelationInput = {
   emailVerified?: Prisma.SortOrderInput | Prisma.SortOrder
   image?: Prisma.SortOrderInput | Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  bio?: Prisma.SortOrder
+  homeArea?: Prisma.SortOrderInput | Prisma.SortOrder
+  isPrivate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   places?: Prisma.PlaceOrderByRelationAggregateInput
+  savedPlaces?: Prisma.SavedPlaceOrderByRelationAggregateInput
   events?: Prisma.EventOrderByRelationAggregateInput
   rsvps?: Prisma.RsvpOrderByRelationAggregateInput
   feedbacks?: Prisma.FeedbackOrderByRelationAggregateInput
@@ -224,6 +263,7 @@ export type UserOrderByWithRelationInput = {
   aiChats?: Prisma.AiChatOrderByRelationAggregateInput
   chatMessages?: Prisma.ChatMessageOrderByRelationAggregateInput
   threads?: Prisma.ChatThreadOrderByRelationAggregateInput
+  threadMembers?: Prisma.ThreadMemberOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -236,8 +276,13 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   emailVerified?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   image?: Prisma.StringNullableFilter<"User"> | string | null
   passwordHash?: Prisma.StringFilter<"User"> | string
+  bio?: Prisma.StringFilter<"User"> | string
+  homeArea?: Prisma.StringNullableFilter<"User"> | string | null
+  isPrivate?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   places?: Prisma.PlaceListRelationFilter
+  savedPlaces?: Prisma.SavedPlaceListRelationFilter
   events?: Prisma.EventListRelationFilter
   rsvps?: Prisma.RsvpListRelationFilter
   feedbacks?: Prisma.FeedbackListRelationFilter
@@ -245,6 +290,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   aiChats?: Prisma.AiChatListRelationFilter
   chatMessages?: Prisma.ChatMessageListRelationFilter
   threads?: Prisma.ChatThreadListRelationFilter
+  threadMembers?: Prisma.ThreadMemberListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -254,7 +300,11 @@ export type UserOrderByWithAggregationInput = {
   emailVerified?: Prisma.SortOrderInput | Prisma.SortOrder
   image?: Prisma.SortOrderInput | Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  bio?: Prisma.SortOrder
+  homeArea?: Prisma.SortOrderInput | Prisma.SortOrder
+  isPrivate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
@@ -270,7 +320,11 @@ export type UserScalarWhereWithAggregatesInput = {
   emailVerified?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   image?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   passwordHash?: Prisma.StringWithAggregatesFilter<"User"> | string
+  bio?: Prisma.StringWithAggregatesFilter<"User"> | string
+  homeArea?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  isPrivate?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
 
 export type UserCreateInput = {
@@ -280,8 +334,13 @@ export type UserCreateInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutHostInput
   rsvps?: Prisma.RsvpCreateNestedManyWithoutUserInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutUserInput
@@ -289,6 +348,7 @@ export type UserCreateInput = {
   aiChats?: Prisma.AiChatCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -298,8 +358,13 @@ export type UserUncheckedCreateInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceUncheckedCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutHostInput
   rsvps?: Prisma.RsvpUncheckedCreateNestedManyWithoutUserInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutUserInput
@@ -307,6 +372,7 @@ export type UserUncheckedCreateInput = {
   aiChats?: Prisma.AiChatUncheckedCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadUncheckedCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -316,8 +382,13 @@ export type UserUpdateInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutHostNestedInput
   rsvps?: Prisma.RsvpUpdateManyWithoutUserNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutUserNestedInput
@@ -325,6 +396,7 @@ export type UserUpdateInput = {
   aiChats?: Prisma.AiChatUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -334,8 +406,13 @@ export type UserUncheckedUpdateInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUncheckedUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutHostNestedInput
   rsvps?: Prisma.RsvpUncheckedUpdateManyWithoutUserNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutUserNestedInput
@@ -343,6 +420,7 @@ export type UserUncheckedUpdateInput = {
   aiChats?: Prisma.AiChatUncheckedUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUncheckedUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -352,7 +430,11 @@ export type UserCreateManyInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type UserUpdateManyMutationInput = {
@@ -362,7 +444,11 @@ export type UserUpdateManyMutationInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -372,7 +458,11 @@ export type UserUncheckedUpdateManyInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -382,7 +472,11 @@ export type UserCountOrderByAggregateInput = {
   emailVerified?: Prisma.SortOrder
   image?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  bio?: Prisma.SortOrder
+  homeArea?: Prisma.SortOrder
+  isPrivate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -392,7 +486,11 @@ export type UserMaxOrderByAggregateInput = {
   emailVerified?: Prisma.SortOrder
   image?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  bio?: Prisma.SortOrder
+  homeArea?: Prisma.SortOrder
+  isPrivate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -402,7 +500,11 @@ export type UserMinOrderByAggregateInput = {
   emailVerified?: Prisma.SortOrder
   image?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  bio?: Prisma.SortOrder
+  homeArea?: Prisma.SortOrder
+  isPrivate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type UserNullableScalarRelationFilter = {
@@ -427,6 +529,10 @@ export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
 
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
@@ -445,6 +551,20 @@ export type UserUpdateOneWithoutPlacesNestedInput = {
   delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPlacesInput, Prisma.UserUpdateWithoutPlacesInput>, Prisma.UserUncheckedUpdateWithoutPlacesInput>
+}
+
+export type UserCreateNestedOneWithoutSavedPlacesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSavedPlacesInput, Prisma.UserUncheckedCreateWithoutSavedPlacesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSavedPlacesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSavedPlacesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSavedPlacesInput, Prisma.UserUncheckedCreateWithoutSavedPlacesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSavedPlacesInput
+  upsert?: Prisma.UserUpsertWithoutSavedPlacesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSavedPlacesInput, Prisma.UserUpdateWithoutSavedPlacesInput>, Prisma.UserUncheckedUpdateWithoutSavedPlacesInput>
 }
 
 export type UserCreateNestedOneWithoutMembershipsInput = {
@@ -523,12 +643,28 @@ export type UserCreateNestedOneWithoutThreadsInput = {
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutThreadsNestedInput = {
+export type UserUpdateOneWithoutThreadsNestedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutThreadsInput, Prisma.UserUncheckedCreateWithoutThreadsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutThreadsInput
   upsert?: Prisma.UserUpsertWithoutThreadsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutThreadsInput, Prisma.UserUpdateWithoutThreadsInput>, Prisma.UserUncheckedUpdateWithoutThreadsInput>
+}
+
+export type UserCreateNestedOneWithoutThreadMembersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutThreadMembersInput, Prisma.UserUncheckedCreateWithoutThreadMembersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutThreadMembersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutThreadMembersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutThreadMembersInput, Prisma.UserUncheckedCreateWithoutThreadMembersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutThreadMembersInput
+  upsert?: Prisma.UserUpsertWithoutThreadMembersInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutThreadMembersInput, Prisma.UserUpdateWithoutThreadMembersInput>, Prisma.UserUncheckedUpdateWithoutThreadMembersInput>
 }
 
 export type UserCreateNestedOneWithoutChatMessagesInput = {
@@ -552,7 +688,12 @@ export type UserCreateWithoutPlacesInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
+  savedPlaces?: Prisma.SavedPlaceCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutHostInput
   rsvps?: Prisma.RsvpCreateNestedManyWithoutUserInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutUserInput
@@ -560,6 +701,7 @@ export type UserCreateWithoutPlacesInput = {
   aiChats?: Prisma.AiChatCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPlacesInput = {
@@ -569,7 +711,12 @@ export type UserUncheckedCreateWithoutPlacesInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
+  savedPlaces?: Prisma.SavedPlaceUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutHostInput
   rsvps?: Prisma.RsvpUncheckedCreateNestedManyWithoutUserInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutUserInput
@@ -577,6 +724,7 @@ export type UserUncheckedCreateWithoutPlacesInput = {
   aiChats?: Prisma.AiChatUncheckedCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadUncheckedCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPlacesInput = {
@@ -602,7 +750,12 @@ export type UserUpdateWithoutPlacesInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  savedPlaces?: Prisma.SavedPlaceUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutHostNestedInput
   rsvps?: Prisma.RsvpUpdateManyWithoutUserNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutUserNestedInput
@@ -610,6 +763,7 @@ export type UserUpdateWithoutPlacesInput = {
   aiChats?: Prisma.AiChatUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPlacesInput = {
@@ -619,7 +773,12 @@ export type UserUncheckedUpdateWithoutPlacesInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  savedPlaces?: Prisma.SavedPlaceUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutHostNestedInput
   rsvps?: Prisma.RsvpUncheckedUpdateManyWithoutUserNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutUserNestedInput
@@ -627,6 +786,115 @@ export type UserUncheckedUpdateWithoutPlacesInput = {
   aiChats?: Prisma.AiChatUncheckedUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUncheckedUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutSavedPlacesInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: Date | string | null
+  image?: string | null
+  passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  places?: Prisma.PlaceCreateNestedManyWithoutCreatedByInput
+  events?: Prisma.EventCreateNestedManyWithoutHostInput
+  rsvps?: Prisma.RsvpCreateNestedManyWithoutUserInput
+  feedbacks?: Prisma.FeedbackCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  aiChats?: Prisma.AiChatCreateNestedManyWithoutUserInput
+  chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutUserInput
+  threads?: Prisma.ChatThreadCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSavedPlacesInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: Date | string | null
+  image?: string | null
+  passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  places?: Prisma.PlaceUncheckedCreateNestedManyWithoutCreatedByInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutHostInput
+  rsvps?: Prisma.RsvpUncheckedCreateNestedManyWithoutUserInput
+  feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  aiChats?: Prisma.AiChatUncheckedCreateNestedManyWithoutUserInput
+  chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutUserInput
+  threads?: Prisma.ChatThreadUncheckedCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSavedPlacesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSavedPlacesInput, Prisma.UserUncheckedCreateWithoutSavedPlacesInput>
+}
+
+export type UserUpsertWithoutSavedPlacesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSavedPlacesInput, Prisma.UserUncheckedUpdateWithoutSavedPlacesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSavedPlacesInput, Prisma.UserUncheckedCreateWithoutSavedPlacesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSavedPlacesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSavedPlacesInput, Prisma.UserUncheckedUpdateWithoutSavedPlacesInput>
+}
+
+export type UserUpdateWithoutSavedPlacesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  places?: Prisma.PlaceUpdateManyWithoutCreatedByNestedInput
+  events?: Prisma.EventUpdateManyWithoutHostNestedInput
+  rsvps?: Prisma.RsvpUpdateManyWithoutUserNestedInput
+  feedbacks?: Prisma.FeedbackUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  aiChats?: Prisma.AiChatUpdateManyWithoutUserNestedInput
+  chatMessages?: Prisma.ChatMessageUpdateManyWithoutUserNestedInput
+  threads?: Prisma.ChatThreadUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSavedPlacesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  places?: Prisma.PlaceUncheckedUpdateManyWithoutCreatedByNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutHostNestedInput
+  rsvps?: Prisma.RsvpUncheckedUpdateManyWithoutUserNestedInput
+  feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  aiChats?: Prisma.AiChatUncheckedUpdateManyWithoutUserNestedInput
+  chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutUserNestedInput
+  threads?: Prisma.ChatThreadUncheckedUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMembershipsInput = {
@@ -636,14 +904,20 @@ export type UserCreateWithoutMembershipsInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutHostInput
   rsvps?: Prisma.RsvpCreateNestedManyWithoutUserInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutUserInput
   aiChats?: Prisma.AiChatCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -653,14 +927,20 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceUncheckedCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutHostInput
   rsvps?: Prisma.RsvpUncheckedCreateNestedManyWithoutUserInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutUserInput
   aiChats?: Prisma.AiChatUncheckedCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadUncheckedCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -686,14 +966,20 @@ export type UserUpdateWithoutMembershipsInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutHostNestedInput
   rsvps?: Prisma.RsvpUpdateManyWithoutUserNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutUserNestedInput
   aiChats?: Prisma.AiChatUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -703,14 +989,20 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUncheckedUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutHostNestedInput
   rsvps?: Prisma.RsvpUncheckedUpdateManyWithoutUserNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutUserNestedInput
   aiChats?: Prisma.AiChatUncheckedUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUncheckedUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEventsInput = {
@@ -720,14 +1012,20 @@ export type UserCreateWithoutEventsInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceCreateNestedManyWithoutUserInput
   rsvps?: Prisma.RsvpCreateNestedManyWithoutUserInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   aiChats?: Prisma.AiChatCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEventsInput = {
@@ -737,14 +1035,20 @@ export type UserUncheckedCreateWithoutEventsInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceUncheckedCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedCreateNestedManyWithoutUserInput
   rsvps?: Prisma.RsvpUncheckedCreateNestedManyWithoutUserInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   aiChats?: Prisma.AiChatUncheckedCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadUncheckedCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEventsInput = {
@@ -770,14 +1074,20 @@ export type UserUpdateWithoutEventsInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUpdateManyWithoutUserNestedInput
   rsvps?: Prisma.RsvpUpdateManyWithoutUserNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   aiChats?: Prisma.AiChatUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventsInput = {
@@ -787,14 +1097,20 @@ export type UserUncheckedUpdateWithoutEventsInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUncheckedUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedUpdateManyWithoutUserNestedInput
   rsvps?: Prisma.RsvpUncheckedUpdateManyWithoutUserNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   aiChats?: Prisma.AiChatUncheckedUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUncheckedUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRsvpsInput = {
@@ -804,14 +1120,20 @@ export type UserCreateWithoutRsvpsInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutHostInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   aiChats?: Prisma.AiChatCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRsvpsInput = {
@@ -821,14 +1143,20 @@ export type UserUncheckedCreateWithoutRsvpsInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceUncheckedCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutHostInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   aiChats?: Prisma.AiChatUncheckedCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadUncheckedCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRsvpsInput = {
@@ -854,14 +1182,20 @@ export type UserUpdateWithoutRsvpsInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutHostNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   aiChats?: Prisma.AiChatUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRsvpsInput = {
@@ -871,14 +1205,20 @@ export type UserUncheckedUpdateWithoutRsvpsInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUncheckedUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutHostNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   aiChats?: Prisma.AiChatUncheckedUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUncheckedUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFeedbacksInput = {
@@ -888,14 +1228,20 @@ export type UserCreateWithoutFeedbacksInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutHostInput
   rsvps?: Prisma.RsvpCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   aiChats?: Prisma.AiChatCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFeedbacksInput = {
@@ -905,14 +1251,20 @@ export type UserUncheckedCreateWithoutFeedbacksInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceUncheckedCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutHostInput
   rsvps?: Prisma.RsvpUncheckedCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   aiChats?: Prisma.AiChatUncheckedCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadUncheckedCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFeedbacksInput = {
@@ -938,14 +1290,20 @@ export type UserUpdateWithoutFeedbacksInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutHostNestedInput
   rsvps?: Prisma.RsvpUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   aiChats?: Prisma.AiChatUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFeedbacksInput = {
@@ -955,14 +1313,20 @@ export type UserUncheckedUpdateWithoutFeedbacksInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUncheckedUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutHostNestedInput
   rsvps?: Prisma.RsvpUncheckedUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   aiChats?: Prisma.AiChatUncheckedUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUncheckedUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAiChatsInput = {
@@ -972,14 +1336,20 @@ export type UserCreateWithoutAiChatsInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutHostInput
   rsvps?: Prisma.RsvpCreateNestedManyWithoutUserInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAiChatsInput = {
@@ -989,14 +1359,20 @@ export type UserUncheckedCreateWithoutAiChatsInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceUncheckedCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutHostInput
   rsvps?: Prisma.RsvpUncheckedCreateNestedManyWithoutUserInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadUncheckedCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAiChatsInput = {
@@ -1022,14 +1398,20 @@ export type UserUpdateWithoutAiChatsInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutHostNestedInput
   rsvps?: Prisma.RsvpUpdateManyWithoutUserNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiChatsInput = {
@@ -1039,14 +1421,20 @@ export type UserUncheckedUpdateWithoutAiChatsInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUncheckedUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutHostNestedInput
   rsvps?: Prisma.RsvpUncheckedUpdateManyWithoutUserNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUncheckedUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutThreadsInput = {
@@ -1056,14 +1444,20 @@ export type UserCreateWithoutThreadsInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutHostInput
   rsvps?: Prisma.RsvpCreateNestedManyWithoutUserInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   aiChats?: Prisma.AiChatCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutUserInput
+  threadMembers?: Prisma.ThreadMemberCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutThreadsInput = {
@@ -1073,14 +1467,20 @@ export type UserUncheckedCreateWithoutThreadsInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceUncheckedCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutHostInput
   rsvps?: Prisma.RsvpUncheckedCreateNestedManyWithoutUserInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   aiChats?: Prisma.AiChatUncheckedCreateNestedManyWithoutUserInput
   chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutUserInput
+  threadMembers?: Prisma.ThreadMemberUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutThreadsInput = {
@@ -1106,14 +1506,20 @@ export type UserUpdateWithoutThreadsInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutHostNestedInput
   rsvps?: Prisma.RsvpUpdateManyWithoutUserNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   aiChats?: Prisma.AiChatUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUpdateManyWithoutUserNestedInput
+  threadMembers?: Prisma.ThreadMemberUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutThreadsInput = {
@@ -1123,14 +1529,128 @@ export type UserUncheckedUpdateWithoutThreadsInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUncheckedUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutHostNestedInput
   rsvps?: Prisma.RsvpUncheckedUpdateManyWithoutUserNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   aiChats?: Prisma.AiChatUncheckedUpdateManyWithoutUserNestedInput
   chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutUserNestedInput
+  threadMembers?: Prisma.ThreadMemberUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutThreadMembersInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: Date | string | null
+  image?: string | null
+  passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  places?: Prisma.PlaceCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceCreateNestedManyWithoutUserInput
+  events?: Prisma.EventCreateNestedManyWithoutHostInput
+  rsvps?: Prisma.RsvpCreateNestedManyWithoutUserInput
+  feedbacks?: Prisma.FeedbackCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  aiChats?: Prisma.AiChatCreateNestedManyWithoutUserInput
+  chatMessages?: Prisma.ChatMessageCreateNestedManyWithoutUserInput
+  threads?: Prisma.ChatThreadCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutThreadMembersInput = {
+  id?: string
+  name: string
+  email: string
+  emailVerified?: Date | string | null
+  image?: string | null
+  passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  places?: Prisma.PlaceUncheckedCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedCreateNestedManyWithoutUserInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutHostInput
+  rsvps?: Prisma.RsvpUncheckedCreateNestedManyWithoutUserInput
+  feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  aiChats?: Prisma.AiChatUncheckedCreateNestedManyWithoutUserInput
+  chatMessages?: Prisma.ChatMessageUncheckedCreateNestedManyWithoutUserInput
+  threads?: Prisma.ChatThreadUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutThreadMembersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutThreadMembersInput, Prisma.UserUncheckedCreateWithoutThreadMembersInput>
+}
+
+export type UserUpsertWithoutThreadMembersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutThreadMembersInput, Prisma.UserUncheckedUpdateWithoutThreadMembersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutThreadMembersInput, Prisma.UserUncheckedCreateWithoutThreadMembersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutThreadMembersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutThreadMembersInput, Prisma.UserUncheckedUpdateWithoutThreadMembersInput>
+}
+
+export type UserUpdateWithoutThreadMembersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  places?: Prisma.PlaceUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUpdateManyWithoutHostNestedInput
+  rsvps?: Prisma.RsvpUpdateManyWithoutUserNestedInput
+  feedbacks?: Prisma.FeedbackUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  aiChats?: Prisma.AiChatUpdateManyWithoutUserNestedInput
+  chatMessages?: Prisma.ChatMessageUpdateManyWithoutUserNestedInput
+  threads?: Prisma.ChatThreadUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutThreadMembersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  places?: Prisma.PlaceUncheckedUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutHostNestedInput
+  rsvps?: Prisma.RsvpUncheckedUpdateManyWithoutUserNestedInput
+  feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  aiChats?: Prisma.AiChatUncheckedUpdateManyWithoutUserNestedInput
+  chatMessages?: Prisma.ChatMessageUncheckedUpdateManyWithoutUserNestedInput
+  threads?: Prisma.ChatThreadUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutChatMessagesInput = {
@@ -1140,14 +1660,20 @@ export type UserCreateWithoutChatMessagesInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutHostInput
   rsvps?: Prisma.RsvpCreateNestedManyWithoutUserInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   aiChats?: Prisma.AiChatCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChatMessagesInput = {
@@ -1157,14 +1683,20 @@ export type UserUncheckedCreateWithoutChatMessagesInput = {
   emailVerified?: Date | string | null
   image?: string | null
   passwordHash: string
+  bio?: string
+  homeArea?: string | null
+  isPrivate?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   places?: Prisma.PlaceUncheckedCreateNestedManyWithoutCreatedByInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutHostInput
   rsvps?: Prisma.RsvpUncheckedCreateNestedManyWithoutUserInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   aiChats?: Prisma.AiChatUncheckedCreateNestedManyWithoutUserInput
   threads?: Prisma.ChatThreadUncheckedCreateNestedManyWithoutCreatedByInput
+  threadMembers?: Prisma.ThreadMemberUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChatMessagesInput = {
@@ -1190,14 +1722,20 @@ export type UserUpdateWithoutChatMessagesInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutHostNestedInput
   rsvps?: Prisma.RsvpUpdateManyWithoutUserNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   aiChats?: Prisma.AiChatUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatMessagesInput = {
@@ -1207,14 +1745,20 @@ export type UserUncheckedUpdateWithoutChatMessagesInput = {
   emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.StringFieldUpdateOperationsInput | string
+  homeArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   places?: Prisma.PlaceUncheckedUpdateManyWithoutCreatedByNestedInput
+  savedPlaces?: Prisma.SavedPlaceUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutHostNestedInput
   rsvps?: Prisma.RsvpUncheckedUpdateManyWithoutUserNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   aiChats?: Prisma.AiChatUncheckedUpdateManyWithoutUserNestedInput
   threads?: Prisma.ChatThreadUncheckedUpdateManyWithoutCreatedByNestedInput
+  threadMembers?: Prisma.ThreadMemberUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1224,6 +1768,7 @@ export type UserUncheckedUpdateWithoutChatMessagesInput = {
 
 export type UserCountOutputType = {
   places: number
+  savedPlaces: number
   events: number
   rsvps: number
   feedbacks: number
@@ -1231,10 +1776,12 @@ export type UserCountOutputType = {
   aiChats: number
   chatMessages: number
   threads: number
+  threadMembers: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   places?: boolean | UserCountOutputTypeCountPlacesArgs
+  savedPlaces?: boolean | UserCountOutputTypeCountSavedPlacesArgs
   events?: boolean | UserCountOutputTypeCountEventsArgs
   rsvps?: boolean | UserCountOutputTypeCountRsvpsArgs
   feedbacks?: boolean | UserCountOutputTypeCountFeedbacksArgs
@@ -1242,6 +1789,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   aiChats?: boolean | UserCountOutputTypeCountAiChatsArgs
   chatMessages?: boolean | UserCountOutputTypeCountChatMessagesArgs
   threads?: boolean | UserCountOutputTypeCountThreadsArgs
+  threadMembers?: boolean | UserCountOutputTypeCountThreadMembersArgs
 }
 
 /**
@@ -1259,6 +1807,13 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
  */
 export type UserCountOutputTypeCountPlacesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.PlaceWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSavedPlacesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SavedPlaceWhereInput
 }
 
 /**
@@ -1310,6 +1865,13 @@ export type UserCountOutputTypeCountThreadsArgs<ExtArgs extends runtime.Types.Ex
   where?: Prisma.ChatThreadWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountThreadMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ThreadMemberWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1318,8 +1880,13 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   emailVerified?: boolean
   image?: boolean
   passwordHash?: boolean
+  bio?: boolean
+  homeArea?: boolean
+  isPrivate?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   places?: boolean | Prisma.User$placesArgs<ExtArgs>
+  savedPlaces?: boolean | Prisma.User$savedPlacesArgs<ExtArgs>
   events?: boolean | Prisma.User$eventsArgs<ExtArgs>
   rsvps?: boolean | Prisma.User$rsvpsArgs<ExtArgs>
   feedbacks?: boolean | Prisma.User$feedbacksArgs<ExtArgs>
@@ -1327,6 +1894,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   aiChats?: boolean | Prisma.User$aiChatsArgs<ExtArgs>
   chatMessages?: boolean | Prisma.User$chatMessagesArgs<ExtArgs>
   threads?: boolean | Prisma.User$threadsArgs<ExtArgs>
+  threadMembers?: boolean | Prisma.User$threadMembersArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1337,7 +1905,11 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   emailVerified?: boolean
   image?: boolean
   passwordHash?: boolean
+  bio?: boolean
+  homeArea?: boolean
+  isPrivate?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1347,7 +1919,11 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   emailVerified?: boolean
   image?: boolean
   passwordHash?: boolean
+  bio?: boolean
+  homeArea?: boolean
+  isPrivate?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -1357,12 +1933,17 @@ export type UserSelectScalar = {
   emailVerified?: boolean
   image?: boolean
   passwordHash?: boolean
+  bio?: boolean
+  homeArea?: boolean
+  isPrivate?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "passwordHash" | "createdAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "passwordHash" | "bio" | "homeArea" | "isPrivate" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   places?: boolean | Prisma.User$placesArgs<ExtArgs>
+  savedPlaces?: boolean | Prisma.User$savedPlacesArgs<ExtArgs>
   events?: boolean | Prisma.User$eventsArgs<ExtArgs>
   rsvps?: boolean | Prisma.User$rsvpsArgs<ExtArgs>
   feedbacks?: boolean | Prisma.User$feedbacksArgs<ExtArgs>
@@ -1370,6 +1951,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   aiChats?: boolean | Prisma.User$aiChatsArgs<ExtArgs>
   chatMessages?: boolean | Prisma.User$chatMessagesArgs<ExtArgs>
   threads?: boolean | Prisma.User$threadsArgs<ExtArgs>
+  threadMembers?: boolean | Prisma.User$threadMembersArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1379,6 +1961,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "User"
   objects: {
     places: Prisma.$PlacePayload<ExtArgs>[]
+    savedPlaces: Prisma.$SavedPlacePayload<ExtArgs>[]
     events: Prisma.$EventPayload<ExtArgs>[]
     rsvps: Prisma.$RsvpPayload<ExtArgs>[]
     feedbacks: Prisma.$FeedbackPayload<ExtArgs>[]
@@ -1386,6 +1969,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     aiChats: Prisma.$AiChatPayload<ExtArgs>[]
     chatMessages: Prisma.$ChatMessagePayload<ExtArgs>[]
     threads: Prisma.$ChatThreadPayload<ExtArgs>[]
+    threadMembers: Prisma.$ThreadMemberPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1394,7 +1978,11 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     emailVerified: Date | null
     image: string | null
     passwordHash: string
+    bio: string
+    homeArea: string | null
+    isPrivate: boolean
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -1790,6 +2378,7 @@ readonly fields: UserFieldRefs;
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   places<T extends Prisma.User$placesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$placesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PlacePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  savedPlaces<T extends Prisma.User$savedPlacesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$savedPlacesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SavedPlacePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   events<T extends Prisma.User$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   rsvps<T extends Prisma.User$rsvpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$rsvpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RsvpPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   feedbacks<T extends Prisma.User$feedbacksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$feedbacksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1797,6 +2386,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   aiChats<T extends Prisma.User$aiChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$aiChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   chatMessages<T extends Prisma.User$chatMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$chatMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   threads<T extends Prisma.User$threadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$threadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatThreadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  threadMembers<T extends Prisma.User$threadMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$threadMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ThreadMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1832,7 +2422,11 @@ export interface UserFieldRefs {
   readonly emailVerified: Prisma.FieldRef<"User", 'DateTime'>
   readonly image: Prisma.FieldRef<"User", 'String'>
   readonly passwordHash: Prisma.FieldRef<"User", 'String'>
+  readonly bio: Prisma.FieldRef<"User", 'String'>
+  readonly homeArea: Prisma.FieldRef<"User", 'String'>
+  readonly isPrivate: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
     
 
@@ -2250,6 +2844,30 @@ export type User$placesArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 }
 
 /**
+ * User.savedPlaces
+ */
+export type User$savedPlacesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SavedPlace
+   */
+  select?: Prisma.SavedPlaceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SavedPlace
+   */
+  omit?: Prisma.SavedPlaceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SavedPlaceInclude<ExtArgs> | null
+  where?: Prisma.SavedPlaceWhereInput
+  orderBy?: Prisma.SavedPlaceOrderByWithRelationInput | Prisma.SavedPlaceOrderByWithRelationInput[]
+  cursor?: Prisma.SavedPlaceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SavedPlaceScalarFieldEnum | Prisma.SavedPlaceScalarFieldEnum[]
+}
+
+/**
  * User.events
  */
 export type User$eventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2415,6 +3033,30 @@ export type User$threadsArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   distinct?: Prisma.ChatThreadScalarFieldEnum | Prisma.ChatThreadScalarFieldEnum[]
+}
+
+/**
+ * User.threadMembers
+ */
+export type User$threadMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ThreadMember
+   */
+  select?: Prisma.ThreadMemberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ThreadMember
+   */
+  omit?: Prisma.ThreadMemberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ThreadMemberInclude<ExtArgs> | null
+  where?: Prisma.ThreadMemberWhereInput
+  orderBy?: Prisma.ThreadMemberOrderByWithRelationInput | Prisma.ThreadMemberOrderByWithRelationInput[]
+  cursor?: Prisma.ThreadMemberWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ThreadMemberScalarFieldEnum | Prisma.ThreadMemberScalarFieldEnum[]
 }
 
 /**

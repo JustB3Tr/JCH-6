@@ -29,7 +29,8 @@ export type CommunityMinAggregateOutputType = {
   slug: string | null
   name: string | null
   description: string | null
-  emoji: string | null
+  icon: string | null
+  tint: string | null
   createdAt: Date | null
 }
 
@@ -38,7 +39,8 @@ export type CommunityMaxAggregateOutputType = {
   slug: string | null
   name: string | null
   description: string | null
-  emoji: string | null
+  icon: string | null
+  tint: string | null
   createdAt: Date | null
 }
 
@@ -47,7 +49,8 @@ export type CommunityCountAggregateOutputType = {
   slug: number
   name: number
   description: number
-  emoji: number
+  icon: number
+  tint: number
   createdAt: number
   _all: number
 }
@@ -58,7 +61,8 @@ export type CommunityMinAggregateInputType = {
   slug?: true
   name?: true
   description?: true
-  emoji?: true
+  icon?: true
+  tint?: true
   createdAt?: true
 }
 
@@ -67,7 +71,8 @@ export type CommunityMaxAggregateInputType = {
   slug?: true
   name?: true
   description?: true
-  emoji?: true
+  icon?: true
+  tint?: true
   createdAt?: true
 }
 
@@ -76,7 +81,8 @@ export type CommunityCountAggregateInputType = {
   slug?: true
   name?: true
   description?: true
-  emoji?: true
+  icon?: true
+  tint?: true
   createdAt?: true
   _all?: true
 }
@@ -158,7 +164,8 @@ export type CommunityGroupByOutputType = {
   slug: string
   name: string
   description: string
-  emoji: string
+  icon: string
+  tint: string
   createdAt: Date
   _count: CommunityCountAggregateOutputType | null
   _min: CommunityMinAggregateOutputType | null
@@ -188,7 +195,8 @@ export type CommunityWhereInput = {
   slug?: Prisma.StringFilter<"Community"> | string
   name?: Prisma.StringFilter<"Community"> | string
   description?: Prisma.StringFilter<"Community"> | string
-  emoji?: Prisma.StringFilter<"Community"> | string
+  icon?: Prisma.StringFilter<"Community"> | string
+  tint?: Prisma.StringFilter<"Community"> | string
   createdAt?: Prisma.DateTimeFilter<"Community"> | Date | string
   memberships?: Prisma.MembershipListRelationFilter
   events?: Prisma.EventListRelationFilter
@@ -200,7 +208,8 @@ export type CommunityOrderByWithRelationInput = {
   slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  emoji?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
+  tint?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   memberships?: Prisma.MembershipOrderByRelationAggregateInput
   events?: Prisma.EventOrderByRelationAggregateInput
@@ -215,7 +224,8 @@ export type CommunityWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CommunityWhereInput | Prisma.CommunityWhereInput[]
   name?: Prisma.StringFilter<"Community"> | string
   description?: Prisma.StringFilter<"Community"> | string
-  emoji?: Prisma.StringFilter<"Community"> | string
+  icon?: Prisma.StringFilter<"Community"> | string
+  tint?: Prisma.StringFilter<"Community"> | string
   createdAt?: Prisma.DateTimeFilter<"Community"> | Date | string
   memberships?: Prisma.MembershipListRelationFilter
   events?: Prisma.EventListRelationFilter
@@ -227,7 +237,8 @@ export type CommunityOrderByWithAggregationInput = {
   slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  emoji?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
+  tint?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.CommunityCountOrderByAggregateInput
   _max?: Prisma.CommunityMaxOrderByAggregateInput
@@ -242,7 +253,8 @@ export type CommunityScalarWhereWithAggregatesInput = {
   slug?: Prisma.StringWithAggregatesFilter<"Community"> | string
   name?: Prisma.StringWithAggregatesFilter<"Community"> | string
   description?: Prisma.StringWithAggregatesFilter<"Community"> | string
-  emoji?: Prisma.StringWithAggregatesFilter<"Community"> | string
+  icon?: Prisma.StringWithAggregatesFilter<"Community"> | string
+  tint?: Prisma.StringWithAggregatesFilter<"Community"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Community"> | Date | string
 }
 
@@ -251,7 +263,8 @@ export type CommunityCreateInput = {
   slug: string
   name: string
   description?: string
-  emoji?: string
+  icon?: string
+  tint?: string
   createdAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutCommunityInput
   events?: Prisma.EventCreateNestedManyWithoutCommunityInput
@@ -263,7 +276,8 @@ export type CommunityUncheckedCreateInput = {
   slug: string
   name: string
   description?: string
-  emoji?: string
+  icon?: string
+  tint?: string
   createdAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutCommunityInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutCommunityInput
@@ -275,7 +289,8 @@ export type CommunityUpdateInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.StringFieldUpdateOperationsInput | string
+  tint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutCommunityNestedInput
   events?: Prisma.EventUpdateManyWithoutCommunityNestedInput
@@ -287,7 +302,8 @@ export type CommunityUncheckedUpdateInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.StringFieldUpdateOperationsInput | string
+  tint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutCommunityNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutCommunityNestedInput
@@ -299,7 +315,8 @@ export type CommunityCreateManyInput = {
   slug: string
   name: string
   description?: string
-  emoji?: string
+  icon?: string
+  tint?: string
   createdAt?: Date | string
 }
 
@@ -308,7 +325,8 @@ export type CommunityUpdateManyMutationInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.StringFieldUpdateOperationsInput | string
+  tint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -317,7 +335,8 @@ export type CommunityUncheckedUpdateManyInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.StringFieldUpdateOperationsInput | string
+  tint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -326,7 +345,8 @@ export type CommunityCountOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  emoji?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
+  tint?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -335,7 +355,8 @@ export type CommunityMaxOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  emoji?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
+  tint?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -344,7 +365,8 @@ export type CommunityMinOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  emoji?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
+  tint?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -409,7 +431,8 @@ export type CommunityCreateWithoutMembershipsInput = {
   slug: string
   name: string
   description?: string
-  emoji?: string
+  icon?: string
+  tint?: string
   createdAt?: Date | string
   events?: Prisma.EventCreateNestedManyWithoutCommunityInput
   threads?: Prisma.ChatThreadCreateNestedManyWithoutCommunityInput
@@ -420,7 +443,8 @@ export type CommunityUncheckedCreateWithoutMembershipsInput = {
   slug: string
   name: string
   description?: string
-  emoji?: string
+  icon?: string
+  tint?: string
   createdAt?: Date | string
   events?: Prisma.EventUncheckedCreateNestedManyWithoutCommunityInput
   threads?: Prisma.ChatThreadUncheckedCreateNestedManyWithoutCommunityInput
@@ -447,7 +471,8 @@ export type CommunityUpdateWithoutMembershipsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.StringFieldUpdateOperationsInput | string
+  tint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.EventUpdateManyWithoutCommunityNestedInput
   threads?: Prisma.ChatThreadUpdateManyWithoutCommunityNestedInput
@@ -458,7 +483,8 @@ export type CommunityUncheckedUpdateWithoutMembershipsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.StringFieldUpdateOperationsInput | string
+  tint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.EventUncheckedUpdateManyWithoutCommunityNestedInput
   threads?: Prisma.ChatThreadUncheckedUpdateManyWithoutCommunityNestedInput
@@ -469,7 +495,8 @@ export type CommunityCreateWithoutEventsInput = {
   slug: string
   name: string
   description?: string
-  emoji?: string
+  icon?: string
+  tint?: string
   createdAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutCommunityInput
   threads?: Prisma.ChatThreadCreateNestedManyWithoutCommunityInput
@@ -480,7 +507,8 @@ export type CommunityUncheckedCreateWithoutEventsInput = {
   slug: string
   name: string
   description?: string
-  emoji?: string
+  icon?: string
+  tint?: string
   createdAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutCommunityInput
   threads?: Prisma.ChatThreadUncheckedCreateNestedManyWithoutCommunityInput
@@ -507,7 +535,8 @@ export type CommunityUpdateWithoutEventsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.StringFieldUpdateOperationsInput | string
+  tint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutCommunityNestedInput
   threads?: Prisma.ChatThreadUpdateManyWithoutCommunityNestedInput
@@ -518,7 +547,8 @@ export type CommunityUncheckedUpdateWithoutEventsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.StringFieldUpdateOperationsInput | string
+  tint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutCommunityNestedInput
   threads?: Prisma.ChatThreadUncheckedUpdateManyWithoutCommunityNestedInput
@@ -529,7 +559,8 @@ export type CommunityCreateWithoutThreadsInput = {
   slug: string
   name: string
   description?: string
-  emoji?: string
+  icon?: string
+  tint?: string
   createdAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutCommunityInput
   events?: Prisma.EventCreateNestedManyWithoutCommunityInput
@@ -540,7 +571,8 @@ export type CommunityUncheckedCreateWithoutThreadsInput = {
   slug: string
   name: string
   description?: string
-  emoji?: string
+  icon?: string
+  tint?: string
   createdAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutCommunityInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutCommunityInput
@@ -567,7 +599,8 @@ export type CommunityUpdateWithoutThreadsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.StringFieldUpdateOperationsInput | string
+  tint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutCommunityNestedInput
   events?: Prisma.EventUpdateManyWithoutCommunityNestedInput
@@ -578,7 +611,8 @@ export type CommunityUncheckedUpdateWithoutThreadsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.StringFieldUpdateOperationsInput | string
+  tint?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutCommunityNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutCommunityNestedInput
@@ -638,7 +672,8 @@ export type CommunitySelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   slug?: boolean
   name?: boolean
   description?: boolean
-  emoji?: boolean
+  icon?: boolean
+  tint?: boolean
   createdAt?: boolean
   memberships?: boolean | Prisma.Community$membershipsArgs<ExtArgs>
   events?: boolean | Prisma.Community$eventsArgs<ExtArgs>
@@ -651,7 +686,8 @@ export type CommunitySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   slug?: boolean
   name?: boolean
   description?: boolean
-  emoji?: boolean
+  icon?: boolean
+  tint?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["community"]>
 
@@ -660,7 +696,8 @@ export type CommunitySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   slug?: boolean
   name?: boolean
   description?: boolean
-  emoji?: boolean
+  icon?: boolean
+  tint?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["community"]>
 
@@ -669,11 +706,12 @@ export type CommunitySelectScalar = {
   slug?: boolean
   name?: boolean
   description?: boolean
-  emoji?: boolean
+  icon?: boolean
+  tint?: boolean
   createdAt?: boolean
 }
 
-export type CommunityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "name" | "description" | "emoji" | "createdAt", ExtArgs["result"]["community"]>
+export type CommunityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "name" | "description" | "icon" | "tint" | "createdAt", ExtArgs["result"]["community"]>
 export type CommunityInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.Community$membershipsArgs<ExtArgs>
   events?: boolean | Prisma.Community$eventsArgs<ExtArgs>
@@ -695,7 +733,8 @@ export type $CommunityPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     slug: string
     name: string
     description: string
-    emoji: string
+    icon: string
+    tint: string
     createdAt: Date
   }, ExtArgs["result"]["community"]>
   composites: {}
@@ -1127,7 +1166,8 @@ export interface CommunityFieldRefs {
   readonly slug: Prisma.FieldRef<"Community", 'String'>
   readonly name: Prisma.FieldRef<"Community", 'String'>
   readonly description: Prisma.FieldRef<"Community", 'String'>
-  readonly emoji: Prisma.FieldRef<"Community", 'String'>
+  readonly icon: Prisma.FieldRef<"Community", 'String'>
+  readonly tint: Prisma.FieldRef<"Community", 'String'>
   readonly createdAt: Prisma.FieldRef<"Community", 'DateTime'>
 }
     

@@ -1,61 +1,45 @@
-import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
+import { ApiError, clientIp, created, handle, readJson, throttle } from '@/lib/api'
 import { startSession } from '@/lib/auth-session'
 
 const registerSchema = z.object({
   name: z.string().trim().min(1).max(80),
-  email: z.string().trim().email().max(200),
+  email: z.string().trim().toLowerCase().pipe(z.email().max(200)),
   password: z.string().min(8).max(200),
+  isPrivate: z.boolean().default(false),
 })
 
-export async function POST(request: Request) {
-  let body: unknown
-  try {
-    body = await request.json()
-  } catch {
-    return NextResponse.json({ error: 'Invalid request.' }, { status: 400 })
-  }
+const EMAIL_TAKEN = 'An account with this email already exists. Try signing in instead.'
 
-  const parsed = registerSchema.safeParse(body)
+export const POST = handle(async (request) => {
+  throttle(`register:${clientIp(request)}`, 5, 10 * 60_000)
+
+  const parsed = registerSchema.safeParse(await readJson(request, z.unknown()))
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: 'Enter a name, a valid email, and a password of at least 8 characters.' },
-      { status: 400 },
-    )
+    throw new ApiError(400, 'Enter a name, a valid email, and a password of at least 8 characters.')
   }
+  const { name, email, password, isPrivate } = parsed.data
 
-  const email = parsed.data.email.toLowerCase()
-  const existing = await prisma.user.findUnique({ where: { email } })
-  if (existing) {
-    return NextResponse.json(
-      { error: 'An account with this email already exists. Try signing in instead.' },
-      { status: 409 },
-    )
-  }
+  const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } })
+  if (existing) throw new ApiError(409, EMAIL_TAKEN)
 
-  const passwordHash = await bcrypt.hash(parsed.data.password, 10)
-
-  let user
+  const passwordHash = await bcrypt.hash(password, 10)
+  let userId: string
   try {
-    user = await prisma.user.create({
-      data: { name: parsed.data.name, email, passwordHash },
-    })
-  } catch {
+    const user = await prisma.user.create({ data: { name, email, passwordHash, isPrivate }, select: { id: true } })
+    userId = user.id
+  } catch (error) {
     // Lost a race against a concurrent signup for the same address.
-    return NextResponse.json(
-      { error: 'An account with this email already exists. Try signing in instead.' },
-      { status: 409 },
-    )
+    if ((error as { code?: string }).code === 'P2002') throw new ApiError(409, EMAIL_TAKEN)
+    throw error
   }
 
   // Sign the new account in straight away so the user never has to repeat
   // their password on a second step.
-  const session = await startSession(email, parsed.data.password)
-  if (!session.ok) {
-    return NextResponse.json({ error: session.error, id: user.id }, { status: session.status })
-  }
+  const session = await startSession(email, password)
+  if (!session.ok) throw new ApiError(session.status, session.error)
 
-  return NextResponse.json({ id: user.id, ok: true }, { status: 201 })
-}
+  return created({ id: userId, ok: true })
+})

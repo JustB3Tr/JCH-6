@@ -1,0 +1,41 @@
+// A quiet, Apple Maps-like canvas: soft land, white roads, muted parks and
+// water, and no business labels competing with our own pins.
+export const LIGHT_MAP_STYLE: google.maps.MapTypeStyle[] = [
+  { elementType: 'geometry', stylers: [{ color: '#f4f4f1' }] },
+  { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#6f6f6d' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#ffffff' }, { weight: 3 }] },
+  { featureType: 'administrative', elementType: 'geometry', stylers: [{ color: '#e6e6e1' }] },
+  { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#4a4a48' }] },
+  { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#dbe8d3' }] },
+  { featureType: 'poi.sports_complex', elementType: 'geometry', stylers: [{ color: '#e2ecdb' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
+  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#e9e9e4' }] },
+  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#f8e7c6' }] },
+  { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#f0dcb4' }] },
+  { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#8a8a86' }] },
+  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#cfe2ef' }] },
+  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#8fb3c9' }] },
+]
+
+export const DARK_MAP_STYLE: google.maps.MapTypeStyle[] = [
+  { elementType: 'geometry', stylers: [{ color: '#141416' }] },
+  { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#9a9a9e' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#141416' }, { weight: 3 }] },
+  { featureType: 'administrative', elementType: 'geometry', stylers: [{ color: '#26262a' }] },
+  { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#c7c7cc' }] },
+  { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#1b2a1e' }] },
+  { featureType: 'poi.sports_complex', elementType: 'geometry', stylers: [{ color: '#1d2a20' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2a2a2e' }] },
+  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#1f1f22' }] },
+  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3a3325' }] },
+  { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#2c271c' }] },
+  { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#7c7c80' }] },
+  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0f2230' }] },
+  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#3f6a83' }] },
+]

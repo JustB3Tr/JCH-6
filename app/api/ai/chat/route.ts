@@ -1,180 +1,177 @@
-import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
-import { getUserId } from '@/lib/api-auth'
-import { AI_TOOLS, runTool } from '@/lib/ai-tools'
+import { ApiError, getUserId, handle, readJson, requireUserId, throttle } from '@/lib/api'
+import { runAgent } from '@/lib/ai/agent'
+import { ModelError } from '@/lib/ai/ollama'
+import type { GuideSession } from '@/lib/ai/prompt'
+import type { AiStreamEvent } from '@/lib/types'
 
-const OLLAMA_URL = process.env.OLLAMA_URL || 'http://69.234.42.159:11434'
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'Imagination-2.1-Pro'
-const MODEL_TIMEOUT_MS = 90_000
-const MAX_TOOL_ROUNDS = 4
-
-// Simple in-memory rate limit: 20 requests per user per minute.
-const rateBuckets = new Map<string, number[]>()
-function rateLimited(userId: string) {
-  const now = Date.now()
-  const windowStart = now - 60_000
-  const hits = (rateBuckets.get(userId) ?? []).filter((t) => t > windowStart)
-  hits.push(now)
-  rateBuckets.set(userId, hits)
-  return hits.length > 20
-}
+const HISTORY_LIMIT = 16
 
 const chatSchema = z.object({
-  chatId: z.string().optional().nullable(),
-  message: z.string().trim().min(1).max(4000),
+  chatId: z.string().max(40).nullish(),
+  message: z.string().trim().min(1).max(2000),
+  location: z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }).nullish(),
+  focusPlaceId: z.string().max(40).nullish(),
 })
 
-const SYSTEM_PROMPT = [
-  'You are the friendly local guide for a community hangout map app covering Los Angeles County.',
-  'You have tools that read the app database: search_places, get_place, nearby_places, list_events, list_communities.',
-  'Always call a tool before naming a specific place, event or community. Never invent spots, addresses or events.',
-  'If a tool returns nothing, say so plainly and suggest a broader search instead of guessing.',
-  'When you recommend places, name them with their neighborhood and one practical detail (amenities, parking, shade).',
-  'Keep answers warm, concise and practical. Use short paragraphs or a compact list, no markdown tables.',
-].join(' ')
+type StoredMeta = { tools?: string[]; placeIds?: string[] }
 
-type OllamaToolCall = {
-  function?: { name?: string; arguments?: unknown }
+function metaOf(meta: unknown): StoredMeta {
+  return meta && typeof meta === 'object' ? (meta as StoredMeta) : {}
 }
 
-type OllamaMessage = {
-  role: 'system' | 'user' | 'assistant' | 'tool'
-  content: string
-  tool_calls?: OllamaToolCall[]
-  tool_name?: string
-}
-
-async function callModel(messages: OllamaMessage[], useTools: boolean) {
-  const response = await fetch(`${OLLAMA_URL}/api/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: OLLAMA_MODEL,
-      stream: false,
-      think: false,
-      ...(useTools ? { tools: AI_TOOLS } : {}),
-      messages,
-      options: { temperature: 0.6 },
+async function buildSession(
+  userId: string,
+  location: { lat: number; lng: number } | null,
+  focusPlaceId: string | null,
+): Promise<GuideSession> {
+  const [user, memberships, amenities, focusPlace] = await Promise.all([
+    prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { name: true, isPrivate: true, homeArea: true },
     }),
-    signal: AbortSignal.timeout(MODEL_TIMEOUT_MS),
-  })
+    prisma.membership.findMany({
+      where: { userId },
+      select: { community: { select: { name: true } } },
+      take: 8,
+    }),
+    prisma.amenity.findMany({ orderBy: { label: 'asc' }, select: { slug: true, label: true } }),
+    focusPlaceId
+      ? prisma.place.findUnique({ where: { id: focusPlaceId }, select: { id: true, name: true } })
+      : null,
+  ])
 
-  if (!response.ok) throw new Error(`Model responded with ${response.status}`)
-
-  const data = (await response.json()) as {
-    message?: { content?: string; tool_calls?: OllamaToolCall[] }
+  return {
+    now: new Date(),
+    userName: user.name,
+    isPrivate: user.isPrivate,
+    homeArea: user.homeArea,
+    location,
+    focusPlace,
+    communities: memberships.map((m) => m.community.name),
+    amenities,
   }
-  return data.message ?? {}
 }
 
-async function answerWithTools(conversation: OllamaMessage[]) {
-  for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-    const message = await callModel(conversation, true)
-    const toolCalls = message.tool_calls ?? []
+/**
+ * POST /api/ai/chat
+ * Streams one JSON event per line (see AiStreamEvent). The reply and the
+ * places it cited are saved once the agent finishes.
+ */
+export const POST = handle(async (request) => {
+  const userId = await requireUserId()
+  throttle(`ai:${userId}`, 20)
+  const input = await readJson(request, chatSchema)
 
-    if (!toolCalls.length) {
-      const content = (message.content ?? '').trim()
-      if (content) return content
-      break
-    }
+  const existing = input.chatId
+    ? await prisma.aiChat.findFirst({ where: { id: input.chatId, userId }, select: { id: true } })
+    : null
+  if (input.chatId && !existing) throw new ApiError(404, 'That chat could not be found.')
 
-    conversation.push({
-      role: 'assistant',
-      content: message.content ?? '',
-      tool_calls: toolCalls,
-    })
+  const chat =
+    existing ??
+    (await prisma.aiChat.create({
+      data: { userId, title: input.message.slice(0, 60) },
+      select: { id: true },
+    }))
 
-    for (const call of toolCalls) {
-      const name = call.function?.name ?? ''
-      const result = await runTool(name, call.function?.arguments)
-      conversation.push({ role: 'tool', tool_name: name, content: JSON.stringify(result) })
-    }
-  }
-
-  // Tool budget spent (or the model returned nothing) — force a plain answer.
-  const finalMessage = await callModel(
-    [
-      ...conversation,
-      {
-        role: 'user',
-        content: 'Answer my last question now using the tool results above. Do not call any more tools.',
-      },
-    ],
-    false,
-  )
-  return (finalMessage.content ?? '').trim()
-}
-
-export async function POST(request: Request) {
-  const userId = await getUserId()
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (rateLimited(userId)) {
-    return NextResponse.json({ error: 'Too many requests — try again in a minute.' }, { status: 429 })
-  }
-
-  const parsed = chatSchema.safeParse(await request.json().catch(() => null))
-  if (!parsed.success) return NextResponse.json({ error: 'Invalid message.' }, { status: 400 })
-
-  // Reuse or create the chat, titling it from the first user message.
-  let chatId = parsed.data.chatId || null
-  if (chatId) {
-    const owned = await prisma.aiChat.findFirst({ where: { id: chatId, userId }, select: { id: true } })
-    if (!owned) return NextResponse.json({ error: 'Chat not found.' }, { status: 404 })
-  } else {
-    const chat = await prisma.aiChat.create({
-      data: { userId, title: parsed.data.message.slice(0, 60) },
-    })
-    chatId = chat.id
-  }
-
-  await prisma.aiMessage.create({
-    data: { chatId, role: 'user', content: parsed.data.message },
+  const userMessage = await prisma.aiMessage.create({
+    data: { chatId: chat.id, role: 'user', content: input.message },
+    select: { id: true },
   })
 
-  const history = await prisma.aiMessage.findMany({
-    where: { chatId },
-    orderBy: { createdAt: 'asc' },
-    take: 20,
-  })
+  // The newest message is the one just saved, so the transcript the model sees
+  // always ends with the user's question.
+  const [recent, session] = await Promise.all([
+    prisma.aiMessage.findMany({
+      where: { chatId: chat.id },
+      orderBy: { createdAt: 'desc' },
+      take: HISTORY_LIMIT,
+      select: { role: true, content: true, meta: true },
+    }),
+    buildSession(userId, input.location ?? null, input.focusPlaceId ?? null),
+  ])
+  const history = recent.reverse()
 
-  const conversation: OllamaMessage[] = [
-    { role: 'system', content: SYSTEM_PROMPT },
-    ...history.map((m) => ({
-      role: m.role === 'assistant' ? ('assistant' as const) : ('user' as const),
-      content: m.content,
-    })),
-  ]
-
-  let answer = ''
-  try {
-    answer = await answerWithTools(conversation)
-  } catch (error) {
-    console.log('[v0] AI chat failed:', error instanceof Error ? error.message : error)
-  }
-
-  if (!answer) {
-    answer = 'Sorry — the AI service is unreachable right now. Please try again shortly.'
-  }
-
-  const savedChatId = chatId
-  await prisma.aiMessage.create({
-    data: { chatId: savedChatId, role: 'assistant', content: answer },
-  })
+  const loadedTools = new Set<string>()
+  for (const message of history) for (const tool of metaOf(message.meta).tools ?? []) loadedTools.add(tool)
 
   const encoder = new TextEncoder()
   const stream = new ReadableStream<Uint8Array>({
-    start(controller) {
-      controller.enqueue(encoder.encode(answer))
-      controller.close()
+    async start(controller) {
+      let closed = false
+      const send = (event: AiStreamEvent) => {
+        if (closed) return
+        controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`))
+      }
+
+      send({ type: 'chat', chatId: chat.id })
+
+      try {
+        const result = await runAgent({
+          userId,
+          session,
+          location: input.location ?? null,
+          history: history.map((m) => ({ role: m.role, content: m.content })),
+          loadedTools: [...loadedTools],
+          emit: send,
+          signal: request.signal,
+        })
+
+        const saved = await prisma.aiMessage.create({
+          data: {
+            chatId: chat.id,
+            role: 'assistant',
+            content: result.text,
+            meta: { tools: result.tools, placeIds: result.places.map((p) => p.id) },
+          },
+          select: { id: true },
+        })
+        await prisma.aiChat.update({ where: { id: chat.id }, data: { updatedAt: new Date() } })
+
+        if (result.places.length) send({ type: 'places', places: result.places })
+        send({ type: 'done', messageId: saved.id, tools: result.tools })
+      } catch (error) {
+        // Nothing was answered, so drop the question too: a retry should not
+        // leave a duplicate in the transcript.
+        await prisma.aiMessage.delete({ where: { id: userMessage.id } }).catch(() => {})
+        if (!existing) {
+          const remaining = await prisma.aiMessage.count({ where: { chatId: chat.id } }).catch(() => 1)
+          if (remaining === 0) await prisma.aiChat.delete({ where: { id: chat.id } }).catch(() => {})
+        }
+        const message =
+          error instanceof ModelError
+            ? 'The guide is not reachable right now. Try again in a moment.'
+            : 'Something went wrong while answering. Try again.'
+        console.error('[ai] chat failed:', error)
+        send({ type: 'error', message })
+      } finally {
+        closed = true
+        controller.close()
+      }
     },
   })
 
   return new Response(stream, {
     headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'X-Chat-Id': savedChatId,
-      'Cache-Control': 'no-store',
+      'Content-Type': 'application/x-ndjson; charset=utf-8',
+      'Cache-Control': 'no-store, no-transform',
+      'X-Accel-Buffering': 'no',
     },
   })
-}
+})
+
+/** GET /api/ai/chat — the viewer's recent chats. */
+export const GET = handle(async () => {
+  const userId = await getUserId()
+  if (!userId) return { chats: [] }
+
+  const chats = await prisma.aiChat.findMany({
+    where: { userId },
+    orderBy: { updatedAt: 'desc' },
+    take: 30,
+    select: { id: true, title: true, updatedAt: true },
+  })
+  return { chats: chats.map((c) => ({ ...c, updatedAt: c.updatedAt.toISOString() })) }
+})

@@ -29,11 +29,15 @@ export type AggregatePlace = {
 export type PlaceAvgAggregateOutputType = {
   lat: number | null
   lng: number | null
+  ratingAvg: number | null
+  ratingCount: number | null
 }
 
 export type PlaceSumAggregateOutputType = {
   lat: number | null
   lng: number | null
+  ratingAvg: number | null
+  ratingCount: number | null
 }
 
 export type PlaceMinAggregateOutputType = {
@@ -41,14 +45,17 @@ export type PlaceMinAggregateOutputType = {
   googlePlaceId: string | null
   name: string | null
   description: string | null
-  type: string | null
+  type: $Enums.PlaceType | null
   lat: number | null
   lng: number | null
   address: string | null
-  photoUrl: string | null
+  photoRef: string | null
+  ratingAvg: number | null
+  ratingCount: number | null
   approved: boolean | null
   createdById: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PlaceMaxAggregateOutputType = {
@@ -56,14 +63,17 @@ export type PlaceMaxAggregateOutputType = {
   googlePlaceId: string | null
   name: string | null
   description: string | null
-  type: string | null
+  type: $Enums.PlaceType | null
   lat: number | null
   lng: number | null
   address: string | null
-  photoUrl: string | null
+  photoRef: string | null
+  ratingAvg: number | null
+  ratingCount: number | null
   approved: boolean | null
   createdById: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PlaceCountAggregateOutputType = {
@@ -75,10 +85,13 @@ export type PlaceCountAggregateOutputType = {
   lat: number
   lng: number
   address: number
-  photoUrl: number
+  photoRef: number
+  ratingAvg: number
+  ratingCount: number
   approved: number
   createdById: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -86,11 +99,15 @@ export type PlaceCountAggregateOutputType = {
 export type PlaceAvgAggregateInputType = {
   lat?: true
   lng?: true
+  ratingAvg?: true
+  ratingCount?: true
 }
 
 export type PlaceSumAggregateInputType = {
   lat?: true
   lng?: true
+  ratingAvg?: true
+  ratingCount?: true
 }
 
 export type PlaceMinAggregateInputType = {
@@ -102,10 +119,13 @@ export type PlaceMinAggregateInputType = {
   lat?: true
   lng?: true
   address?: true
-  photoUrl?: true
+  photoRef?: true
+  ratingAvg?: true
+  ratingCount?: true
   approved?: true
   createdById?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PlaceMaxAggregateInputType = {
@@ -117,10 +137,13 @@ export type PlaceMaxAggregateInputType = {
   lat?: true
   lng?: true
   address?: true
-  photoUrl?: true
+  photoRef?: true
+  ratingAvg?: true
+  ratingCount?: true
   approved?: true
   createdById?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PlaceCountAggregateInputType = {
@@ -132,10 +155,13 @@ export type PlaceCountAggregateInputType = {
   lat?: true
   lng?: true
   address?: true
-  photoUrl?: true
+  photoRef?: true
+  ratingAvg?: true
+  ratingCount?: true
   approved?: true
   createdById?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -230,14 +256,17 @@ export type PlaceGroupByOutputType = {
   googlePlaceId: string | null
   name: string
   description: string
-  type: string
+  type: $Enums.PlaceType
   lat: number
   lng: number
   address: string | null
-  photoUrl: string | null
+  photoRef: string | null
+  ratingAvg: number | null
+  ratingCount: number
   approved: boolean
   createdById: string | null
   createdAt: Date
+  updatedAt: Date
   _count: PlaceCountAggregateOutputType | null
   _avg: PlaceAvgAggregateOutputType | null
   _sum: PlaceSumAggregateOutputType | null
@@ -268,18 +297,22 @@ export type PlaceWhereInput = {
   googlePlaceId?: Prisma.StringNullableFilter<"Place"> | string | null
   name?: Prisma.StringFilter<"Place"> | string
   description?: Prisma.StringFilter<"Place"> | string
-  type?: Prisma.StringFilter<"Place"> | string
+  type?: Prisma.EnumPlaceTypeFilter<"Place"> | $Enums.PlaceType
   lat?: Prisma.FloatFilter<"Place"> | number
   lng?: Prisma.FloatFilter<"Place"> | number
   address?: Prisma.StringNullableFilter<"Place"> | string | null
-  photoUrl?: Prisma.StringNullableFilter<"Place"> | string | null
+  photoRef?: Prisma.StringNullableFilter<"Place"> | string | null
+  ratingAvg?: Prisma.FloatNullableFilter<"Place"> | number | null
+  ratingCount?: Prisma.IntFilter<"Place"> | number
   approved?: Prisma.BoolFilter<"Place"> | boolean
   createdById?: Prisma.StringNullableFilter<"Place"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Place"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Place"> | Date | string
   createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   amenities?: Prisma.PlaceAmenityListRelationFilter
   events?: Prisma.EventListRelationFilter
   feedbacks?: Prisma.FeedbackListRelationFilter
+  savedBy?: Prisma.SavedPlaceListRelationFilter
 }
 
 export type PlaceOrderByWithRelationInput = {
@@ -291,14 +324,18 @@ export type PlaceOrderByWithRelationInput = {
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
-  photoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  photoRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  ratingAvg?: Prisma.SortOrderInput | Prisma.SortOrder
+  ratingCount?: Prisma.SortOrder
   approved?: Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   createdBy?: Prisma.UserOrderByWithRelationInput
   amenities?: Prisma.PlaceAmenityOrderByRelationAggregateInput
   events?: Prisma.EventOrderByRelationAggregateInput
   feedbacks?: Prisma.FeedbackOrderByRelationAggregateInput
+  savedBy?: Prisma.SavedPlaceOrderByRelationAggregateInput
 }
 
 export type PlaceWhereUniqueInput = Prisma.AtLeast<{
@@ -309,18 +346,22 @@ export type PlaceWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.PlaceWhereInput | Prisma.PlaceWhereInput[]
   name?: Prisma.StringFilter<"Place"> | string
   description?: Prisma.StringFilter<"Place"> | string
-  type?: Prisma.StringFilter<"Place"> | string
+  type?: Prisma.EnumPlaceTypeFilter<"Place"> | $Enums.PlaceType
   lat?: Prisma.FloatFilter<"Place"> | number
   lng?: Prisma.FloatFilter<"Place"> | number
   address?: Prisma.StringNullableFilter<"Place"> | string | null
-  photoUrl?: Prisma.StringNullableFilter<"Place"> | string | null
+  photoRef?: Prisma.StringNullableFilter<"Place"> | string | null
+  ratingAvg?: Prisma.FloatNullableFilter<"Place"> | number | null
+  ratingCount?: Prisma.IntFilter<"Place"> | number
   approved?: Prisma.BoolFilter<"Place"> | boolean
   createdById?: Prisma.StringNullableFilter<"Place"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Place"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Place"> | Date | string
   createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   amenities?: Prisma.PlaceAmenityListRelationFilter
   events?: Prisma.EventListRelationFilter
   feedbacks?: Prisma.FeedbackListRelationFilter
+  savedBy?: Prisma.SavedPlaceListRelationFilter
 }, "id" | "googlePlaceId">
 
 export type PlaceOrderByWithAggregationInput = {
@@ -332,10 +373,13 @@ export type PlaceOrderByWithAggregationInput = {
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
-  photoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  photoRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  ratingAvg?: Prisma.SortOrderInput | Prisma.SortOrder
+  ratingCount?: Prisma.SortOrder
   approved?: Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PlaceCountOrderByAggregateInput
   _avg?: Prisma.PlaceAvgOrderByAggregateInput
   _max?: Prisma.PlaceMaxOrderByAggregateInput
@@ -351,14 +395,17 @@ export type PlaceScalarWhereWithAggregatesInput = {
   googlePlaceId?: Prisma.StringNullableWithAggregatesFilter<"Place"> | string | null
   name?: Prisma.StringWithAggregatesFilter<"Place"> | string
   description?: Prisma.StringWithAggregatesFilter<"Place"> | string
-  type?: Prisma.StringWithAggregatesFilter<"Place"> | string
+  type?: Prisma.EnumPlaceTypeWithAggregatesFilter<"Place"> | $Enums.PlaceType
   lat?: Prisma.FloatWithAggregatesFilter<"Place"> | number
   lng?: Prisma.FloatWithAggregatesFilter<"Place"> | number
   address?: Prisma.StringNullableWithAggregatesFilter<"Place"> | string | null
-  photoUrl?: Prisma.StringNullableWithAggregatesFilter<"Place"> | string | null
+  photoRef?: Prisma.StringNullableWithAggregatesFilter<"Place"> | string | null
+  ratingAvg?: Prisma.FloatNullableWithAggregatesFilter<"Place"> | number | null
+  ratingCount?: Prisma.IntWithAggregatesFilter<"Place"> | number
   approved?: Prisma.BoolWithAggregatesFilter<"Place"> | boolean
   createdById?: Prisma.StringNullableWithAggregatesFilter<"Place"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Place"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Place"> | Date | string
 }
 
 export type PlaceCreateInput = {
@@ -366,17 +413,21 @@ export type PlaceCreateInput = {
   googlePlaceId?: string | null
   name: string
   description?: string
-  type?: string
+  type?: $Enums.PlaceType
   lat: number
   lng: number
   address?: string | null
-  photoUrl?: string | null
+  photoRef?: string | null
+  ratingAvg?: number | null
+  ratingCount?: number
   approved?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   createdBy?: Prisma.UserCreateNestedOneWithoutPlacesInput
   amenities?: Prisma.PlaceAmenityCreateNestedManyWithoutPlaceInput
   events?: Prisma.EventCreateNestedManyWithoutPlaceInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutPlaceInput
+  savedBy?: Prisma.SavedPlaceCreateNestedManyWithoutPlaceInput
 }
 
 export type PlaceUncheckedCreateInput = {
@@ -384,17 +435,21 @@ export type PlaceUncheckedCreateInput = {
   googlePlaceId?: string | null
   name: string
   description?: string
-  type?: string
+  type?: $Enums.PlaceType
   lat: number
   lng: number
   address?: string | null
-  photoUrl?: string | null
+  photoRef?: string | null
+  ratingAvg?: number | null
+  ratingCount?: number
   approved?: boolean
   createdById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   amenities?: Prisma.PlaceAmenityUncheckedCreateNestedManyWithoutPlaceInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutPlaceInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutPlaceInput
+  savedBy?: Prisma.SavedPlaceUncheckedCreateNestedManyWithoutPlaceInput
 }
 
 export type PlaceUpdateInput = {
@@ -402,17 +457,21 @@ export type PlaceUpdateInput = {
   googlePlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumPlaceTypeFieldUpdateOperationsInput | $Enums.PlaceType
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photoRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratingAvg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ratingCount?: Prisma.IntFieldUpdateOperationsInput | number
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.UserUpdateOneWithoutPlacesNestedInput
   amenities?: Prisma.PlaceAmenityUpdateManyWithoutPlaceNestedInput
   events?: Prisma.EventUpdateManyWithoutPlaceNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutPlaceNestedInput
+  savedBy?: Prisma.SavedPlaceUpdateManyWithoutPlaceNestedInput
 }
 
 export type PlaceUncheckedUpdateInput = {
@@ -420,17 +479,21 @@ export type PlaceUncheckedUpdateInput = {
   googlePlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumPlaceTypeFieldUpdateOperationsInput | $Enums.PlaceType
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photoRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratingAvg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ratingCount?: Prisma.IntFieldUpdateOperationsInput | number
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   amenities?: Prisma.PlaceAmenityUncheckedUpdateManyWithoutPlaceNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutPlaceNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutPlaceNestedInput
+  savedBy?: Prisma.SavedPlaceUncheckedUpdateManyWithoutPlaceNestedInput
 }
 
 export type PlaceCreateManyInput = {
@@ -438,14 +501,17 @@ export type PlaceCreateManyInput = {
   googlePlaceId?: string | null
   name: string
   description?: string
-  type?: string
+  type?: $Enums.PlaceType
   lat: number
   lng: number
   address?: string | null
-  photoUrl?: string | null
+  photoRef?: string | null
+  ratingAvg?: number | null
+  ratingCount?: number
   approved?: boolean
   createdById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PlaceUpdateManyMutationInput = {
@@ -453,13 +519,16 @@ export type PlaceUpdateManyMutationInput = {
   googlePlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumPlaceTypeFieldUpdateOperationsInput | $Enums.PlaceType
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photoRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratingAvg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ratingCount?: Prisma.IntFieldUpdateOperationsInput | number
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PlaceUncheckedUpdateManyInput = {
@@ -467,14 +536,17 @@ export type PlaceUncheckedUpdateManyInput = {
   googlePlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumPlaceTypeFieldUpdateOperationsInput | $Enums.PlaceType
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photoRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratingAvg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ratingCount?: Prisma.IntFieldUpdateOperationsInput | number
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PlaceListRelationFilter = {
@@ -496,15 +568,20 @@ export type PlaceCountOrderByAggregateInput = {
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
   address?: Prisma.SortOrder
-  photoUrl?: Prisma.SortOrder
+  photoRef?: Prisma.SortOrder
+  ratingAvg?: Prisma.SortOrder
+  ratingCount?: Prisma.SortOrder
   approved?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PlaceAvgOrderByAggregateInput = {
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
+  ratingAvg?: Prisma.SortOrder
+  ratingCount?: Prisma.SortOrder
 }
 
 export type PlaceMaxOrderByAggregateInput = {
@@ -516,10 +593,13 @@ export type PlaceMaxOrderByAggregateInput = {
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
   address?: Prisma.SortOrder
-  photoUrl?: Prisma.SortOrder
+  photoRef?: Prisma.SortOrder
+  ratingAvg?: Prisma.SortOrder
+  ratingCount?: Prisma.SortOrder
   approved?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PlaceMinOrderByAggregateInput = {
@@ -531,15 +611,20 @@ export type PlaceMinOrderByAggregateInput = {
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
   address?: Prisma.SortOrder
-  photoUrl?: Prisma.SortOrder
+  photoRef?: Prisma.SortOrder
+  ratingAvg?: Prisma.SortOrder
+  ratingCount?: Prisma.SortOrder
   approved?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PlaceSumOrderByAggregateInput = {
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
+  ratingAvg?: Prisma.SortOrder
+  ratingCount?: Prisma.SortOrder
 }
 
 export type PlaceScalarRelationFilter = {
@@ -594,6 +679,10 @@ export type PlaceUncheckedUpdateManyWithoutCreatedByNestedInput = {
   deleteMany?: Prisma.PlaceScalarWhereInput | Prisma.PlaceScalarWhereInput[]
 }
 
+export type EnumPlaceTypeFieldUpdateOperationsInput = {
+  set?: $Enums.PlaceType
+}
+
 export type FloatFieldUpdateOperationsInput = {
   set?: number
   increment?: number
@@ -602,8 +691,20 @@ export type FloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
+export type NullableFloatFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type PlaceCreateNestedOneWithoutAmenitiesInput = {
@@ -618,6 +719,20 @@ export type PlaceUpdateOneRequiredWithoutAmenitiesNestedInput = {
   upsert?: Prisma.PlaceUpsertWithoutAmenitiesInput
   connect?: Prisma.PlaceWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.PlaceUpdateToOneWithWhereWithoutAmenitiesInput, Prisma.PlaceUpdateWithoutAmenitiesInput>, Prisma.PlaceUncheckedUpdateWithoutAmenitiesInput>
+}
+
+export type PlaceCreateNestedOneWithoutSavedByInput = {
+  create?: Prisma.XOR<Prisma.PlaceCreateWithoutSavedByInput, Prisma.PlaceUncheckedCreateWithoutSavedByInput>
+  connectOrCreate?: Prisma.PlaceCreateOrConnectWithoutSavedByInput
+  connect?: Prisma.PlaceWhereUniqueInput
+}
+
+export type PlaceUpdateOneRequiredWithoutSavedByNestedInput = {
+  create?: Prisma.XOR<Prisma.PlaceCreateWithoutSavedByInput, Prisma.PlaceUncheckedCreateWithoutSavedByInput>
+  connectOrCreate?: Prisma.PlaceCreateOrConnectWithoutSavedByInput
+  upsert?: Prisma.PlaceUpsertWithoutSavedByInput
+  connect?: Prisma.PlaceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PlaceUpdateToOneWithWhereWithoutSavedByInput, Prisma.PlaceUpdateWithoutSavedByInput>, Prisma.PlaceUncheckedUpdateWithoutSavedByInput>
 }
 
 export type PlaceCreateNestedOneWithoutEventsInput = {
@@ -657,16 +772,20 @@ export type PlaceCreateWithoutCreatedByInput = {
   googlePlaceId?: string | null
   name: string
   description?: string
-  type?: string
+  type?: $Enums.PlaceType
   lat: number
   lng: number
   address?: string | null
-  photoUrl?: string | null
+  photoRef?: string | null
+  ratingAvg?: number | null
+  ratingCount?: number
   approved?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   amenities?: Prisma.PlaceAmenityCreateNestedManyWithoutPlaceInput
   events?: Prisma.EventCreateNestedManyWithoutPlaceInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutPlaceInput
+  savedBy?: Prisma.SavedPlaceCreateNestedManyWithoutPlaceInput
 }
 
 export type PlaceUncheckedCreateWithoutCreatedByInput = {
@@ -674,16 +793,20 @@ export type PlaceUncheckedCreateWithoutCreatedByInput = {
   googlePlaceId?: string | null
   name: string
   description?: string
-  type?: string
+  type?: $Enums.PlaceType
   lat: number
   lng: number
   address?: string | null
-  photoUrl?: string | null
+  photoRef?: string | null
+  ratingAvg?: number | null
+  ratingCount?: number
   approved?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   amenities?: Prisma.PlaceAmenityUncheckedCreateNestedManyWithoutPlaceInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutPlaceInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutPlaceInput
+  savedBy?: Prisma.SavedPlaceUncheckedCreateNestedManyWithoutPlaceInput
 }
 
 export type PlaceCreateOrConnectWithoutCreatedByInput = {
@@ -720,14 +843,17 @@ export type PlaceScalarWhereInput = {
   googlePlaceId?: Prisma.StringNullableFilter<"Place"> | string | null
   name?: Prisma.StringFilter<"Place"> | string
   description?: Prisma.StringFilter<"Place"> | string
-  type?: Prisma.StringFilter<"Place"> | string
+  type?: Prisma.EnumPlaceTypeFilter<"Place"> | $Enums.PlaceType
   lat?: Prisma.FloatFilter<"Place"> | number
   lng?: Prisma.FloatFilter<"Place"> | number
   address?: Prisma.StringNullableFilter<"Place"> | string | null
-  photoUrl?: Prisma.StringNullableFilter<"Place"> | string | null
+  photoRef?: Prisma.StringNullableFilter<"Place"> | string | null
+  ratingAvg?: Prisma.FloatNullableFilter<"Place"> | number | null
+  ratingCount?: Prisma.IntFilter<"Place"> | number
   approved?: Prisma.BoolFilter<"Place"> | boolean
   createdById?: Prisma.StringNullableFilter<"Place"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Place"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Place"> | Date | string
 }
 
 export type PlaceCreateWithoutAmenitiesInput = {
@@ -735,16 +861,20 @@ export type PlaceCreateWithoutAmenitiesInput = {
   googlePlaceId?: string | null
   name: string
   description?: string
-  type?: string
+  type?: $Enums.PlaceType
   lat: number
   lng: number
   address?: string | null
-  photoUrl?: string | null
+  photoRef?: string | null
+  ratingAvg?: number | null
+  ratingCount?: number
   approved?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   createdBy?: Prisma.UserCreateNestedOneWithoutPlacesInput
   events?: Prisma.EventCreateNestedManyWithoutPlaceInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutPlaceInput
+  savedBy?: Prisma.SavedPlaceCreateNestedManyWithoutPlaceInput
 }
 
 export type PlaceUncheckedCreateWithoutAmenitiesInput = {
@@ -752,16 +882,20 @@ export type PlaceUncheckedCreateWithoutAmenitiesInput = {
   googlePlaceId?: string | null
   name: string
   description?: string
-  type?: string
+  type?: $Enums.PlaceType
   lat: number
   lng: number
   address?: string | null
-  photoUrl?: string | null
+  photoRef?: string | null
+  ratingAvg?: number | null
+  ratingCount?: number
   approved?: boolean
   createdById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   events?: Prisma.EventUncheckedCreateNestedManyWithoutPlaceInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutPlaceInput
+  savedBy?: Prisma.SavedPlaceUncheckedCreateNestedManyWithoutPlaceInput
 }
 
 export type PlaceCreateOrConnectWithoutAmenitiesInput = {
@@ -785,16 +919,20 @@ export type PlaceUpdateWithoutAmenitiesInput = {
   googlePlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumPlaceTypeFieldUpdateOperationsInput | $Enums.PlaceType
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photoRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratingAvg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ratingCount?: Prisma.IntFieldUpdateOperationsInput | number
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.UserUpdateOneWithoutPlacesNestedInput
   events?: Prisma.EventUpdateManyWithoutPlaceNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutPlaceNestedInput
+  savedBy?: Prisma.SavedPlaceUpdateManyWithoutPlaceNestedInput
 }
 
 export type PlaceUncheckedUpdateWithoutAmenitiesInput = {
@@ -802,14 +940,118 @@ export type PlaceUncheckedUpdateWithoutAmenitiesInput = {
   googlePlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumPlaceTypeFieldUpdateOperationsInput | $Enums.PlaceType
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photoRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratingAvg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ratingCount?: Prisma.IntFieldUpdateOperationsInput | number
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  events?: Prisma.EventUncheckedUpdateManyWithoutPlaceNestedInput
+  feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutPlaceNestedInput
+  savedBy?: Prisma.SavedPlaceUncheckedUpdateManyWithoutPlaceNestedInput
+}
+
+export type PlaceCreateWithoutSavedByInput = {
+  id?: string
+  googlePlaceId?: string | null
+  name: string
+  description?: string
+  type?: $Enums.PlaceType
+  lat: number
+  lng: number
+  address?: string | null
+  photoRef?: string | null
+  ratingAvg?: number | null
+  ratingCount?: number
+  approved?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdBy?: Prisma.UserCreateNestedOneWithoutPlacesInput
+  amenities?: Prisma.PlaceAmenityCreateNestedManyWithoutPlaceInput
+  events?: Prisma.EventCreateNestedManyWithoutPlaceInput
+  feedbacks?: Prisma.FeedbackCreateNestedManyWithoutPlaceInput
+}
+
+export type PlaceUncheckedCreateWithoutSavedByInput = {
+  id?: string
+  googlePlaceId?: string | null
+  name: string
+  description?: string
+  type?: $Enums.PlaceType
+  lat: number
+  lng: number
+  address?: string | null
+  photoRef?: string | null
+  ratingAvg?: number | null
+  ratingCount?: number
+  approved?: boolean
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  amenities?: Prisma.PlaceAmenityUncheckedCreateNestedManyWithoutPlaceInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutPlaceInput
+  feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutPlaceInput
+}
+
+export type PlaceCreateOrConnectWithoutSavedByInput = {
+  where: Prisma.PlaceWhereUniqueInput
+  create: Prisma.XOR<Prisma.PlaceCreateWithoutSavedByInput, Prisma.PlaceUncheckedCreateWithoutSavedByInput>
+}
+
+export type PlaceUpsertWithoutSavedByInput = {
+  update: Prisma.XOR<Prisma.PlaceUpdateWithoutSavedByInput, Prisma.PlaceUncheckedUpdateWithoutSavedByInput>
+  create: Prisma.XOR<Prisma.PlaceCreateWithoutSavedByInput, Prisma.PlaceUncheckedCreateWithoutSavedByInput>
+  where?: Prisma.PlaceWhereInput
+}
+
+export type PlaceUpdateToOneWithWhereWithoutSavedByInput = {
+  where?: Prisma.PlaceWhereInput
+  data: Prisma.XOR<Prisma.PlaceUpdateWithoutSavedByInput, Prisma.PlaceUncheckedUpdateWithoutSavedByInput>
+}
+
+export type PlaceUpdateWithoutSavedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  googlePlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumPlaceTypeFieldUpdateOperationsInput | $Enums.PlaceType
+  lat?: Prisma.FloatFieldUpdateOperationsInput | number
+  lng?: Prisma.FloatFieldUpdateOperationsInput | number
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photoRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratingAvg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ratingCount?: Prisma.IntFieldUpdateOperationsInput | number
+  approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneWithoutPlacesNestedInput
+  amenities?: Prisma.PlaceAmenityUpdateManyWithoutPlaceNestedInput
+  events?: Prisma.EventUpdateManyWithoutPlaceNestedInput
+  feedbacks?: Prisma.FeedbackUpdateManyWithoutPlaceNestedInput
+}
+
+export type PlaceUncheckedUpdateWithoutSavedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  googlePlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumPlaceTypeFieldUpdateOperationsInput | $Enums.PlaceType
+  lat?: Prisma.FloatFieldUpdateOperationsInput | number
+  lng?: Prisma.FloatFieldUpdateOperationsInput | number
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photoRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratingAvg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ratingCount?: Prisma.IntFieldUpdateOperationsInput | number
+  approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  amenities?: Prisma.PlaceAmenityUncheckedUpdateManyWithoutPlaceNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutPlaceNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutPlaceNestedInput
 }
@@ -819,16 +1061,20 @@ export type PlaceCreateWithoutEventsInput = {
   googlePlaceId?: string | null
   name: string
   description?: string
-  type?: string
+  type?: $Enums.PlaceType
   lat: number
   lng: number
   address?: string | null
-  photoUrl?: string | null
+  photoRef?: string | null
+  ratingAvg?: number | null
+  ratingCount?: number
   approved?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   createdBy?: Prisma.UserCreateNestedOneWithoutPlacesInput
   amenities?: Prisma.PlaceAmenityCreateNestedManyWithoutPlaceInput
   feedbacks?: Prisma.FeedbackCreateNestedManyWithoutPlaceInput
+  savedBy?: Prisma.SavedPlaceCreateNestedManyWithoutPlaceInput
 }
 
 export type PlaceUncheckedCreateWithoutEventsInput = {
@@ -836,16 +1082,20 @@ export type PlaceUncheckedCreateWithoutEventsInput = {
   googlePlaceId?: string | null
   name: string
   description?: string
-  type?: string
+  type?: $Enums.PlaceType
   lat: number
   lng: number
   address?: string | null
-  photoUrl?: string | null
+  photoRef?: string | null
+  ratingAvg?: number | null
+  ratingCount?: number
   approved?: boolean
   createdById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   amenities?: Prisma.PlaceAmenityUncheckedCreateNestedManyWithoutPlaceInput
   feedbacks?: Prisma.FeedbackUncheckedCreateNestedManyWithoutPlaceInput
+  savedBy?: Prisma.SavedPlaceUncheckedCreateNestedManyWithoutPlaceInput
 }
 
 export type PlaceCreateOrConnectWithoutEventsInput = {
@@ -869,16 +1119,20 @@ export type PlaceUpdateWithoutEventsInput = {
   googlePlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumPlaceTypeFieldUpdateOperationsInput | $Enums.PlaceType
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photoRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratingAvg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ratingCount?: Prisma.IntFieldUpdateOperationsInput | number
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.UserUpdateOneWithoutPlacesNestedInput
   amenities?: Prisma.PlaceAmenityUpdateManyWithoutPlaceNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutPlaceNestedInput
+  savedBy?: Prisma.SavedPlaceUpdateManyWithoutPlaceNestedInput
 }
 
 export type PlaceUncheckedUpdateWithoutEventsInput = {
@@ -886,16 +1140,20 @@ export type PlaceUncheckedUpdateWithoutEventsInput = {
   googlePlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumPlaceTypeFieldUpdateOperationsInput | $Enums.PlaceType
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photoRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratingAvg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ratingCount?: Prisma.IntFieldUpdateOperationsInput | number
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   amenities?: Prisma.PlaceAmenityUncheckedUpdateManyWithoutPlaceNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutPlaceNestedInput
+  savedBy?: Prisma.SavedPlaceUncheckedUpdateManyWithoutPlaceNestedInput
 }
 
 export type PlaceCreateWithoutFeedbacksInput = {
@@ -903,16 +1161,20 @@ export type PlaceCreateWithoutFeedbacksInput = {
   googlePlaceId?: string | null
   name: string
   description?: string
-  type?: string
+  type?: $Enums.PlaceType
   lat: number
   lng: number
   address?: string | null
-  photoUrl?: string | null
+  photoRef?: string | null
+  ratingAvg?: number | null
+  ratingCount?: number
   approved?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   createdBy?: Prisma.UserCreateNestedOneWithoutPlacesInput
   amenities?: Prisma.PlaceAmenityCreateNestedManyWithoutPlaceInput
   events?: Prisma.EventCreateNestedManyWithoutPlaceInput
+  savedBy?: Prisma.SavedPlaceCreateNestedManyWithoutPlaceInput
 }
 
 export type PlaceUncheckedCreateWithoutFeedbacksInput = {
@@ -920,16 +1182,20 @@ export type PlaceUncheckedCreateWithoutFeedbacksInput = {
   googlePlaceId?: string | null
   name: string
   description?: string
-  type?: string
+  type?: $Enums.PlaceType
   lat: number
   lng: number
   address?: string | null
-  photoUrl?: string | null
+  photoRef?: string | null
+  ratingAvg?: number | null
+  ratingCount?: number
   approved?: boolean
   createdById?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   amenities?: Prisma.PlaceAmenityUncheckedCreateNestedManyWithoutPlaceInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutPlaceInput
+  savedBy?: Prisma.SavedPlaceUncheckedCreateNestedManyWithoutPlaceInput
 }
 
 export type PlaceCreateOrConnectWithoutFeedbacksInput = {
@@ -953,16 +1219,20 @@ export type PlaceUpdateWithoutFeedbacksInput = {
   googlePlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumPlaceTypeFieldUpdateOperationsInput | $Enums.PlaceType
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photoRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratingAvg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ratingCount?: Prisma.IntFieldUpdateOperationsInput | number
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.UserUpdateOneWithoutPlacesNestedInput
   amenities?: Prisma.PlaceAmenityUpdateManyWithoutPlaceNestedInput
   events?: Prisma.EventUpdateManyWithoutPlaceNestedInput
+  savedBy?: Prisma.SavedPlaceUpdateManyWithoutPlaceNestedInput
 }
 
 export type PlaceUncheckedUpdateWithoutFeedbacksInput = {
@@ -970,16 +1240,20 @@ export type PlaceUncheckedUpdateWithoutFeedbacksInput = {
   googlePlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumPlaceTypeFieldUpdateOperationsInput | $Enums.PlaceType
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photoRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratingAvg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ratingCount?: Prisma.IntFieldUpdateOperationsInput | number
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   amenities?: Prisma.PlaceAmenityUncheckedUpdateManyWithoutPlaceNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutPlaceNestedInput
+  savedBy?: Prisma.SavedPlaceUncheckedUpdateManyWithoutPlaceNestedInput
 }
 
 export type PlaceCreateManyCreatedByInput = {
@@ -987,13 +1261,16 @@ export type PlaceCreateManyCreatedByInput = {
   googlePlaceId?: string | null
   name: string
   description?: string
-  type?: string
+  type?: $Enums.PlaceType
   lat: number
   lng: number
   address?: string | null
-  photoUrl?: string | null
+  photoRef?: string | null
+  ratingAvg?: number | null
+  ratingCount?: number
   approved?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PlaceUpdateWithoutCreatedByInput = {
@@ -1001,16 +1278,20 @@ export type PlaceUpdateWithoutCreatedByInput = {
   googlePlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumPlaceTypeFieldUpdateOperationsInput | $Enums.PlaceType
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photoRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratingAvg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ratingCount?: Prisma.IntFieldUpdateOperationsInput | number
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   amenities?: Prisma.PlaceAmenityUpdateManyWithoutPlaceNestedInput
   events?: Prisma.EventUpdateManyWithoutPlaceNestedInput
   feedbacks?: Prisma.FeedbackUpdateManyWithoutPlaceNestedInput
+  savedBy?: Prisma.SavedPlaceUpdateManyWithoutPlaceNestedInput
 }
 
 export type PlaceUncheckedUpdateWithoutCreatedByInput = {
@@ -1018,16 +1299,20 @@ export type PlaceUncheckedUpdateWithoutCreatedByInput = {
   googlePlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumPlaceTypeFieldUpdateOperationsInput | $Enums.PlaceType
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photoRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratingAvg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ratingCount?: Prisma.IntFieldUpdateOperationsInput | number
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   amenities?: Prisma.PlaceAmenityUncheckedUpdateManyWithoutPlaceNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutPlaceNestedInput
   feedbacks?: Prisma.FeedbackUncheckedUpdateManyWithoutPlaceNestedInput
+  savedBy?: Prisma.SavedPlaceUncheckedUpdateManyWithoutPlaceNestedInput
 }
 
 export type PlaceUncheckedUpdateManyWithoutCreatedByInput = {
@@ -1035,13 +1320,16 @@ export type PlaceUncheckedUpdateManyWithoutCreatedByInput = {
   googlePlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumPlaceTypeFieldUpdateOperationsInput | $Enums.PlaceType
   lat?: Prisma.FloatFieldUpdateOperationsInput | number
   lng?: Prisma.FloatFieldUpdateOperationsInput | number
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  photoRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratingAvg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ratingCount?: Prisma.IntFieldUpdateOperationsInput | number
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1053,12 +1341,14 @@ export type PlaceCountOutputType = {
   amenities: number
   events: number
   feedbacks: number
+  savedBy: number
 }
 
 export type PlaceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   amenities?: boolean | PlaceCountOutputTypeCountAmenitiesArgs
   events?: boolean | PlaceCountOutputTypeCountEventsArgs
   feedbacks?: boolean | PlaceCountOutputTypeCountFeedbacksArgs
+  savedBy?: boolean | PlaceCountOutputTypeCountSavedByArgs
 }
 
 /**
@@ -1092,6 +1382,13 @@ export type PlaceCountOutputTypeCountFeedbacksArgs<ExtArgs extends runtime.Types
   where?: Prisma.FeedbackWhereInput
 }
 
+/**
+ * PlaceCountOutputType without action
+ */
+export type PlaceCountOutputTypeCountSavedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SavedPlaceWhereInput
+}
+
 
 export type PlaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1102,14 +1399,18 @@ export type PlaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   lat?: boolean
   lng?: boolean
   address?: boolean
-  photoUrl?: boolean
+  photoRef?: boolean
+  ratingAvg?: boolean
+  ratingCount?: boolean
   approved?: boolean
   createdById?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   createdBy?: boolean | Prisma.Place$createdByArgs<ExtArgs>
   amenities?: boolean | Prisma.Place$amenitiesArgs<ExtArgs>
   events?: boolean | Prisma.Place$eventsArgs<ExtArgs>
   feedbacks?: boolean | Prisma.Place$feedbacksArgs<ExtArgs>
+  savedBy?: boolean | Prisma.Place$savedByArgs<ExtArgs>
   _count?: boolean | Prisma.PlaceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["place"]>
 
@@ -1122,10 +1423,13 @@ export type PlaceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   lat?: boolean
   lng?: boolean
   address?: boolean
-  photoUrl?: boolean
+  photoRef?: boolean
+  ratingAvg?: boolean
+  ratingCount?: boolean
   approved?: boolean
   createdById?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   createdBy?: boolean | Prisma.Place$createdByArgs<ExtArgs>
 }, ExtArgs["result"]["place"]>
 
@@ -1138,10 +1442,13 @@ export type PlaceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   lat?: boolean
   lng?: boolean
   address?: boolean
-  photoUrl?: boolean
+  photoRef?: boolean
+  ratingAvg?: boolean
+  ratingCount?: boolean
   approved?: boolean
   createdById?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   createdBy?: boolean | Prisma.Place$createdByArgs<ExtArgs>
 }, ExtArgs["result"]["place"]>
 
@@ -1154,18 +1461,22 @@ export type PlaceSelectScalar = {
   lat?: boolean
   lng?: boolean
   address?: boolean
-  photoUrl?: boolean
+  photoRef?: boolean
+  ratingAvg?: boolean
+  ratingCount?: boolean
   approved?: boolean
   createdById?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type PlaceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "googlePlaceId" | "name" | "description" | "type" | "lat" | "lng" | "address" | "photoUrl" | "approved" | "createdById" | "createdAt", ExtArgs["result"]["place"]>
+export type PlaceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "googlePlaceId" | "name" | "description" | "type" | "lat" | "lng" | "address" | "photoRef" | "ratingAvg" | "ratingCount" | "approved" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["place"]>
 export type PlaceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   createdBy?: boolean | Prisma.Place$createdByArgs<ExtArgs>
   amenities?: boolean | Prisma.Place$amenitiesArgs<ExtArgs>
   events?: boolean | Prisma.Place$eventsArgs<ExtArgs>
   feedbacks?: boolean | Prisma.Place$feedbacksArgs<ExtArgs>
+  savedBy?: boolean | Prisma.Place$savedByArgs<ExtArgs>
   _count?: boolean | Prisma.PlaceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PlaceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1182,20 +1493,24 @@ export type $PlacePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     amenities: Prisma.$PlaceAmenityPayload<ExtArgs>[]
     events: Prisma.$EventPayload<ExtArgs>[]
     feedbacks: Prisma.$FeedbackPayload<ExtArgs>[]
+    savedBy: Prisma.$SavedPlacePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     googlePlaceId: string | null
     name: string
     description: string
-    type: string
+    type: $Enums.PlaceType
     lat: number
     lng: number
     address: string | null
-    photoUrl: string | null
+    photoRef: string | null
+    ratingAvg: number | null
+    ratingCount: number
     approved: boolean
     createdById: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["place"]>
   composites: {}
 }
@@ -1594,6 +1909,7 @@ export interface Prisma__PlaceClient<T, Null = never, ExtArgs extends runtime.Ty
   amenities<T extends Prisma.Place$amenitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Place$amenitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PlaceAmenityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   events<T extends Prisma.Place$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Place$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   feedbacks<T extends Prisma.Place$feedbacksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Place$feedbacksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  savedBy<T extends Prisma.Place$savedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Place$savedByArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SavedPlacePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1627,14 +1943,17 @@ export interface PlaceFieldRefs {
   readonly googlePlaceId: Prisma.FieldRef<"Place", 'String'>
   readonly name: Prisma.FieldRef<"Place", 'String'>
   readonly description: Prisma.FieldRef<"Place", 'String'>
-  readonly type: Prisma.FieldRef<"Place", 'String'>
+  readonly type: Prisma.FieldRef<"Place", 'PlaceType'>
   readonly lat: Prisma.FieldRef<"Place", 'Float'>
   readonly lng: Prisma.FieldRef<"Place", 'Float'>
   readonly address: Prisma.FieldRef<"Place", 'String'>
-  readonly photoUrl: Prisma.FieldRef<"Place", 'String'>
+  readonly photoRef: Prisma.FieldRef<"Place", 'String'>
+  readonly ratingAvg: Prisma.FieldRef<"Place", 'Float'>
+  readonly ratingCount: Prisma.FieldRef<"Place", 'Int'>
   readonly approved: Prisma.FieldRef<"Place", 'Boolean'>
   readonly createdById: Prisma.FieldRef<"Place", 'String'>
   readonly createdAt: Prisma.FieldRef<"Place", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Place", 'DateTime'>
 }
     
 
@@ -2124,6 +2443,30 @@ export type Place$feedbacksArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.FeedbackScalarFieldEnum | Prisma.FeedbackScalarFieldEnum[]
+}
+
+/**
+ * Place.savedBy
+ */
+export type Place$savedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SavedPlace
+   */
+  select?: Prisma.SavedPlaceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SavedPlace
+   */
+  omit?: Prisma.SavedPlaceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SavedPlaceInclude<ExtArgs> | null
+  where?: Prisma.SavedPlaceWhereInput
+  orderBy?: Prisma.SavedPlaceOrderByWithRelationInput | Prisma.SavedPlaceOrderByWithRelationInput[]
+  cursor?: Prisma.SavedPlaceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SavedPlaceScalarFieldEnum | Prisma.SavedPlaceScalarFieldEnum[]
 }
 
 /**

@@ -9,7 +9,53 @@
 * 🟢 You can import this file directly.
 */
 
+export const PlaceType = {
+  park: 'park',
+  beach: 'beach',
+  trail: 'trail',
+  garden: 'garden',
+  viewpoint: 'viewpoint',
+  plaza: 'plaza',
+  market: 'market',
+  cafe: 'cafe',
+  library: 'library',
+  museum: 'museum',
+  sports: 'sports',
+  other: 'other'
+} as const
+
+export type PlaceType = (typeof PlaceType)[keyof typeof PlaceType]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const RsvpStatus = {
+  going: 'going',
+  maybe: 'maybe',
+  cant: 'cant'
+} as const
+
+export type RsvpStatus = (typeof RsvpStatus)[keyof typeof RsvpStatus]
+
+
+export const MemberRole = {
+  member: 'member',
+  organizer: 'organizer'
+} as const
+
+export type MemberRole = (typeof MemberRole)[keyof typeof MemberRole]
+
+
+export const ThreadKind = {
+  direct: 'direct',
+  group: 'group',
+  community: 'community'
+} as const
+
+export type ThreadKind = (typeof ThreadKind)[keyof typeof ThreadKind]
+
+
+export const MessageRole = {
+  user: 'user',
+  assistant: 'assistant'
+} as const
+
+export type MessageRole = (typeof MessageRole)[keyof typeof MessageRole]

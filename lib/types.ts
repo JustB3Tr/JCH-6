@@ -1,78 +1,171 @@
-export type AmenityLite = {
-  id: string
-  slug: string
-  label: string
-  icon: string
+import type { PlaceType, RsvpStatus } from '@/lib/constants'
+
+// The JSON contract between the API and any client. Dates are ISO strings.
+
+export type PersonRef = { id: string | null; name: string; isPrivate: boolean }
+
+export type AmenityInfo = { slug: string; label: string; icon: string; count: number }
+
+export type Meta = {
+  types: { type: PlaceType; count: number }[]
+  amenities: AmenityInfo[]
+  totals: { places: number; events: number; communities: number }
 }
 
-export type PlaceLite = {
+export type PlaceSummary = {
   id: string
   name: string
-  description: string
-  type: string
+  type: PlaceType
   lat: number
   lng: number
   address: string | null
-  photoUrl: string | null
-  amenities: AmenityLite[]
-  feedbackCount: number
-  avgRating: number | null
+  area: string | null
+  blurb: string
+  hasPhoto: boolean
+  amenities: string[]
+  ratingAvg: number | null
+  ratingCount: number
+  upcomingEvents: number
+  saved: boolean
+  distanceKm?: number
 }
 
-export type EventLite = {
+export type ReviewInfo = {
+  id: string
+  rating: number
+  comment: string
+  createdAt: string
+  author: PersonRef
+  mine: boolean
+}
+
+export type PlaceDetail = PlaceSummary & {
+  description: string
+  reviews: ReviewInfo[]
+  myReview: { rating: number; comment: string } | null
+  events: EventSummary[]
+  nearby: PlaceSummary[]
+  canDelete: boolean
+}
+
+export type EventSummary = {
   id: string
   title: string
   description: string
   startsAt: string
   endsAt: string | null
-  placeId: string | null
-  placeName: string | null
-  communityId: string | null
-  communityName: string | null
-  communityEmoji: string | null
-  hostName: string
+  place: { id: string; name: string; type: PlaceType; lat: number; lng: number; area: string | null } | null
+  community: { id: string; slug: string; name: string; icon: string; tint: string } | null
+  host: PersonRef
   goingCount: number
-  myRsvp: string | null
+  myRsvp: RsvpStatus | null
+  isHost: boolean
 }
 
-export type CommunityLite = {
+export type EventDetail = EventSummary & {
+  attendees: { person: PersonRef; status: RsvpStatus }[]
+  privateAttendees: number
+  maybeCount: number
+}
+
+export type CommunitySummary = {
   id: string
   slug: string
   name: string
   description: string
-  emoji: string
+  icon: string
+  tint: string
   memberCount: number
-  joined: boolean
   upcomingEvents: number
+  joined: boolean
+  role: 'member' | 'organizer' | null
 }
 
-export type ChatThreadLite = {
+export type CommunityDetail = CommunitySummary & {
+  members: { person: PersonRef; role: 'member' | 'organizer' }[]
+  privateMembers: number
+  events: EventSummary[]
+  threadId: string | null
+}
+
+export type ThreadSummary = {
   id: string
-  kind: string
+  kind: 'direct' | 'group' | 'community'
   name: string
-  communityId: string | null
-  createdAt: string
-  lastMessage: string | null
-  lastMessageAt: string | null
+  community: { slug: string; icon: string; tint: string } | null
+  memberCount: number
+  lastMessage: { body: string; author: string; createdAt: string } | null
+  lastMessageAt: string
+  unread: number
 }
 
-export type ChatMessageLite = {
+export type ChatMessageInfo = {
   id: string
   body: string
   createdAt: string
-  userId: string
-  userName: string
+  author: { id: string; name: string }
+  mine: boolean
 }
 
-export type AiChatLite = {
+export type Me = {
   id: string
-  title: string
+  name: string
+  email: string
+  bio: string
+  homeArea: string | null
+  isPrivate: boolean
   createdAt: string
+  stats: { saved: number; rsvps: number; communities: number; reviews: number }
 }
 
-export type AiMessageLite = {
+export type Profile =
+  | { id: string; isPrivate: true; name: string; isSelf: false }
+  | {
+      id: string
+      isPrivate: boolean
+      isSelf: boolean
+      name: string
+      bio: string
+      homeArea: string | null
+      joinedAt: string
+      communities: { slug: string; name: string; icon: string; tint: string }[]
+      hosting: EventSummary[]
+    }
+
+export type ExternalPlace = {
+  googlePlaceId: string
+  name: string
+  address: string
+  lat: number
+  lng: number
+}
+
+export type SearchResults = {
+  places: PlaceSummary[]
+  events: EventSummary[]
+  communities: CommunitySummary[]
+  external: ExternalPlace[]
+}
+
+export type AiChatInfo = { id: string; title: string; updatedAt: string }
+
+export type AiMessageInfo = {
   id: string
-  role: string
+  role: 'user' | 'assistant'
   content: string
   createdAt: string
+  places: PlaceSummary[]
+  tools: string[]
 }
+
+export type AiToolInfo = { name: string; label: string; description: string; core: boolean; changesData: boolean }
+
+// One JSON object per line on the /api/ai/chat response stream.
+export type AiStreamEvent =
+  | { type: 'chat'; chatId: string }
+  | { type: 'tool'; name: string; label: string }
+  | { type: 'reset' }
+  | { type: 'delta'; text: string }
+  | { type: 'places'; places: PlaceSummary[] }
+  | { type: 'done'; messageId: string; tools: string[] }
+  | { type: 'error'; message: string }
