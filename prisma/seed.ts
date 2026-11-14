@@ -479,21 +479,28 @@ async function main() {
       hostId: andre.id,
     },
   ]
+  // Seeded events are matched by title so re-running the seed refreshes their
+  // schedule instead of stacking a second copy on the calendar.
   for (const e of events) {
-    const exists = await prisma.event.findFirst({ where: { title: e.title, startsAt: e.startsAt } })
-    if (!exists) {
-      await prisma.event.create({
-        data: {
-          title: e.title,
-          description: e.description,
-          startsAt: e.startsAt,
-          placeId: placeRows[e.placeIdx].id,
-          communityId: e.communityIdx === null ? null : communityRows[e.communityIdx].id,
-          hostId: e.hostId,
-          rsvps: { create: { userId: e.hostId, status: 'going' } },
-        },
+    const existing = await prisma.event.findFirst({ where: { title: e.title }, select: { id: true } })
+    if (existing) {
+      await prisma.event.update({
+        where: { id: existing.id },
+        data: { description: e.description, startsAt: e.startsAt },
       })
+      continue
     }
+    await prisma.event.create({
+      data: {
+        title: e.title,
+        description: e.description,
+        startsAt: e.startsAt,
+        placeId: placeRows[e.placeIdx].id,
+        communityId: e.communityIdx === null ? null : communityRows[e.communityIdx].id,
+        hostId: e.hostId,
+        rsvps: { create: { userId: e.hostId, status: 'going' } },
+      },
+    })
   }
 
   for (const community of communityRows) {
