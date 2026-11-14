@@ -154,6 +154,12 @@
   opacity: 0.6;
 }
 
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: var(--card);
+  color: var(--card-foreground);
+}
+
 .leaflet-popup-content-wrapper {
   border-radius: 16px;
   padding: 2px;
@@ -163,4 +169,16 @@
   margin: 12px 14px;
   font-size: 13px;
   line-height: 1.4;
+}
+
+.leaflet-popup-close-button {
+  color: var(--muted-foreground) !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: var(--foreground) !important;
+}
+
+.leaflet-container a.leaflet-area-link {
+  color: var(--primary);
 }

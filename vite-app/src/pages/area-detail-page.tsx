@@ -96,6 +96,7 @@ export function AreaDetailPage({ theme, onToggleTheme }: { theme: 'light' | 'dar
             zoom={12}
             className="h-[240px]"
             interactive={false}
+            showPopups={false}
           />
         </div>
       </section>

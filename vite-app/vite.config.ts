@@ -11,5 +11,9 @@ export default defineConfig({
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
-  server: { port: 5173, host: true },
+  server: {
+    port: 5173,
+    host: true,
+    allowedHosts: ['jch-6-0-hangout-vite.v0.build'],
+  },
 })

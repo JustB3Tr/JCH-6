@@ -21,7 +21,7 @@ export function AreasPage({ theme, onToggleTheme }: { theme: 'light' | 'dark'; o
         area.name.toLowerCase().includes(q) ||
         area.identity.toLowerCase().includes(q) ||
         area.bestFor.toLowerCase().includes(q) ||
-        area.tags.some((tag) => tag.includes(q)) ||
+        area.tags.some((tag) => tag.toLowerCase().includes(q)) ||
         area.bonuses.some((bonus) => bonus.toLowerCase().includes(q))
       )
     })
@@ -52,7 +52,7 @@ export function AreasPage({ theme, onToggleTheme }: { theme: 'light' | 'dark'; o
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search areas, bonuses, or what you want to do"
           aria-label="Search areas"
-          className="w-full bg-transparent text-[14px] outline-none placeholder:text-muted-foreground"
+          className="w-full bg-transparent text-[14px] outline-none placeholder:text-muted-foreground [&::-webkit-search-cancel-button]:appearance-none"
         />
         {query && (
           <button

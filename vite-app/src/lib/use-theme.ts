@@ -5,8 +5,12 @@ type Theme = 'light' | 'dark'
 const STORAGE_KEY = 'hangout-theme'
 
 function initialTheme(): Theme {
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored === 'light' || stored === 'dark') return stored
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored === 'light' || stored === 'dark') return stored
+  } catch {
+    // Ignore storage access errors in restricted WebViews.
+  }
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
@@ -15,7 +19,11 @@ export function useTheme() {
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
-    localStorage.setItem(STORAGE_KEY, theme)
+    try {
+      localStorage.setItem(STORAGE_KEY, theme)
+    } catch {
+      // Ignore storage access errors in restricted WebViews.
+    }
   }, [theme])
 
   const toggle = useCallback(() => {

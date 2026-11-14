@@ -1,11 +1,26 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import L from 'leaflet'
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
+import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import { Link } from 'react-router-dom'
 import { regionLabel, type Area } from '@/data/areas'
 import { REGION_COLOR } from '@/lib/region-color'
 
 const LA_CENTER: [number, number] = [34.05, -118.28]
+
+function MapViewportSync({ center, zoom }: { center: [number, number]; zoom: number }) {
+  const map = useMap()
+  const initial = useRef(true)
+
+  useEffect(() => {
+    if (initial.current) {
+      initial.current = false
+      return
+    }
+    map.setView(center, zoom, { animate: false })
+  }, [map, center[0], center[1], zoom])
+
+  return null
+}
 
 function pinIcon(color: string, active = false) {
   const size = active ? 20 : 14
@@ -28,6 +43,7 @@ export function AreaMap({
   zoom = 9,
   className = 'h-[420px]',
   interactive = true,
+  showPopups = true,
 }: {
   areas: Area[]
   theme: 'light' | 'dark'
@@ -35,6 +51,7 @@ export function AreaMap({
   zoom?: number
   className?: string
   interactive?: boolean
+  showPopups?: boolean
 }) {
   // Esri's Canvas basemaps are keyless and ship a matching dark variant, so the
   // map stays quiet in both themes without an API key in the static bundle.
@@ -53,10 +70,15 @@ export function AreaMap({
         zoom={zoom}
         scrollWheelZoom={interactive}
         dragging={interactive}
+        doubleClickZoom={interactive}
+        touchZoom={interactive}
+        boxZoom={interactive}
+        keyboard={interactive}
         zoomControl={interactive}
         className="size-full"
         attributionControl
       >
+        <MapViewportSync center={center} zoom={zoom} />
         <TileLayer
           key={tiles}
           url={tiles}
@@ -70,21 +92,23 @@ export function AreaMap({
             icon={pinIcon(REGION_COLOR[area.region], areas.length === 1)}
             title={area.name}
           >
-            <Popup>
-              <div className="min-w-[180px]">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-neutral-500">
-                  {regionLabel(area.region)}
-                </p>
-                <p className="mt-0.5 text-[14px] font-semibold text-neutral-900">{area.name}</p>
-                <p className="mt-1 text-[12px] leading-snug text-neutral-600">{area.identity}</p>
-                <Link
-                  to={`/area/${area.slug}`}
-                  className="mt-2 inline-block text-[12px] font-semibold text-primary"
-                >
-                  Open area
-                </Link>
-              </div>
-            </Popup>
+            {showPopups && (
+              <Popup>
+                <div className="min-w-[180px]">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                    {regionLabel(area.region)}
+                  </p>
+                  <p className="mt-0.5 text-[14px] font-semibold text-foreground">{area.name}</p>
+                  <p className="mt-1 text-[12px] leading-snug text-muted-foreground">{area.identity}</p>
+                  <Link
+                    to={`/area/${area.slug}`}
+                    className="leaflet-area-link mt-2 inline-block text-[12px] font-semibold hover:underline"
+                  >
+                    Open area
+                  </Link>
+                </div>
+              </Popup>
+            )}
           </Marker>
         ))}
       </MapContainer>
