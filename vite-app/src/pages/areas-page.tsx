@@ -1,0 +1,127 @@
+import { useMemo, useState } from 'react'
+import { Search, X } from 'lucide-react'
+import { AREAS, AREA_COUNT, NEW_COUNT, REGIONS, type RegionId } from '@/data/areas'
+import { AreaCard } from '@/components/area-card'
+import { ThemeToggle } from '@/components/theme-toggle'
+import { cn } from '@/lib/utils'
+
+type Filter = RegionId | 'all'
+
+export function AreasPage({ theme, onToggleTheme }: { theme: 'light' | 'dark'; onToggleTheme: () => void }) {
+  const [query, setQuery] = useState('')
+  const [filter, setFilter] = useState<Filter>('all')
+
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return AREAS.filter((area) => {
+      if (filter !== 'all' && area.region !== filter) return false
+      if (!q) return true
+      return (
+        area.name.toLowerCase().includes(q) ||
+        area.identity.toLowerCase().includes(q) ||
+        area.bestFor.toLowerCase().includes(q) ||
+        area.tags.some((tag) => tag.includes(q)) ||
+        area.bonuses.some((bonus) => bonus.toLowerCase().includes(q))
+      )
+    })
+  }, [query, filter])
+
+  return (
+    <div className="mx-auto w-full max-w-5xl px-4 pt-6">
+      <header className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-[28px] font-semibold leading-none tracking-[-0.03em]">Hangout</h1>
+          <p className="mt-1.5 text-[13px] text-muted-foreground">
+            {AREA_COUNT} areas across LA County, each with a reason to exist.
+          </p>
+        </div>
+        <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+      </header>
+
+      <div className="mt-5 flex items-center gap-2 rounded-2xl border border-border bg-card px-3.5 py-2.5">
+        <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search areas, bonuses, or what you want to do"
+          aria-label="Search areas"
+          className="w-full bg-transparent text-[14px] outline-none placeholder:text-muted-foreground"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery('')}
+            aria-label="Clear search"
+            className="shrink-0 text-muted-foreground hover:text-foreground"
+          >
+            <X className="size-4" aria-hidden />
+          </button>
+        )}
+      </div>
+
+      <div className="edge-fade -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <Chip active={filter === 'all'} onClick={() => setFilter('all')}>
+          All {AREA_COUNT}
+        </Chip>
+        {REGIONS.map((region) => {
+          const count = AREAS.filter((area) => area.region === region.id).length
+          return (
+            <Chip key={region.id} active={filter === region.id} onClick={() => setFilter(region.id)}>
+              {region.label} {count}
+            </Chip>
+          )
+        })}
+      </div>
+
+      <p className="mt-4 text-[12px] text-muted-foreground">
+        {results.length} {results.length === 1 ? 'area' : 'areas'}
+        {filter !== 'all' && ` in ${REGIONS.find((r) => r.id === filter)?.label}`}
+        {query && ` matching “${query}”`}
+        <span className="mx-1.5">·</span>
+        {NEW_COUNT} new in this pass
+      </p>
+
+      {results.length === 0 ? (
+        <div className="mt-10 rounded-2xl border border-dashed border-border p-10 text-center">
+          <p className="text-[15px] font-medium">Nothing matches that yet.</p>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            Try a region, a vibe like “quiet”, or a bonus like “free”.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {results.map((area) => (
+            <AreaCard key={area.slug} area={area} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function Chip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        'shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[12.5px] font-medium transition',
+        active
+          ? 'border-transparent bg-primary text-primary-foreground'
+          : 'border-border bg-card text-foreground/70 hover:text-foreground',
+      )}
+    >
+      {children}
+    </button>
+  )
+}

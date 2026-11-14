@@ -1,0 +1,41 @@
+import { Link, useLocation } from 'react-router-dom'
+import { Compass, Map } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+const TABS = [
+  { href: '/', label: 'Areas', icon: Compass },
+  { href: '/map', label: 'Map', icon: Map },
+]
+
+export function AppNav() {
+  const { pathname } = useLocation()
+
+  return (
+    <nav
+      aria-label="Main"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]"
+    >
+      <div className="glass glass-strong pointer-events-auto flex items-stretch gap-0.5 rounded-[26px] p-1.5">
+        {TABS.map((tab) => {
+          const active = tab.href === '/' ? pathname === '/' || pathname.startsWith('/area') : pathname.startsWith(tab.href)
+          const Icon = tab.icon
+          return (
+            <Link
+              key={tab.href}
+              to={tab.href}
+              aria-current={active ? 'page' : undefined}
+              className={cn(
+                'glass-press relative flex w-[92px] flex-col items-center justify-center gap-0.5 rounded-[20px] py-1.5 transition-colors',
+                active ? 'text-primary' : 'text-foreground/60 hover:text-foreground',
+              )}
+            >
+              {active && <span aria-hidden className="absolute inset-0 rounded-[20px] bg-primary/12" />}
+              <Icon className="relative size-[21px]" strokeWidth={active ? 2.3 : 1.9} aria-hidden />
+              <span className="relative text-[10px] font-medium tracking-[-0.01em]">{tab.label}</span>
+            </Link>
+          )
+        })}
+      </div>
+    </nav>
+  )
+}

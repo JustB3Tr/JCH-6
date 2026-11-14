@@ -1,0 +1,165 @@
+@import 'tailwindcss';
+@import 'leaflet/dist/leaflet.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.625rem;
+}
+
+:root {
+  color-scheme: light;
+  --background: #f2f2f7;
+  --foreground: #1c1c1e;
+  --card: #ffffff;
+  --card-foreground: #1c1c1e;
+  --primary: #007aff;
+  --primary-foreground: #ffffff;
+  --secondary: #e9e9ee;
+  --secondary-foreground: #1c1c1e;
+  --muted: #ececf1;
+  --muted-foreground: #6c6c70;
+  --accent: #e8f1ff;
+  --accent-foreground: #0055c4;
+  --border: rgba(60, 60, 67, 0.14);
+  --ring: #007aff;
+
+  --glass-fill: rgba(255, 255, 255, 0.66);
+  --glass-fill-strong: rgba(255, 255, 255, 0.82);
+  --glass-stroke: rgba(255, 255, 255, 0.85);
+  --glass-stroke-outer: rgba(0, 0, 0, 0.06);
+  --glass-shadow: 0 18px 50px -18px rgba(20, 24, 40, 0.42), 0 2px 8px -2px rgba(20, 24, 40, 0.16);
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #000000;
+  --foreground: #f2f2f7;
+  --card: #1c1c1e;
+  --card-foreground: #f2f2f7;
+  --primary: #0a84ff;
+  --primary-foreground: #ffffff;
+  --secondary: #2c2c2e;
+  --secondary-foreground: #f2f2f7;
+  --muted: #2c2c2e;
+  --muted-foreground: #98989f;
+  --accent: #0b2a4a;
+  --accent-foreground: #7cb8ff;
+  --border: rgba(255, 255, 255, 0.12);
+  --ring: #0a84ff;
+
+  --glass-fill: rgba(28, 28, 30, 0.66);
+  --glass-fill-strong: rgba(28, 28, 30, 0.84);
+  --glass-stroke: rgba(255, 255, 255, 0.14);
+  --glass-stroke-outer: rgba(0, 0, 0, 0.5);
+  --glass-shadow: 0 18px 50px -18px rgba(0, 0, 0, 0.8), 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100dvh;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .glass {
+    background-color: var(--glass-fill);
+    border: 1px solid var(--glass-stroke);
+    box-shadow: var(--glass-shadow), inset 0 0 0 1px var(--glass-stroke-outer);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+  }
+
+  .glass-strong {
+    background-color: var(--glass-fill-strong);
+  }
+
+  .glass-press {
+    transition: transform 160ms ease, background-color 160ms ease;
+  }
+
+  .glass-press:active {
+    transform: scale(0.96);
+  }
+
+  .edge-fade {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 18px,
+      #000 calc(100% - 18px),
+      transparent 100%
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Leaflet: keep the canvas quiet and let our own pins carry the color. */
+.leaflet-container {
+  background: #e8e8e3;
+  font-family: var(--font-sans);
+}
+
+.dark .leaflet-container {
+  background: #141416;
+}
+
+.leaflet-control-attribution {
+  font-size: 9px;
+  opacity: 0.6;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 16px;
+  padding: 2px;
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+  font-size: 13px;
+  line-height: 1.4;
+}
