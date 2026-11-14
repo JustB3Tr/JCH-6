@@ -53,8 +53,13 @@ events, joining communities, chatting with neighbors, and asking an AI local gui
 pnpm install
 npx prisma db push              # sync schema
 npx prisma db seed              # seed amenities, demo places, communities, events
-npx tsx scripts/seed-la-places.ts   # expand to ~90 LA County spots (resolves real
-                                    # coordinates/addresses through Google Places)
+npx tsx scripts/seed-la-places.ts   # expand to 97 LA County spots (resolves real
+                                    # coordinates/addresses through Google Places,
+                                    # falls back to OpenStreetMap, then to the
+                                    # built-in coordinate table if quota runs out)
+npx tsx scripts/seed-la-places.ts --only-missing
+                                    # top up only the spots not seeded yet
+npx tsx scripts/clear-db.ts         # wipe every table, then re-run the seeds above
 pnpm dev                        # http://localhost:3000
 ```
 

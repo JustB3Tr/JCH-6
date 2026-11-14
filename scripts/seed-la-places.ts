@@ -760,9 +760,60 @@ const spots: Spot[] = [
   },
 ]
 
-type Resolved = { id: string; name: string; address: string; lat: number; lng: number }
+type Resolved = { id: string | null; name: string; address: string; lat: number; lng: number }
+
+// Last resort for spots neither geocoder resolves, so a full reseed always
+// restores the same coverage.
+const MANUAL_COORDS: Record<string, { lat: number; lng: number; address: string }> = {
+  'Dockweiler State Beach': { lat: 33.9385, lng: -118.441, address: '12000 Vista Del Mar, Playa Del Rey, CA' },
+  'Media Park': { lat: 34.0246, lng: -118.396, address: '9091 Culver Blvd, Culver City, CA' },
+  'Point Dume State Beach': { lat: 34.0016, lng: -118.806, address: 'Cliffside Dr, Malibu, CA' },
+  'Paramount Ranch': { lat: 34.116, lng: -118.754, address: '2903 Cornell Rd, Agoura Hills, CA' },
+  'Wilacre Park': { lat: 34.134, lng: -118.386, address: '3431 Fryman Rd, Studio City, CA' },
+  'Sepulveda Basin Wildlife Reserve': { lat: 34.173, lng: -118.472, address: '6350 Woodley Ave, Van Nuys, CA' },
+  'Eaton Canyon Falls Trail': { lat: 34.178, lng: -118.096, address: '1750 N Altadena Dr, Pasadena, CA' },
+  'Cerritos Regional County Park': { lat: 33.862, lng: -118.052, address: '19700 Bloomfield Ave, Cerritos, CA' },
+  'Royal Palms Beach': { lat: 33.712, lng: -118.318, address: '1799 W Paseo Del Mar, San Pedro, CA' },
+  'Philz Coffee Santa Monica': { lat: 34.0195, lng: -118.4945, address: '1427 Montana Ave, Santa Monica, CA' },
+}
+
+function manualResolve(name: string): Resolved | null {
+  const hit = MANUAL_COORDS[name]
+  return hit ? { id: null, name, ...hit } : null
+}
+
+// OpenStreetMap's Nominatim is the fallback when the Google Places daily quota
+// runs out, so a reseed never leaves the map half empty. Coordinates come from
+// OSM instead of Google in that case and no Google place id is stored.
+async function resolveOsm(query: string): Promise<Resolved | null> {
+  await new Promise((r) => setTimeout(r, 1100))
+  const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`, {
+    headers: { 'User-Agent': 'hangout-map-seed/1.0' },
+  })
+  if (!res.ok) {
+    console.log('  osm error', res.status)
+    return null
+  }
+  const json = (await res.json()) as Array<{ lat: string; lon: string; display_name: string }>
+  const hit = json[0]
+  if (!hit) return null
+  return {
+    id: null,
+    name: query,
+    address: hit.display_name.split(', ').slice(0, 3).join(', '),
+    lat: Number(hit.lat),
+    lng: Number(hit.lon),
+  }
+}
 
 async function resolve(query: string): Promise<Resolved | null> {
+  const google = await resolveGoogle(query)
+  if (google) return google
+  return resolveOsm(query)
+}
+
+async function resolveGoogle(query: string): Promise<Resolved | null> {
+  if (!API_KEY) return null
   const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
     method: 'POST',
     headers: {
@@ -816,7 +867,15 @@ async function main() {
   const skipped: string[] = []
 
   for (const spot of spots) {
-    const hit = await resolve(spot.query)
+    if (process.argv.includes('--only-missing')) {
+      const present = await prisma.place.findFirst({
+        where: { name: { equals: spot.name, mode: 'insensitive' } },
+        select: { id: true },
+      })
+      if (present) continue
+    }
+
+    const hit = (await resolve(spot.query)) ?? manualResolve(spot.name)
     if (!hit) {
       skipped.push(spot.name)
       console.log('SKIP', spot.name)
@@ -825,7 +884,10 @@ async function main() {
 
     const existing = await prisma.place.findFirst({
       where: {
-        OR: [{ googlePlaceId: hit.id }, { name: { equals: spot.name, mode: 'insensitive' } }],
+        OR: [
+          ...(hit.id ? [{ googlePlaceId: hit.id }] : []),
+          { name: { equals: spot.name, mode: 'insensitive' as const } },
+        ],
       },
       select: { id: true },
     })

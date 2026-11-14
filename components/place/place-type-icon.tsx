@@ -29,7 +29,15 @@ const ICONS = {
   other: MapPin,
 } satisfies Record<PlaceType, typeof MapPin>
 
-export function PlaceTypeIcon({ type, className }: { type: PlaceType; className?: string }) {
+export function PlaceTypeIcon({
+  type,
+  className,
+  style,
+}: {
+  type: PlaceType
+  className?: string
+  style?: React.CSSProperties
+}) {
   const Icon = ICONS[type] ?? MapPin
-  return <Icon className={className} aria-hidden />
+  return <Icon className={className} style={style} aria-hidden />
 }

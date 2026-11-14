@@ -338,18 +338,56 @@
  * the WebGL canvas (and not the marker layer) is the one lever left, and it
  * gets the canvas close to Apple Maps: softer color, less contrast.
  */
+.map-canvas canvas,
 .map-canvas img {
-  filter: saturate(0.72) contrast(0.94) brightness(1.05);
+  filter: saturate(0.45) brightness(1.08) contrast(0.9) sepia(0.16) hue-rotate(-12deg);
+}
+
+.map-canvas.satellite canvas,
+.map-canvas.satellite img {
+  filter: none;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not(.light) .map-canvas img {
-    filter: invert(0.9) hue-rotate(180deg) saturate(0.55) brightness(0.9) contrast(0.9);
+  :root:not(.light) .map-canvas:not(.satellite) canvas,
+  :root:not(.light) .map-canvas:not(.satellite) img {
+    filter: invert(0.92) hue-rotate(180deg) saturate(0.5) brightness(0.92) contrast(0.9);
   }
 }
 
-.dark .map-canvas img {
-  filter: invert(0.9) hue-rotate(180deg) saturate(0.55) brightness(0.9) contrast(0.9);
+.dark .map-canvas:not(.satellite) canvas,
+.dark .map-canvas:not(.satellite) img {
+  filter: invert(0.92) hue-rotate(180deg) saturate(0.5) brightness(0.92) contrast(0.9);
+}
+
+/* Place names sit under the pin with a halo, the way Apple Maps labels POIs. */
+.map-pin-label {
+  color: #3a3a3c;
+  text-shadow:
+    0 1px 2px rgba(255, 255, 255, 0.95),
+    0 0 4px rgba(255, 255, 255, 0.95),
+    1px 0 3px rgba(255, 255, 255, 0.9),
+    -1px 0 3px rgba(255, 255, 255, 0.9);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) .map-pin-label {
+    color: #f2f2f7;
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.9),
+      0 0 4px rgba(0, 0, 0, 0.9),
+      1px 0 3px rgba(0, 0, 0, 0.85),
+      -1px 0 3px rgba(0, 0, 0, 0.85);
+  }
+}
+
+.dark .map-pin-label {
+  color: #f2f2f7;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.9),
+    0 0 4px rgba(0, 0, 0, 0.9),
+    1px 0 3px rgba(0, 0, 0, 0.85),
+    -1px 0 3px rgba(0, 0, 0, 0.85);
 }
 
 /* Google Maps: keep the canvas quiet so the glass panels read as the UI. */

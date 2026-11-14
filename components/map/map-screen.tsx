@@ -6,17 +6,19 @@ import { APIProvider, AdvancedMarker, Map as GoogleMap, useMap } from '@vis.gl/r
 import {
   CalendarDays,
   Check,
+  Layers,
   Loader2,
   Locate,
   MapPin,
+  Mic,
   Plus,
   Search,
   SlidersHorizontal,
-  Sparkles,
+  UserRound,
   Users,
   X,
 } from 'lucide-react'
-import { LA_CENTER, PLACE_TYPES, PLACE_TYPE_META, TINT_HEX, type PlaceType } from '@/lib/constants'
+import { PLACE_TYPES, PLACE_TYPE_META, TINT_HEX, type PlaceType } from '@/lib/constants'
 import { api, errorMessage, useApi } from '@/lib/client'
 import { formatDateTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -27,6 +29,10 @@ import { DARK_MAP_STYLE, LIGHT_MAP_STYLE } from '@/components/map/map-style'
 import type { ExternalPlace, Meta, PlaceSummary, SearchResults } from '@/lib/types'
 
 type LatLng = { lat: number; lng: number }
+
+// Apple Maps opens on your neighborhood, not the whole county.
+const HOME_CENTER = { lat: 34.1464, lng: -118.2478 }
+const HOME_ZOOM = 13
 
 function useDebounced<T>(value: T, delay = 220) {
   const [debounced, setDebounced] = useState(value)
@@ -47,16 +53,16 @@ function MapCamera({ target }: { target: (LatLng & { zoom?: number }) | null }) 
   return null
 }
 
-function FitToPlaces({ places }: { places: PlaceSummary[] }) {
+function FitToPlaces({ places, fitKey }: { places: PlaceSummary[]; fitKey: string | null }) {
   const map = useMap()
-  const fitted = useRef(false)
+  const fitted = useRef<string | null>(null)
   useEffect(() => {
-    if (!map || fitted.current || places.length < 2) return
+    if (!map || !fitKey || fitted.current === fitKey || places.length < 2) return
     const bounds = new google.maps.LatLngBounds()
     for (const place of places) bounds.extend({ lat: place.lat, lng: place.lng })
     map.fitBounds(bounds, 72)
-    fitted.current = true
-  }, [map, places])
+    fitted.current = fitKey
+  }, [map, places, fitKey])
   return null
 }
 
@@ -69,13 +75,15 @@ function PlacePins({
   places,
   selectedId,
   onSelect,
-  compact,
+  zoom,
 }: {
   places: PlaceSummary[]
   selectedId: string | null
   onSelect: (place: PlaceSummary) => void
-  compact: boolean
+  zoom: number
 }) {
+  const compact = zoom < 11
+  const showLabels = zoom >= 12
   return (
     <>
       {places.map((place) => {
@@ -104,19 +112,28 @@ function PlacePins({
             onClick={() => onSelect(place)}
             zIndex={active ? 10 : 1}
           >
-            <div
-              className={cn(
-                'relative flex items-center justify-center rounded-full border-2 border-white text-white shadow-[0_6px_16px_-4px_rgba(0,0,0,0.45)] transition-transform duration-200',
-                active ? 'size-11 scale-105' : 'size-8',
-              )}
-              style={{ backgroundColor: tint }}
-            >
-              <PlaceTypeIcon type={place.type} className={active ? 'size-5' : 'size-4'} />
-              <span
-                aria-hidden
-                className="absolute -bottom-1 left-1/2 size-2 -translate-x-1/2 rotate-45 rounded-[2px] border-b-2 border-r-2 border-white"
+            <div className="flex flex-col items-center">
+              <div
+                className={cn(
+                  'relative flex items-center justify-center rounded-full border-2 border-white text-white shadow-[0_4px_12px_-2px_rgba(0,0,0,0.4)] transition-transform duration-200',
+                  active ? 'size-11 scale-105' : 'size-7',
+                )}
                 style={{ backgroundColor: tint }}
-              />
+              >
+                <PlaceTypeIcon type={place.type} className={active ? 'size-5' : 'size-3.5'} />
+                {active && (
+                  <span
+                    aria-hidden
+                    className="absolute -bottom-1 left-1/2 size-2 -translate-x-1/2 rotate-45 rounded-[2px] border-b-2 border-r-2 border-white"
+                    style={{ backgroundColor: tint }}
+                  />
+                )}
+              </div>
+              {(showLabels || active) && (
+                <span className="map-pin-label mt-1 max-w-[132px] truncate text-[11px] font-semibold tracking-[-0.01em]">
+                  {place.name}
+                </span>
+              )}
             </div>
           </AdvancedMarker>
         )
@@ -139,8 +156,9 @@ export function MapScreen({ apiKey, mapId, meta }: { apiKey: string; mapId?: str
   const [searchOpen, setSearchOpen] = useState(false)
   const [savingId, setSavingId] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
-  const [center, setCenter] = useState<LatLng>(LA_CENTER)
-  const [zoom, setZoom] = useState(10)
+  const [center, setCenter] = useState<LatLng>(HOME_CENTER)
+  const [zoom, setZoom] = useState(HOME_ZOOM)
+  const [satellite, setSatellite] = useState(false)
   const [notice, setNotice] = useState<string | null>(null)
 
   const placesPath = useMemo(() => {
@@ -164,6 +182,8 @@ export function MapScreen({ apiKey, mapId, meta }: { apiKey: string; mapId?: str
   const { data: results, isLoading: searching } = useApi<SearchResults>(searchPath)
 
   const activeFilters = amenities.length + (type === 'all' ? 0 : 1)
+  const fitKey =
+    debouncedQuery.trim() || activeFilters > 0 ? `${debouncedQuery}|${type}|${amenities.join(',')}` : null
 
   const locate = useCallback(() => {
     if (!navigator.geolocation) {
@@ -248,34 +268,31 @@ export function MapScreen({ apiKey, mapId, meta }: { apiKey: string; mapId?: str
       <div className="relative h-dvh w-full overflow-hidden">
         <GoogleMap
           mapId={mapId}
-          defaultCenter={LA_CENTER}
-          defaultZoom={10}
+          defaultCenter={HOME_CENTER}
+          defaultZoom={HOME_ZOOM}
+          mapTypeId={satellite ? 'hybrid' : 'roadmap'}
           disableDefaultUI
           gestureHandling="greedy"
           clickableIcons={false}
-          styles={dark ? DARK_MAP_STYLE : LIGHT_MAP_STYLE}
+          styles={mapId ? undefined : dark ? DARK_MAP_STYLE : LIGHT_MAP_STYLE}
           onCameraChanged={(event) => {
             setCenter(event.detail.center)
             setZoom(event.detail.zoom)
           }}
           onClick={() => setSelected(null)}
-          className="map-canvas absolute inset-0"
+          className={cn('map-canvas absolute inset-0', satellite && 'satellite')}
         >
-          <PlacePins
-            places={places}
-            selectedId={selected?.id ?? null}
-            onSelect={selectPlace}
-            compact={zoom < 11}
-          />
+          <PlacePins places={places} selectedId={selected?.id ?? null} onSelect={selectPlace} zoom={zoom} />
           <MapCamera target={camera} />
-          <FitToPlaces places={places} />
+          <FitToPlaces places={places} fitKey={fitKey} />
         </GoogleMap>
 
         {/* Top controls */}
         <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex flex-col gap-2 px-3 pt-[max(env(safe-area-inset-top),0.75rem)]">
           <div className="pointer-events-auto mx-auto w-full max-w-[520px]">
-            <div className="glass glass-strong flex items-center gap-2 rounded-full px-3.5 py-2.5">
-              <Search className="size-[18px] shrink-0 text-muted-foreground" aria-hidden />
+            <div className="flex items-center gap-2">
+              <div className="glass glass-strong flex h-11 flex-1 items-center gap-2 rounded-full px-3.5">
+                <Search className="size-[18px] shrink-0 text-muted-foreground" aria-hidden />
               <input
                 value={query}
                 onChange={(event) => {
@@ -287,27 +304,35 @@ export function MapScreen({ apiKey, mapId, meta }: { apiKey: string; mapId?: str
                 aria-label="Search places, events and groups"
                 className="min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-muted-foreground"
               />
-              {query ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setQuery('')
-                    setSearchOpen(false)
-                  }}
-                  aria-label="Clear search"
-                  className="flex size-6 items-center justify-center rounded-full bg-foreground/10 text-muted-foreground"
-                >
-                  <X className="size-3.5" aria-hidden />
-                </button>
-              ) : (
-                <Link
-                  href="/guide"
-                  aria-label="Ask the guide"
-                  className="flex size-7 items-center justify-center rounded-full bg-primary/12 text-primary"
-                >
-                  <Sparkles className="size-4" aria-hidden />
-                </Link>
-              )}
+                {query ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuery('')
+                      setSearchOpen(false)
+                    }}
+                    aria-label="Clear search"
+                    className="flex size-6 items-center justify-center rounded-full bg-foreground/10 text-muted-foreground"
+                  >
+                    <X className="size-3.5" aria-hidden />
+                  </button>
+                ) : (
+                  <Link
+                    href="/guide"
+                    aria-label="Talk to the guide"
+                    className="glass-press flex size-7 items-center justify-center rounded-full text-primary"
+                  >
+                    <Mic className="size-[18px]" aria-hidden />
+                  </Link>
+                )}
+              </div>
+              <Link
+                href="/profile"
+                aria-label="Your profile"
+                className="glass glass-strong glass-press flex size-11 shrink-0 items-center justify-center rounded-full text-foreground/75"
+              >
+                <UserRound className="size-5" aria-hidden />
+              </Link>
             </div>
 
             <div className="no-scrollbar mt-2 flex items-center gap-1.5 overflow-x-auto pb-0.5">
@@ -366,19 +391,38 @@ export function MapScreen({ apiKey, mapId, meta }: { apiKey: string; mapId?: str
 
         {/* Right-side map controls */}
         <div className="absolute right-3 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-2">
-          <button
-            type="button"
-            onClick={locate}
-            aria-label="Show my location"
-            className="glass glass-press flex size-11 items-center justify-center rounded-full text-primary"
-          >
-            {locating ? <Loader2 className="size-5 animate-spin" aria-hidden /> : <Locate className="size-5" aria-hidden />}
-          </button>
+          <div className="glass flex flex-col overflow-hidden rounded-2xl">
+            <button
+              type="button"
+              onClick={locate}
+              aria-label="Show my location"
+              className="glass-press flex size-11 items-center justify-center text-primary"
+            >
+              {locating ? (
+                <Loader2 className="size-5 animate-spin" aria-hidden />
+              ) : (
+                <Locate className="size-5" aria-hidden />
+              )}
+            </button>
+            <span aria-hidden className="mx-2.5 h-px bg-foreground/10" />
+            <button
+              type="button"
+              onClick={() => setSatellite((value) => !value)}
+              aria-label={satellite ? 'Show standard map' : 'Show satellite map'}
+              aria-pressed={satellite}
+              className={cn(
+                'glass-press flex size-11 items-center justify-center',
+                satellite ? 'text-primary' : 'text-foreground/75',
+              )}
+            >
+              <Layers className="size-5" aria-hidden />
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => setAdding(true)}
             aria-label="Add a place"
-            className="glass glass-press flex size-11 items-center justify-center rounded-full text-foreground/80"
+            className="glass glass-press flex size-11 items-center justify-center rounded-2xl text-foreground/80"
           >
             <Plus className="size-5" aria-hidden />
           </button>
@@ -386,7 +430,7 @@ export function MapScreen({ apiKey, mapId, meta }: { apiKey: string; mapId?: str
 
         {/* Result count */}
         <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] z-20 flex justify-center">
-          {!selected && (
+          {!selected && (isLoading || debouncedQuery.trim() || activeFilters > 0) && (
             <span className="glass glass-thin rounded-full px-3 py-1.5 text-[12px] font-medium text-foreground/70">
               {isLoading ? 'Loading spots…' : `${places.length} ${places.length === 1 ? 'spot' : 'spots'}`}
               {location ? ' near you' : ' across LA County'}

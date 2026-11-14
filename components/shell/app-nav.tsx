@@ -25,7 +25,7 @@ export function AppNav() {
       aria-label="Main"
       className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]"
     >
-      <div className="glass glass-strong pointer-events-auto flex items-center gap-0.5 rounded-full p-1.5">
+      <div className="glass glass-strong pointer-events-auto flex items-stretch gap-0.5 rounded-[26px] p-1.5">
         {TABS.map((tab) => {
           const active = tab.href === '/' ? pathname === '/' : pathname.startsWith(tab.href)
           const Icon = tab.icon
@@ -34,20 +34,14 @@ export function AppNav() {
               key={tab.href}
               href={tab.href}
               aria-current={active ? 'page' : undefined}
-              aria-label={tab.label}
               className={cn(
-                'glass-press relative flex size-11 items-center justify-center rounded-full transition-colors sm:h-10 sm:w-auto sm:gap-2 sm:px-4',
-                active ? 'text-primary-foreground' : 'text-foreground/65 hover:text-foreground',
+                'glass-press relative flex w-[52px] flex-col items-center justify-center gap-0.5 rounded-[20px] py-1.5 transition-colors sm:w-[62px]',
+                active ? 'text-primary' : 'text-foreground/60 hover:text-foreground',
               )}
             >
-              {active && (
-                <span
-                  aria-hidden
-                  className="absolute inset-0 rounded-full bg-primary shadow-[0_6px_18px_-6px_var(--primary)]"
-                />
-              )}
-              <Icon className="relative size-[19px] sm:size-4" strokeWidth={active ? 2.4 : 2} aria-hidden />
-              <span className="relative hidden text-[13px] font-medium tracking-tight sm:inline">{tab.label}</span>
+              {active && <span aria-hidden className="absolute inset-0 rounded-[20px] bg-primary/12" />}
+              <Icon className="relative size-[21px]" strokeWidth={active ? 2.3 : 1.9} aria-hidden />
+              <span className="relative text-[10px] font-medium tracking-[-0.01em]">{tab.label}</span>
             </Link>
           )
         })}
