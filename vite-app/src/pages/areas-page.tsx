@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Search, X } from 'lucide-react'
 import { AREAS, AREA_COUNT, NEW_COUNT, REGIONS, type RegionId } from '@/data/areas'
 import { AreaCard } from '@/components/area-card'
+import { Logo, Wordmark } from '@/components/logo'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { cn } from '@/lib/utils'
 
@@ -30,9 +31,14 @@ export function AreasPage({ theme, onToggleTheme }: { theme: 'light' | 'dark'; o
     <div className="mx-auto w-full max-w-5xl px-4 pt-6">
       <header className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-[28px] font-semibold leading-none tracking-[-0.03em]">Hangout</h1>
-          <p className="mt-1.5 text-[13px] text-muted-foreground">
-            {AREA_COUNT} areas across LA County, each with a reason to exist.
+          <div className="flex items-center gap-2.5">
+            <Logo className="size-8 shrink-0" />
+            <h1 className="font-heading text-[25px] leading-none tracking-[-0.035em]">
+              <Wordmark />
+            </h1>
+          </div>
+          <p className="mt-2 text-[13px] text-muted-foreground">
+            {AREA_COUNT} areas across LA County. The local route, not the freeway.
           </p>
         </div>
         <ThemeToggle theme={theme} onToggle={onToggleTheme} />

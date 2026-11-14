@@ -13,7 +13,9 @@ export function MapPage({ theme, onToggleTheme }: { theme: 'light' | 'dark'; onT
     <div className="mx-auto w-full max-w-5xl px-4 pt-6">
       <header className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-[28px] font-semibold leading-none tracking-[-0.03em]">The map</h1>
+          <h1 className="font-heading text-[26px] font-semibold leading-none tracking-[-0.035em]">
+            The map
+          </h1>
           <p className="mt-1.5 text-[13px] text-muted-foreground">
             {visible.length} of {AREA_COUNT} areas. Tap a pin for the one-line reason.
           </p>

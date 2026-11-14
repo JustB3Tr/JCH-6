@@ -50,7 +50,9 @@ export function AreaDetailPage({ theme, onToggleTheme }: { theme: 'light' | 'dar
             </span>
           )}
         </div>
-        <h1 className="mt-2 text-[34px] font-semibold leading-[1.05] tracking-[-0.035em]">{area.name}</h1>
+        <h1 className="mt-2 font-heading text-[34px] font-semibold leading-[1.05] tracking-[-0.035em]">
+          {area.name}
+        </h1>
         <p className="mt-2.5 text-[16px] leading-snug text-foreground/75">{area.identity}</p>
       </header>
 
