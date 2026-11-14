@@ -11,6 +11,7 @@ import {
   Pin,
   useMap,
 } from '@vis.gl/react-google-maps'
+import { MarkerClusterer } from '@googlemaps/markerclusterer'
 import { Crosshair, Loader2, MapPin, Plus, Search, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,7 +27,7 @@ type SearchResult = {
   lng: number | null
 }
 
-const GLENDALE_CENTER = { lat: 34.1908, lng: -118.2481 }
+const LA_COUNTY_CENTER = { lat: 34.0522, lng: -118.2437 }
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 function MapController({ target }: { target: { lat: number; lng: number; zoom?: number } | null }) {
@@ -37,6 +38,76 @@ function MapController({ target }: { target: { lat: number; lng: number; zoom?: 
       if (target.zoom) map.setZoom(target.zoom)
     }
   }, [map, target])
+  return null
+}
+
+// County-wide coverage means ~100 pins, so group them into clusters that split
+// apart as the user zooms in.
+function ClusteredMarkers({
+  places,
+  selectedId,
+  onSelect,
+}: {
+  places: PlaceLite[]
+  selectedId: string | null
+  onSelect: (place: PlaceLite) => void
+}) {
+  const map = useMap()
+  const [markers, setMarkers] = useState<Record<string, google.maps.marker.AdvancedMarkerElement>>({})
+  const clusterer = useRef<MarkerClusterer | null>(null)
+
+  useEffect(() => {
+    if (!map) return
+    if (!clusterer.current) clusterer.current = new MarkerClusterer({ map })
+  }, [map])
+
+  useEffect(() => {
+    clusterer.current?.clearMarkers()
+    clusterer.current?.addMarkers(Object.values(markers))
+  }, [markers])
+
+  function setMarkerRef(marker: google.maps.marker.AdvancedMarkerElement | null, key: string) {
+    setMarkers((prev) => {
+      if ((marker && prev[key]) || (!marker && !prev[key])) return prev
+      const next = { ...prev }
+      if (marker) next[key] = marker
+      else delete next[key]
+      return next
+    })
+  }
+
+  return (
+    <>
+      {places.map((place) => (
+        <AdvancedMarker
+          key={place.id}
+          position={{ lat: place.lat, lng: place.lng }}
+          ref={(marker) => setMarkerRef(marker, place.id)}
+          onClick={() => onSelect(place)}
+        >
+          <Pin
+            background={selectedId === place.id ? '#d97706' : '#1b4332'}
+            borderColor="#ffffff"
+            glyphColor="#ffffff"
+            scale={selectedId === place.id ? 1.2 : 1}
+          />
+        </AdvancedMarker>
+      ))}
+    </>
+  )
+}
+
+// Frame the whole county on first load so every seeded spot is visible.
+function FitToPlaces({ places }: { places: PlaceLite[] }) {
+  const map = useMap()
+  const fitted = useRef(false)
+  useEffect(() => {
+    if (!map || fitted.current || places.length < 2) return
+    const bounds = new google.maps.LatLngBounds()
+    for (const place of places) bounds.extend({ lat: place.lat, lng: place.lng })
+    map.fitBounds(bounds, 56)
+    fitted.current = true
+  }, [map, places])
   return null
 }
 
@@ -116,8 +187,8 @@ export function MapView({ apiKey, amenities }: { apiKey: string; amenities: Amen
     <div className="relative h-[calc(100vh-3.5rem)] min-h-[480px] w-full md:h-[calc(100vh-3.5rem)]">
       <APIProvider apiKey={apiKey}>
         <GoogleMap
-          defaultCenter={GLENDALE_CENTER}
-          defaultZoom={13}
+          defaultCenter={LA_COUNTY_CENTER}
+          defaultZoom={9}
           mapId="hangout-map"
           disableDefaultUI
           zoomControl
@@ -125,20 +196,12 @@ export function MapView({ apiKey, amenities }: { apiKey: string; amenities: Amen
           className="h-full w-full"
         >
           <MapController target={target} />
-          {markers.map((place) => (
-            <AdvancedMarker
-              key={place.id}
-              position={{ lat: place.lat, lng: place.lng }}
-              onClick={() => setSelectedPlace(place)}
-            >
-              <Pin
-                background={selectedPlace?.id === place.id ? '#d97706' : '#1b4332'}
-                borderColor="#ffffff"
-                glyphColor="#ffffff"
-                scale={selectedPlace?.id === place.id ? 1.2 : 1}
-              />
-            </AdvancedMarker>
-          ))}
+          <FitToPlaces places={markers} />
+          <ClusteredMarkers
+            places={markers}
+            selectedId={selectedPlace?.id ?? null}
+            onSelect={setSelectedPlace}
+          />
         </GoogleMap>
       </APIProvider>
 

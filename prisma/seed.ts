@@ -246,24 +246,26 @@ async function main() {
     }
   }
 
-  const generalThread = await prisma.chatThread.findFirst({
-    where: { kind: 'community', communityId: communityRows[0].id },
-  })
-  if (!generalThread) {
-    await prisma.chatThread.create({
-      data: {
-        kind: 'community',
-        communityId: communityRows[0].id,
-        name: 'Glendale Outdoors Club — General',
-        createdById: demoUser.id,
-        messages: {
-          create: {
-            userId: demoUser.id,
-            body: 'Welcome! Post your hike plans and park meetups here.',
+  for (const community of communityRows) {
+    const generalThread = await prisma.chatThread.findFirst({
+      where: { kind: 'community', communityId: community.id },
+    })
+    if (!generalThread) {
+      await prisma.chatThread.create({
+        data: {
+          kind: 'community',
+          communityId: community.id,
+          name: `${community.name} — General`,
+          createdById: demoUser.id,
+          messages: {
+            create: {
+              userId: demoUser.id,
+              body: 'Welcome! Post your plans and meetups here.',
+            },
           },
         },
-      },
-    })
+      })
+    }
   }
 
   console.log('Seed complete:', {

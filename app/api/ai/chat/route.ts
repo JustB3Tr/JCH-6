@@ -2,9 +2,12 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { getUserId } from '@/lib/api-auth'
+import { AI_TOOLS, runTool } from '@/lib/ai-tools'
 
 const OLLAMA_URL = process.env.OLLAMA_URL || 'http://69.234.42.159:11434'
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'Imagination-2.1-Pro'
+const MODEL_TIMEOUT_MS = 90_000
+const MAX_TOOL_ROUNDS = 4
 
 // Simple in-memory rate limit: 20 requests per user per minute.
 const rateBuckets = new Map<string, number[]>()
@@ -22,8 +25,86 @@ const chatSchema = z.object({
   message: z.string().trim().min(1).max(4000),
 })
 
-const SYSTEM_PROMPT =
-  'You are the friendly local guide for a community hangout map app. You help people discover parks, plazas, cafes and trails, plan meetups, and answer questions about local events and communities. Keep answers warm, concise and practical.'
+const SYSTEM_PROMPT = [
+  'You are the friendly local guide for a community hangout map app covering Los Angeles County.',
+  'You have tools that read the app database: search_places, get_place, nearby_places, list_events, list_communities.',
+  'Always call a tool before naming a specific place, event or community. Never invent spots, addresses or events.',
+  'If a tool returns nothing, say so plainly and suggest a broader search instead of guessing.',
+  'When you recommend places, name them with their neighborhood and one practical detail (amenities, parking, shade).',
+  'Keep answers warm, concise and practical. Use short paragraphs or a compact list, no markdown tables.',
+].join(' ')
+
+type OllamaToolCall = {
+  function?: { name?: string; arguments?: unknown }
+}
+
+type OllamaMessage = {
+  role: 'system' | 'user' | 'assistant' | 'tool'
+  content: string
+  tool_calls?: OllamaToolCall[]
+  tool_name?: string
+}
+
+async function callModel(messages: OllamaMessage[], useTools: boolean) {
+  const response = await fetch(`${OLLAMA_URL}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: OLLAMA_MODEL,
+      stream: false,
+      think: false,
+      ...(useTools ? { tools: AI_TOOLS } : {}),
+      messages,
+      options: { temperature: 0.6 },
+    }),
+    signal: AbortSignal.timeout(MODEL_TIMEOUT_MS),
+  })
+
+  if (!response.ok) throw new Error(`Model responded with ${response.status}`)
+
+  const data = (await response.json()) as {
+    message?: { content?: string; tool_calls?: OllamaToolCall[] }
+  }
+  return data.message ?? {}
+}
+
+async function answerWithTools(conversation: OllamaMessage[]) {
+  for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+    const message = await callModel(conversation, true)
+    const toolCalls = message.tool_calls ?? []
+
+    if (!toolCalls.length) {
+      const content = (message.content ?? '').trim()
+      if (content) return content
+      break
+    }
+
+    conversation.push({
+      role: 'assistant',
+      content: message.content ?? '',
+      tool_calls: toolCalls,
+    })
+
+    for (const call of toolCalls) {
+      const name = call.function?.name ?? ''
+      const result = await runTool(name, call.function?.arguments)
+      conversation.push({ role: 'tool', tool_name: name, content: JSON.stringify(result) })
+    }
+  }
+
+  // Tool budget spent (or the model returned nothing) — force a plain answer.
+  const finalMessage = await callModel(
+    [
+      ...conversation,
+      {
+        role: 'user',
+        content: 'Answer my last question now using the tool results above. Do not call any more tools.',
+      },
+    ],
+    false,
+  )
+  return (finalMessage.content ?? '').trim()
+}
 
 export async function POST(request: Request) {
   const userId = await getUserId()
@@ -57,69 +138,35 @@ export async function POST(request: Request) {
     take: 20,
   })
 
-  const ollamaResponse = await fetch(`${OLLAMA_URL}/api/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: OLLAMA_MODEL,
-      stream: true,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        ...history.map((m) => ({ role: m.role, content: m.content })),
-      ],
-    }),
-  })
+  const conversation: OllamaMessage[] = [
+    { role: 'system', content: SYSTEM_PROMPT },
+    ...history.map((m) => ({
+      role: m.role === 'assistant' ? ('assistant' as const) : ('user' as const),
+      content: m.content,
+    })),
+  ]
 
-  if (!ollamaResponse.ok || !ollamaResponse.body) {
-    await prisma.aiMessage.create({
-      data: {
-        chatId,
-        role: 'assistant',
-        content: 'Sorry — the AI service is unreachable right now. Please try again shortly.',
-      },
-    })
-    return NextResponse.json({ error: 'AI service unreachable.', chatId }, { status: 502 })
+  let answer = ''
+  try {
+    answer = await answerWithTools(conversation)
+  } catch (error) {
+    console.log('[v0] AI chat failed:', error instanceof Error ? error.message : error)
+  }
+
+  if (!answer) {
+    answer = 'Sorry — the AI service is unreachable right now. Please try again shortly.'
   }
 
   const savedChatId = chatId
-  const decoder = new TextDecoder()
-  let assistantText = ''
+  await prisma.aiMessage.create({
+    data: { chatId: savedChatId, role: 'assistant', content: answer },
+  })
 
+  const encoder = new TextEncoder()
   const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      const reader = ollamaResponse.body!.getReader()
-      let buffer = ''
-      try {
-        for (;;) {
-          const { done, value } = await reader.read()
-          if (done) break
-          buffer += decoder.decode(value, { stream: true })
-          const lines = buffer.split('\n')
-          buffer = lines.pop() ?? ''
-          for (const line of lines) {
-            if (!line.trim()) continue
-            try {
-              const chunk = JSON.parse(line) as { message?: { content?: string } }
-              const content = chunk.message?.content
-              if (content) {
-                assistantText += content
-                controller.enqueue(new TextEncoder().encode(content))
-              }
-            } catch {
-              // Ignore malformed NDJSON lines.
-            }
-          }
-        }
-      } catch {
-        // Network hiccup mid-stream; keep whatever we already streamed.
-      } finally {
-        if (assistantText.trim()) {
-          await prisma.aiMessage.create({
-            data: { chatId: savedChatId, role: 'assistant', content: assistantText },
-          })
-        }
-        controller.close()
-      }
+    start(controller) {
+      controller.enqueue(encoder.encode(answer))
+      controller.close()
     },
   })
 

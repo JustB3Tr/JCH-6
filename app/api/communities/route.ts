@@ -53,5 +53,22 @@ export async function POST(request: Request) {
       memberships: { create: { userId, role: 'organizer' } },
     },
   })
+
+  // Every community gets a general chat so members have somewhere to talk.
+  await prisma.chatThread.create({
+    data: {
+      kind: 'community',
+      communityId: community.id,
+      name: `${community.name} — General`,
+      createdById: userId,
+      messages: {
+        create: {
+          userId,
+          body: `Welcome to ${community.name}! Say hi and share your first hangout idea.`,
+        },
+      },
+    },
+  })
+
   return NextResponse.json({ community }, { status: 201 })
 }

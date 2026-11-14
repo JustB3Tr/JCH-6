@@ -46,11 +46,11 @@ export default async function OverviewPage() {
           <div className="flex flex-col justify-center gap-3 p-6 md:p-10">
             <p className="text-sm font-medium uppercase tracking-wide text-primary">Get outside, together</p>
             <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-              Your neighborhood is full of places to hang out
+              All of LA County is full of places to hang out
             </h1>
             <p className="text-muted-foreground">
-              Discover parks, plazas, cafes and trails tagged with the amenities you care about — then meet people
-              there. {placeCounts} places and counting.
+              Discover parks, plazas, cafes and trails from Malibu to San Dimas, tagged with the amenities you care
+              about — then meet people there. {placeCounts} places and counting.
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
               <Link

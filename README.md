@@ -9,7 +9,7 @@ events, joining communities, chatting with neighbors, and asking an AI local gui
 - **PostgreSQL (Neon)** via **Prisma ORM 7** with the `@prisma/adapter-pg` driver adapter
 - **Auth.js (next-auth v5)** — email + password credentials, JWT sessions, bcrypt hashing
 - **Google Maps JS API** (`@vis.gl/react-google-maps`) + Places (New) Text Search via a server proxy
-- **Ollama** (`OLLAMA_URL`, `OLLAMA_MODEL`) — streaming AI chat proxy with persisted history
+- **Ollama** (`OLLAMA_URL`, `OLLAMA_MODEL`) — AI chat proxy with tool calling and persisted history
 - **ElevenLabs** — text-to-speech for AI voice mode
 - **SWR** for client data fetching and polling
 
@@ -51,9 +51,11 @@ events, joining communities, chatting with neighbors, and asking an AI local gui
 
 ```bash
 pnpm install
-npx prisma db push        # sync schema
-npx prisma db seed        # seed amenities, places, communities, events
-pnpm dev                  # http://localhost:3000
+npx prisma db push              # sync schema
+npx prisma db seed              # seed amenities, demo places, communities, events
+npx tsx scripts/seed-la-places.ts   # expand to ~90 LA County spots (resolves real
+                                    # coordinates/addresses through Google Places)
+pnpm dev                        # http://localhost:3000
 ```
 
 Demo account: `demo@hangout.app` / `demo1234`
@@ -65,3 +67,8 @@ Demo account: `demo@hangout.app` / `demo1234`
 - The Google Maps key is passed server-side into the map component; Places search goes through
   `/api/places/search` so the key is never exposed beyond the Maps JS loader.
 - Security headers (`nosniff`, referrer policy, HSTS, permissions policy) are set in `next.config.mjs`.
+- The map covers all of LA County: it frames every pin on first load and groups pins with
+  `@googlemaps/markerclusterer` so ~100 spots stay fast.
+- The AI guide calls real tools (`lib/ai-tools.ts`): `search_places`, `get_place`, `nearby_places`,
+  `list_events`, `list_communities`. Tool rounds run non-streaming, then the answer is returned;
+  the model is told never to invent places.

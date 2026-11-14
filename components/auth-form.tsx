@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { signIn } from 'next-auth/react'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,25 +23,23 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
     setError(null)
     setLoading(true)
     try {
-      if (isSignUp) {
-        const res = await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, password }),
-        })
-        if (!res.ok) {
-          const data = await res.json().catch(() => null)
-          throw new Error(data?.error ?? 'Could not create account.')
-        }
+      // Both endpoints verify the password server-side and set the session
+      // cookie in the same response, so there is no second sign-in step.
+      const res = await fetch(isSignUp ? '/api/auth/register' : '/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(isSignUp ? { name, email, password } : { email, password }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        throw new Error(data?.error ?? 'Something went wrong. Please try again.')
       }
-      const result = await signIn('credentials', { email, password, redirect: false })
-      if (result?.error) {
-        throw new Error('Wrong email or password.')
-      }
+
       router.push('/')
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong.')
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -55,6 +52,7 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
           <Label htmlFor="name">Name</Label>
           <Input
             id="name"
+            name="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -67,6 +65,7 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
+          name="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -79,11 +78,12 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         <Label htmlFor="password">Password</Label>
         <Input
           id="password"
+          name="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          minLength={8}
+          minLength={isSignUp ? 8 : undefined}
           autoComplete={isSignUp ? 'new-password' : 'current-password'}
           placeholder={isSignUp ? 'At least 8 characters' : 'Your password'}
         />
