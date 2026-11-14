@@ -2,11 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { Loader2, MapPin } from 'lucide-react'
 
 export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
-  const router = useRouter()
   const isSignUp = mode === 'sign-up'
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -32,8 +30,10 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         throw new Error(data?.error ?? 'Something went wrong. Please try again.')
       }
 
-      router.push('/')
-      router.refresh()
+      // A full load, not a client-side push: the session cookie was just
+      // written by this response, and SessionProvider would otherwise keep
+      // serving the signed-out session it fetched before sign-in.
+      window.location.assign('/')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {
