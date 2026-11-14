@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { AREAS, AREA_COUNT, REGIONS, type RegionId } from '@/data/areas'
+import { useMemo, useState } from 'react'
+import { AREAS, AREA_CATEGORIES, AREA_COUNT, REGIONS, type AreaCategory, type RegionId } from '@/data/areas'
 import { AreaMap } from '@/components/area-map'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { REGION_COLOR } from '@/lib/region-color'
@@ -7,7 +7,15 @@ import { cn } from '@/lib/utils'
 
 export function MapPage({ theme, onToggleTheme }: { theme: 'light' | 'dark'; onToggleTheme: () => void }) {
   const [filter, setFilter] = useState<RegionId | 'all'>('all')
-  const visible = filter === 'all' ? AREAS : AREAS.filter((area) => area.region === filter)
+  const [category, setCategory] = useState<AreaCategory | 'all'>('all')
+  const visible = useMemo(
+    () =>
+      AREAS.filter(
+        (area) =>
+          (filter === 'all' || area.region === filter) && (category === 'all' || area.category === category),
+      ),
+    [filter, category],
+  )
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 pt-6">
@@ -17,7 +25,7 @@ export function MapPage({ theme, onToggleTheme }: { theme: 'light' | 'dark'; onT
             The map
           </h1>
           <p className="mt-1.5 text-[13px] text-muted-foreground">
-            {visible.length} of {AREA_COUNT} areas. Tap a pin for the one-line reason.
+            {visible.length} of {AREA_COUNT} places. Tap a pin for the one-line reason.
           </p>
         </div>
         <ThemeToggle theme={theme} onToggle={onToggleTheme} />
@@ -60,8 +68,27 @@ export function MapPage({ theme, onToggleTheme }: { theme: 'light' | 'dark'; onT
         ))}
       </div>
 
+      <div className="mt-3 flex items-center gap-2">
+        <label htmlFor="map-place-type" className="text-[12px] font-medium text-muted-foreground">
+          Place type
+        </label>
+        <select
+          id="map-place-type"
+          value={category}
+          onChange={(event) => setCategory(event.target.value as AreaCategory | 'all')}
+          className="rounded-full border border-border bg-card px-3 py-1.5 text-[12.5px] font-medium text-foreground outline-none"
+        >
+          <option value="all">All types</option>
+          {AREA_CATEGORIES.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="mt-4">
-        <AreaMap areas={visible} theme={theme} className="h-[calc(100dvh-19rem)] min-h-[380px]" />
+        <AreaMap areas={visible} theme={theme} fitToAreas className="h-[calc(100dvh-19rem)] min-h-[380px]" />
       </div>
     </div>
   )

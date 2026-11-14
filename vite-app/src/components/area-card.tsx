@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Check } from 'lucide-react'
-import { regionLabel, type Area } from '@/data/areas'
+import { categoryLabel, regionLabel, type Area } from '@/data/areas'
 import { REGION_COLOR } from '@/lib/region-color'
 
 export function AreaCard({ area }: { area: Area }) {
@@ -26,6 +26,11 @@ export function AreaCard({ area }: { area: Area }) {
       </div>
 
       <h3 className="mt-2 text-[17px] font-semibold leading-tight tracking-[-0.02em]">{area.name}</h3>
+      {(area.category || area.city) && (
+        <p className="mt-1 text-[11px] font-medium text-foreground/55">
+          {[area.category ? categoryLabel(area.category) : null, area.city].filter(Boolean).join(' · ')}
+        </p>
+      )}
       <p className="mt-1 text-[13px] leading-snug text-muted-foreground">{area.identity}</p>
 
       <ul className="mt-3 space-y-1.5">
@@ -38,7 +43,7 @@ export function AreaCard({ area }: { area: Area }) {
       </ul>
 
       <span className="mt-3 text-[12px] font-medium text-primary opacity-0 transition group-hover:opacity-100">
-        See all {area.bonuses.length} bonuses
+        {area.source ? 'View location details' : `See all ${area.bonuses.length} bonuses`}
       </span>
     </Link>
   )

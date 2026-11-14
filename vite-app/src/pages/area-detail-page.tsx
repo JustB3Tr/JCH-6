@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Check, Clock, Sparkles, Users } from 'lucide-react'
-import { AREAS, areaBySlug, regionLabel } from '@/data/areas'
+import { ArrowLeft, ArrowRight, Check, Clock, ExternalLink, MapPin, Sparkles, Users } from 'lucide-react'
+import { AREAS, areaBySlug, categoryLabel, regionLabel } from '@/data/areas'
 import { AreaMap } from '@/components/area-map'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { REGION_COLOR } from '@/lib/region-color'
@@ -53,6 +53,11 @@ export function AreaDetailPage({ theme, onToggleTheme }: { theme: 'light' | 'dar
         <h1 className="mt-2 font-heading text-[34px] font-semibold leading-[1.05] tracking-[-0.035em]">
           {area.name}
         </h1>
+        {(area.category || area.city) && (
+          <p className="mt-2 text-[12px] font-medium text-muted-foreground">
+            {[area.category ? categoryLabel(area.category) : null, area.city].filter(Boolean).join(' · ')}
+          </p>
+        )}
         <p className="mt-2.5 text-[16px] leading-snug text-foreground/75">{area.identity}</p>
       </header>
 
@@ -99,6 +104,33 @@ export function AreaDetailPage({ theme, onToggleTheme }: { theme: 'light' | 'dar
             showPopups={false}
           />
         </div>
+        {(area.address || area.hours || area.website) && (
+          <div className="mt-3 space-y-2 rounded-xl border border-border bg-card px-3.5 py-3 text-[13px]">
+            {area.address && (
+              <p className="flex items-start gap-2">
+                <MapPin className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+                <span>{area.address}{area.city ? `, ${area.city}` : ''}</span>
+              </p>
+            )}
+            {area.hours && (
+              <p className="flex items-start gap-2">
+                <Clock className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+                <span>{area.hours}</span>
+              </p>
+            )}
+            {area.website && (
+              <a
+                href={area.website}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 font-medium text-primary hover:underline"
+              >
+                <ExternalLink className="size-3.5" aria-hidden />
+                Official listing
+              </a>
+            )}
+          </div>
+        )}
       </section>
 
       <div className="mt-5 flex flex-wrap gap-1.5">
@@ -111,6 +143,16 @@ export function AreaDetailPage({ theme, onToggleTheme }: { theme: 'light' | 'dar
           </span>
         ))}
       </div>
+
+      {area.source && area.sourceUrl && (
+        <p className="mt-4 text-[11px] leading-relaxed text-muted-foreground">
+          Source:{' '}
+          <a href={area.sourceUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+            {area.source}
+          </a>
+          . Verify current hours, access, and conditions before visiting.
+        </p>
+      )}
 
       <nav className="mt-8 flex items-stretch gap-2.5" aria-label="Other areas">
         <Link

@@ -1,3 +1,5 @@
+import { EXTRA_AREAS } from './extra-areas'
+
 export type RegionId =
   | 'northeast'
   | 'central'
@@ -8,6 +10,20 @@ export type RegionId =
   | 'westside'
   | 'southbay'
   | 'longbeach'
+  | 'santaclarita'
+  | 'antelope'
+  | 'islands'
+
+export type AreaCategory =
+  | 'neighborhood'
+  | 'park'
+  | 'nature'
+  | 'coast'
+  | 'trail'
+  | 'museum'
+  | 'culture'
+  | 'campground'
+  | 'recreation'
 
 export type Area = {
   slug: string
@@ -22,6 +38,13 @@ export type Area = {
   lng: number
   status: 'live' | 'new'
   tags: string[]
+  category?: AreaCategory
+  city?: string
+  address?: string
+  hours?: string
+  website?: string
+  source?: string
+  sourceUrl?: string
 }
 
 export const REGIONS: { id: RegionId; label: string; blurb: string }[] = [
@@ -34,9 +57,27 @@ export const REGIONS: { id: RegionId; label: string; blurb: string }[] = [
   { id: 'westside', label: 'The Westside', blurb: 'Canals, stairs, wetlands and the ocean' },
   { id: 'southbay', label: 'The South Bay', blurb: 'Beach towns and dramatic coastline' },
   { id: 'longbeach', label: 'Long Beach', blurb: 'Islands, canals and a vintage corridor' },
+  { id: 'santaclarita', label: 'Santa Clarita', blurb: 'River paths, ranch history and valley open space' },
+  { id: 'antelope', label: 'Antelope Valley', blurb: 'Desert parks, wildflowers and big-sky horizons' },
+  { id: 'islands', label: 'Catalina & Islands', blurb: 'Island coves, harbor walks and rugged terrain' },
 ]
 
-export const AREAS: Area[] = [
+export const AREA_CATEGORIES: { id: AreaCategory; label: string }[] = [
+  { id: 'park', label: 'Parks & gardens' },
+  { id: 'nature', label: 'Natural areas' },
+  { id: 'coast', label: 'Beaches & marinas' },
+  { id: 'trail', label: 'Trails' },
+  { id: 'museum', label: 'Museums' },
+  { id: 'culture', label: 'Arts & culture' },
+  { id: 'campground', label: 'Campgrounds' },
+  { id: 'recreation', label: 'Recreation centers' },
+]
+
+export function categoryLabel(category?: AreaCategory) {
+  return AREA_CATEGORIES.find((item) => item.id === category)?.label ?? 'Neighborhood'
+}
+
+const BASE_AREAS: Area[] = [
   {
     slug: 'highland-park',
     name: 'Highland Park',
@@ -648,6 +689,8 @@ export const AREAS: Area[] = [
     tags: ['shopping', 'cheap', 'walkable', 'culture'],
   },
 ]
+
+export const AREAS: Area[] = [...BASE_AREAS, ...EXTRA_AREAS]
 
 export const AREA_COUNT = AREAS.length
 export const NEW_COUNT = AREAS.filter((a) => a.status === 'new').length
