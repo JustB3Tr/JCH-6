@@ -32,20 +32,21 @@ export const TINTS = [
 ] as const
 export type Tint = (typeof TINTS)[number]
 
-// Apple Maps category colors, used for pins, chips and community icons.
+// Earthy, desaturated category colors (Terra palette) for pins, chips and
+// community icons. Each holds 4.5:1 against white text.
 export const TINT_HEX: Record<Tint, string> = {
-  blue: '#007AFF',
-  green: '#34C759',
-  mint: '#00C7BE',
-  teal: '#30B0C7',
-  cyan: '#32ADE6',
-  indigo: '#5856D6',
-  purple: '#AF52DE',
-  pink: '#FF2D55',
-  red: '#FF3B30',
-  orange: '#FF9500',
-  brown: '#A2845E',
-  gray: '#8E8E93',
+  blue: '#4a6d8c',
+  green: '#4a7c59',
+  mint: '#3f7d6c',
+  teal: '#3a7272',
+  cyan: '#3f7a90',
+  indigo: '#56598a',
+  purple: '#74557f',
+  pink: '#9a4f63',
+  red: '#a0483a',
+  orange: '#9a5f26',
+  brown: '#7a5c34',
+  gray: '#6b6a62',
 }
 
 export const PLACE_TYPE_META: Record<PlaceType, { label: string; plural: string; tint: Tint }> = {

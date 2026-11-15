@@ -1,16 +1,17 @@
-# Hangout — Community Hangout Map
+# Outly — Step outside together
 
-A community app for discovering local hangout spots (parks, plazas, cafes, trails), organizing
-events, joining communities, chatting with neighbors, and asking an AI local guide for plans.
+Outly is a community map of free and low-cost places to meet up across Los Angeles County:
+parks, trails, beaches and gardens, plus neighborhood gatherings, interest groups, group chat
+and a conversational AI guide that can search the map, the calendar and the live web.
 
 ## Stack
 
 - **Next.js 16** (App Router, Turbopack) + TypeScript + Tailwind CSS 4 + shadcn/ui (Base UI)
 - **PostgreSQL (Neon)** via **Prisma ORM 7** with the `@prisma/adapter-pg` driver adapter
 - **Auth.js (next-auth v5)** — email + password credentials, JWT sessions, bcrypt hashing
-- **Google Maps JS API** (`@vis.gl/react-google-maps`) + Places (New) Text Search via a server proxy
-- **Ollama** (`OLLAMA_URL`, `OLLAMA_MODEL`) — AI chat proxy with tool calling and persisted history
-- **ElevenLabs** — text-to-speech for AI voice mode
+- **Google Maps JS API** (`@vis.gl/react-google-maps`) + Places (New) for search, live hours and photos
+- **Ollama** (`OLLAMA_URL`, `OLLAMA_MODEL`) — streaming chat with tool calling and persisted history
+- **ElevenLabs** — `eleven_flash_v2_5` speech synthesis and `scribe_v1` speech-to-text
 - **SWR** for client data fetching and polling
 
 ## Environment variables
@@ -20,32 +21,46 @@ events, joining communities, chatting with neighbors, and asking an AI local gui
 | `DATABASE_URL` | Neon Postgres connection string |
 | `AUTH_SECRET` | Auth.js session secret |
 | `GOOGLE_MAPS_API_KEY` | Maps JS API (client) + Places API (server proxy) |
-| `ELEVENLABS_API_KEY` | Text-to-speech for AI voice mode |
+| `ELEVENLABS_API_KEY` | Voice replies (`/api/tts`) and dictation (`/api/stt`) |
 | `OLLAMA_URL` | Ollama base URL (default `http://69.234.42.159:11434`) |
 | `OLLAMA_MODEL` | Ollama model (default `Imagination-2.1-Pro`) |
 
 ## Screens
 
-- `/` — Main map: search bar (Google Places autocomplete), amenity filter chips, place pins with
-  popup cards, locate-me, and an add-place dialog. Supports `?amenity=<slug>` deep links.
-- `/places/[id]` — Place view: description, amenity tags, upcoming events, star-rating feedback.
-- `/overview` — Home dashboard: featured hero, amenity checklist linking to filtered map,
-  upcoming-events card row, and a month calendar of events and your RSVPs.
-- `/events` — Upcoming/past events, RSVP (going / maybe / can't), and an event creation dialog.
-- `/communities` — Browse, join/leave, and create communities; `/communities/[slug]` detail with
-  members, upcoming events, and its chat thread.
-- `/chat` — Conversation list + thread view with 3s polling; direct and community threads.
-- `/ai` — AI guide: chat history sidebar, suggested prompts, streaming responses, mic input
-  (Web Speech API), and optional ElevenLabs voice playback.
+- `/` — Landing page: hero search, activity explorer, how it works, this weekend's gatherings.
+- `/map` — Map explorer: search, type and amenity filters, viewport-culled pins, place sheet,
+  locate-me, add-place, and a mic shortcut into the guide.
+- `/places/[id]` — Place view: description, amenities, live hours, upcoming events, reviews.
+- `/events` — Upcoming and past gatherings, RSVP (going / maybe / can't), create an event.
+- `/communities` — Browse, join and create groups; `/communities/[slug]` has members, events and chat.
+- `/chat` — Conversation list and thread view with polling, direct and community threads.
+- `/guide` — The AI guide: streaming answers with tool steps, place cards, web sources, read-aloud
+  and dictation. Works signed in or as a guest.
+- `/profile` — Saved places, plans, groups and privacy settings.
 - `/sign-in`, `/sign-up` — Email + password auth.
 
 ## API routes
 
-`/api/places` (list/create), `/api/places/[id]`, `/api/places/[id]/feedback`,
-`/api/places/search` (Places proxy), `/api/events`, `/api/events/[id]/rsvp`,
-`/api/communities`, `/api/communities/[id]/membership`, `/api/chat/threads`,
-`/api/chat/threads/[id]/messages`, `/api/ai/chats`, `/api/ai/chats/[id]`, `/api/ai/chat`
-(streaming Ollama proxy, rate-limited), `/api/tts` (ElevenLabs proxy), `/api/auth/*`.
+`/api/places` (list/create), `/api/places/[id]`, `/api/places/[id]/reviews`,
+`/api/places/[id]/save`, `/api/places/[id]/photo`, `/api/search` (places + events + groups +
+Google), `/api/events`, `/api/events/[id]/rsvp`, `/api/communities`,
+`/api/communities/[id]/membership`, `/api/chat/threads`, `/api/chat/threads/[id]/messages`,
+`/api/ai/chat` (streaming agent, rate-limited), `/api/ai/chats`, `/api/ai/chats/[id]`,
+`/api/ai/tools`, `/api/tts`, `/api/stt`, `/api/me`, `/api/meta`, `/api/auth/*`.
+
+## The guide
+
+`lib/ai/agent.ts` runs up to six model rounds. Core tools are always available; the rest are
+loaded on demand through `discover_tools` so the local model picks better.
+
+- `search_places`, `find_events`, `search_knowledge`, `web_search`, `discover_tools`
+- On demand: `get_place_details`, `lookup_live_place_info`, `read_webpage`, `list_communities`,
+  `get_community`, `get_my_plans`, `rsvp_to_event`, `save_place`, `get_weather`,
+  `find_meeting_point`, `get_directions`
+
+Questions about hours, prices, parking or closures are grounded with a live web search before the
+model answers, because those are the facts a model gets wrong from memory. Every reply streams its
+tool steps and the web pages it used, and signed-in replies are saved with them.
 
 ## Local development
 
@@ -63,7 +78,7 @@ npx tsx scripts/clear-db.ts         # wipe every table, then re-run the seeds ab
 pnpm dev                        # http://localhost:3000
 ```
 
-Demo account: `demo@hangout.app` / `demo1234`
+Demo account: `demo@hangout.app` / `demo1234` (the seeded email predates the Outly rename).
 
 ## Notes
 
@@ -72,8 +87,7 @@ Demo account: `demo@hangout.app` / `demo1234`
 - The Google Maps key is passed server-side into the map component; Places search goes through
   `/api/places/search` so the key is never exposed beyond the Maps JS loader.
 - Security headers (`nosniff`, referrer policy, HSTS, permissions policy) are set in `next.config.mjs`.
-- The map covers all of LA County: it frames every pin on first load and groups pins with
-  `@googlemaps/markerclusterer` so ~100 spots stay fast.
-- The AI guide calls real tools (`lib/ai-tools.ts`): `search_places`, `get_place`, `nearby_places`,
-  `list_events`, `list_communities`. Tool rounds run non-streaming, then the answer is returned;
-  the model is told never to invent places.
+- The map only mounts pins inside the current viewport (plus a margin), so a 500-place result set
+  stays fast while panning.
+- Guests can use the guide: the browser sends the recent transcript and nothing is persisted.
+  Signed-in chats are stored with their places, sources and steps.

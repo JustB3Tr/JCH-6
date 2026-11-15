@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { getUserId } from '@/lib/api'
 import { getPlaceDetail } from '@/lib/data/places'
 import { PlaceDetailView } from '@/components/place/place-detail'
+import { pageTitle } from '@/lib/brand'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -11,11 +12,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const place = await getPlaceDetail(id, null)
     return {
-      title: `${place.name} — Hangout`,
+      title: pageTitle(place.name),
       description: place.blurb || `A ${place.type} in ${place.area ?? 'Los Angeles County'}.`,
     }
   } catch {
-    return { title: 'Place — Hangout' }
+    return { title: pageTitle('Place') }
   }
 }
 

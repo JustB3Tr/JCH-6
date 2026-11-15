@@ -22,7 +22,15 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   })
 
   const text = await response.text()
-  const data = text ? (JSON.parse(text) as unknown) : null
+  let data: unknown = null
+  if (text) {
+    try {
+      data = JSON.parse(text)
+    } catch {
+      // A dev-server error page or proxy response is not JSON.
+      data = null
+    }
+  }
 
   if (!response.ok) {
     const message =

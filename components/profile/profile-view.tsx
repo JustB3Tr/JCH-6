@@ -97,7 +97,7 @@ export function ProfileView() {
       action={
         <button
           type="button"
-          onClick={() => signOut({ callbackUrl: '/' })}
+          onClick={() => void signOut({ callbackUrl: '/' }).catch(() => {})}
           aria-label="Sign out"
           className="glass-press flex size-9 items-center justify-center rounded-full bg-foreground/[0.06] text-foreground/70"
         >

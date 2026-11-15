@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Side Streets">
+  <rect x="0.5" y="0.5" width="47" height="47" rx="12.5" fill="#141416" stroke="rgba(255,255,255,0.14)" />
+  <path d="M9 30h30" stroke="#ffffff" stroke-opacity="0.24" stroke-width="2.4" stroke-linecap="round" />
+  <path d="M33 9v30" stroke="#ffffff" stroke-opacity="0.24" stroke-width="2.4" stroke-linecap="round" />
+  <path d="M17 30 33 14" stroke="#f5a524" stroke-width="3.8" stroke-linecap="round" />
+  <circle cx="17" cy="30" r="2.6" fill="#f5a524" />
+</svg>

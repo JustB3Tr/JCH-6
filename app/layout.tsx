@@ -1,35 +1,49 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Literata, Nunito_Sans } from 'next/font/google'
 import { Providers } from '@/components/session-provider'
 import { AppNav } from '@/components/shell/app-nav'
+import { SiteHeader } from '@/components/shell/site-header'
+import { BRAND } from '@/lib/brand'
 import './globals.css'
 
-const geistSans = Geist({ subsets: ['latin'], variable: '--font-geist-sans', display: 'swap' })
-const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono', display: 'swap' })
+const literata = Literata({ subsets: ['latin'], variable: '--font-literata', display: 'swap' })
+const nunito = Nunito_Sans({ subsets: ['latin'], variable: '--font-nunito', display: 'swap' })
+
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : 'http://localhost:3000')
 
 export const metadata: Metadata = {
-  title: 'Hangout — Find your people, find your place',
-  description:
-    'A living map of parks, beaches, trails and cafes across Los Angeles County, with events, communities, group chat and an AI guide that knows the city.',
-  applicationName: 'Hangout',
+  metadataBase: new URL(siteUrl),
+  title: `${BRAND.name} — Find fun things to do outside, with friendly people near you`,
+  description: BRAND.description,
+  applicationName: BRAND.name,
   generator: 'v0.app',
   icons: {
-    icon: [
-      { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
-      { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
-    ],
-    apple: '/apple-icon.png',
+    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+    apple: '/icon.svg',
+  },
+  openGraph: {
+    type: 'website',
+    siteName: BRAND.name,
+    title: `${BRAND.name} — ${BRAND.tagline}`,
+    description: BRAND.description,
+    images: [{ url: '/images/outly-logo.png', width: 1448, height: 1086, alt: `${BRAND.name} wordmark` }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${BRAND.name} — ${BRAND.tagline}`,
+    description: BRAND.description,
+    images: ['/images/outly-logo.png'],
   },
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'light dark',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f2f2f7' },
-    { media: '(prefers-color-scheme: dark)', color: '#000000' },
-  ],
+  colorScheme: 'light',
+  themeColor: '#faf6f0',
   userScalable: true,
   width: 'device-width',
   initialScale: 1,
@@ -38,9 +52,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${literata.variable} ${nunito.variable} bg-background`}>
       <body className="min-h-dvh bg-background text-foreground antialiased">
         <Providers>
+          <SiteHeader />
           <main className="min-h-dvh">{children}</main>
           <AppNav />
         </Providers>

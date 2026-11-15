@@ -6,8 +6,8 @@ import { CalendarDays, Map, MessageCircle, Sparkles, UserRound, Users } from 'lu
 import { cn } from '@/lib/utils'
 
 const TABS = [
-  { href: '/', label: 'Map', icon: Map },
-  { href: '/events', label: 'Events', icon: CalendarDays },
+  { href: '/map', label: 'Explore', icon: Map },
+  { href: '/events', label: 'Gather', icon: CalendarDays },
   { href: '/communities', label: 'Groups', icon: Users },
   { href: '/chat', label: 'Chat', icon: MessageCircle },
   { href: '/guide', label: 'Guide', icon: Sparkles },
@@ -16,18 +16,19 @@ const TABS = [
 
 const HIDDEN_ON = ['/sign-in', '/sign-up']
 
+/** Bottom tab bar for phones. Wide screens use the top header instead. */
 export function AppNav() {
   const pathname = usePathname()
-  if (HIDDEN_ON.some((path) => pathname.startsWith(path))) return null
+  if (pathname === '/' || HIDDEN_ON.some((path) => pathname.startsWith(path))) return null
 
   return (
     <nav
       aria-label="Main"
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 pb-[max(env(safe-area-inset-bottom),0.25rem)] backdrop-blur-md md:hidden"
     >
-      <div className="glass glass-strong pointer-events-auto flex items-stretch gap-0.5 rounded-[26px] p-1.5">
+      <div className="mx-auto flex max-w-lg items-stretch justify-between px-2 pt-1.5">
         {TABS.map((tab) => {
-          const active = tab.href === '/' ? pathname === '/' : pathname.startsWith(tab.href)
+          const active = pathname.startsWith(tab.href)
           const Icon = tab.icon
           return (
             <Link
@@ -35,13 +36,19 @@ export function AppNav() {
               href={tab.href}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'glass-press relative flex w-[52px] flex-col items-center justify-center gap-0.5 rounded-[20px] py-1.5 transition-colors sm:w-[62px]',
-                active ? 'text-primary' : 'text-foreground/60 hover:text-foreground',
+                'glass-press flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-1.5 transition-colors',
+                active ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
               )}
             >
-              {active && <span aria-hidden className="absolute inset-0 rounded-[20px] bg-primary/12" />}
-              <Icon className="relative size-[21px]" strokeWidth={active ? 2.3 : 1.9} aria-hidden />
-              <span className="relative text-[10px] font-medium tracking-[-0.01em]">{tab.label}</span>
+              <span
+                className={cn(
+                  'flex h-7 w-12 items-center justify-center rounded-full transition-colors',
+                  active && 'bg-accent/70',
+                )}
+              >
+                <Icon className="size-5" strokeWidth={active ? 2.3 : 1.9} aria-hidden />
+              </span>
+              <span className={cn('text-[11px] tracking-tight', active ? 'font-bold' : 'font-semibold')}>{tab.label}</span>
             </Link>
           )
         })}

@@ -2,14 +2,15 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { PLACE_TYPES, RSVP_STATUSES } from '@/lib/constants'
 import { distanceKm, nearestArea, resolveArea, type LatLng } from '@/lib/geo'
-import { searchGooglePlaces } from '@/lib/google'
+import { lookupLivePlaceDetails, searchGooglePlaces } from '@/lib/google'
+import { readWebpage, searchWeb } from '@/lib/ai/web'
 import { getCommunity, listCommunities } from '@/lib/data/communities'
 import { listEvents, setRsvp } from '@/lib/data/events'
 import { searchKnowledge } from '@/lib/data/knowledge'
 import { getPlaceDetail, listPlaces, setPlaceSaved } from '@/lib/data/places'
 import { tokenize } from '@/lib/data/text-search'
 import type { ToolSpec } from '@/lib/ai/ollama'
-import type { AiToolInfo, EventSummary, PlaceSummary } from '@/lib/types'
+import type { AiToolInfo, AiWebSource, EventSummary, PlaceSummary } from '@/lib/types'
 
 /**
  * The guide's tools.
@@ -26,6 +27,8 @@ export type ToolContext = {
   location: LatLng | null
   /** Records places a tool returned so the reply can be shown with cards. */
   notePlaces: (places: PlaceSummary[]) => void
+  /** Records web pages a tool used so the reply can cite them. */
+  noteSources: (sources: AiWebSource[]) => void
   /** Adds discoverable tools to the model's toolset. */
   activate: (names: string[]) => void
 }
@@ -126,7 +129,7 @@ const tools: Tool[] = [
     name: 'search_places',
     label: 'Searching the map',
     description:
-      'Search Hangout for places to meet up in LA County. Combine free-text keywords with filters. Results are ranked by relevance, or by distance when `near` is set. Use this before recommending any place.',
+      'Search Outly for places to meet up in LA County. Combine free-text keywords with filters. Results are ranked by relevance, or by distance when `near` is set. Use this before recommending any place.',
     keywords: ['place', 'spot', 'park', 'beach', 'trail', 'cafe', 'where', 'recommend', 'nearby'],
     core: true,
     schema: z.object({
@@ -192,7 +195,7 @@ const tools: Tool[] = [
     name: 'find_events',
     label: 'Checking events',
     description:
-      'List upcoming Hangout events (meetups with a time, place and RSVP count). Filter by keywords, date window, area or community.',
+      'List upcoming Outly events (meetups with a time, place and RSVP count). Filter by keywords, date window, area or community.',
     keywords: ['event', 'meetup', 'happening', 'weekend', 'tonight', 'calendar', 'join', 'going'],
     core: true,
     schema: z.object({
@@ -238,7 +241,7 @@ const tools: Tool[] = [
     name: 'search_knowledge',
     label: 'Checking the guidebook',
     description:
-      'Search the Hangout guidebook: how the app works (accounts, privacy, RSVPs, communities, adding places), meetup etiquette and safety, and practical LA knowledge (parking, transit, beach and park rules, dogs, permits, weather and seasons).',
+      'Search the Outly guidebook: how the app works (accounts, privacy, RSVPs, communities, adding places), meetup etiquette and safety, and practical LA knowledge (parking, transit, beach and park rules, dogs, permits, weather and seasons).',
     keywords: ['how', 'help', 'rules', 'privacy', 'safety', 'parking', 'transit', 'etiquette', 'tips', 'faq'],
     core: true,
     schema: z.object({
@@ -251,6 +254,75 @@ const tools: Tool[] = [
         count: articles.length,
         articles: articles.map((a) => ({ title: a.title, topic: a.category, text: a.body })),
       }
+    },
+  }),
+
+  tool({
+    name: 'web_search',
+    label: 'Searching the web',
+    description:
+      'Search the live web for things the map and guidebook cannot know: today\'s opening hours, closures, road or trail conditions, prices, news, or what a place is like right now. Returns titles, links and snippets. Cite the links you use.',
+    keywords: ['web', 'search', 'internet', 'news', 'hours', 'open', 'closed', 'closure', 'price', 'current', 'today', 'conditions', 'traffic', 'review', 'latest'],
+    core: true,
+    schema: z.object({
+      query: z.string().min(2).max(160).describe('What to look up, phrased like a search query.'),
+      limit: z.coerce.number().int().min(1).max(6).optional().describe('How many results. Default 5.'),
+    }),
+    async run(args, ctx) {
+      const { query, instantAnswer, results } = await searchWeb(args.query, args.limit ?? 5)
+      ctx.noteSources(results)
+      if (!results.length && !instantAnswer) {
+        return { query, count: 0, note: 'No web results. Try different words, or rely on the map and guidebook.' }
+      }
+      return compact({
+        query,
+        count: results.length,
+        instant_answer: instantAnswer,
+        results: results.map((r) => ({ title: r.title, url: r.url, domain: r.domain, snippet: r.snippet })),
+        note: 'Snippets can be out of date. Open a page with read_webpage when the detail matters.',
+      })
+    },
+  }),
+
+  tool({
+    name: 'read_webpage',
+    label: 'Reading a page',
+    description:
+      'Open one public web page from a search result and read its main text. Use it to confirm hours, rules, closures or prices before telling the user.',
+    keywords: ['read', 'page', 'open', 'article', 'website', 'details', 'confirm', 'verify', 'link'],
+    core: false,
+    schema: z.object({
+      url: z.string().min(8).max(500).describe('A full http(s) URL, usually from web_search.'),
+    }),
+    async run(args, ctx) {
+      const page = await readWebpage(args.url)
+      if ('error' in page) return page
+      ctx.noteSources([{ title: page.title, url: page.url, domain: page.domain, snippet: page.description }])
+      return compact({
+        title: page.title,
+        url: page.url,
+        domain: page.domain,
+        description: page.description,
+        content: page.content,
+      })
+    },
+  }),
+
+  tool({
+    name: 'lookup_live_place_info',
+    label: 'Checking live place info',
+    description:
+      "Live details from Google for a named place: whether it is open now, this week's hours, phone, website, rating, dog policy, restrooms, whether it suits children, and parking. Use it for operational questions about a specific spot.",
+    keywords: ['hours', 'open', 'closed', 'phone', 'website', 'parking', 'dogs', 'restroom', 'rating', 'live', 'google', 'today', 'admission'],
+    core: false,
+    schema: z.object({
+      place: z.string().min(2).max(120).describe('Place name, ideally with its area, e.g. "Griffith Observatory, Los Angeles".'),
+      limit: z.coerce.number().int().min(1).max(3).optional().describe('How many matches. Default 1.'),
+    }),
+    async run(args) {
+      const matches = await lookupLivePlaceDetails(args.place, args.limit ?? 1)
+      if (!matches.length) return { error: 'Google has no live listing for that. Try web_search instead.' }
+      return { count: matches.length, places: matches }
     },
   }),
 
@@ -324,7 +396,7 @@ const tools: Tool[] = [
   tool({
     name: 'list_communities',
     label: 'Browsing communities',
-    description: 'List Hangout communities (interest groups that organize meetups) with member and event counts.',
+    description: 'List Outly communities (interest groups that organize meetups) with member and event counts.',
     keywords: ['community', 'communities', 'group', 'club', 'people', 'join', 'interest', 'meet'],
     core: false,
     schema: z.object({
@@ -375,7 +447,7 @@ const tools: Tool[] = [
     name: 'get_my_plans',
     label: 'Checking your plans',
     description:
-      "The current user's own Hangout activity: events they RSVP'd to or host, communities they belong to, and places they saved.",
+      "The current user's own Outly activity: events they RSVP'd to or host, communities they belong to, and places they saved.",
     keywords: ['my', 'mine', 'plans', 'schedule', 'rsvp', 'saved', 'favorites', 'calendar', 'going', 'joined'],
     core: false,
     schema: z.object({}),
@@ -470,7 +542,7 @@ const tools: Tool[] = [
     name: 'find_meeting_point',
     label: 'Finding a fair midpoint',
     description:
-      'For a group coming from different neighborhoods: finds Hangout places that are fair for everyone, minimizing the longest trip. Returns each option with its distance from every starting point.',
+      'For a group coming from different neighborhoods: finds Outly places that are fair for everyone, minimizing the longest trip. Returns each option with its distance from every starting point.',
     keywords: ['middle', 'midpoint', 'halfway', 'between', 'fair', 'central', 'meet', 'group', 'friends', 'coming', 'from'],
     core: false,
     schema: z.object({
@@ -526,7 +598,7 @@ const tools: Tool[] = [
     name: 'get_directions',
     label: 'Getting directions',
     description:
-      'A Google Maps directions link to a Hangout place and its straight-line distance from a starting point. Share the link when the user asks how to get somewhere.',
+      'A Google Maps directions link to a Outly place and its straight-line distance from a starting point. Share the link when the user asks how to get somewhere.',
     keywords: ['directions', 'route', 'navigate', 'drive', 'how', 'get', 'there', 'far', 'distance', 'map', 'link'],
     core: false,
     schema: z.object({

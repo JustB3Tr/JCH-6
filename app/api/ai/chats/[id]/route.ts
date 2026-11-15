@@ -1,10 +1,10 @@
 import { handle, notFound, requireUserId } from '@/lib/api'
 import { prisma } from '@/lib/prisma'
 import { listPlaces } from '@/lib/data/places'
-import type { AiMessageInfo, PlaceSummary } from '@/lib/types'
+import type { AiMessageInfo, AiToolStep, AiWebSource, PlaceSummary } from '@/lib/types'
 
 type Params = { id: string }
-type StoredMeta = { tools?: string[]; placeIds?: string[] }
+type StoredMeta = { tools?: string[]; placeIds?: string[]; sources?: AiWebSource[]; steps?: AiToolStep[] }
 
 export const GET = handle<Params>(async (_request, { id }) => {
   const userId = await requireUserId()
@@ -37,6 +37,8 @@ export const GET = handle<Params>(async (_request, { id }) => {
       content: m.content,
       createdAt: m.createdAt.toISOString(),
       tools: meta.tools ?? [],
+      sources: meta.sources ?? [],
+      steps: meta.steps ?? [],
       places: (meta.placeIds ?? []).map((placeId) => byId.get(placeId)).filter((p): p is PlaceSummary => Boolean(p)),
     }
   })

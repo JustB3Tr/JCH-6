@@ -82,7 +82,7 @@ export function PlaceDetailView({ place }: { place: PlaceDetail }) {
     if (!confirm('Remove this place from the map?')) return
     try {
       await api(`/api/places/${place.id}`, { method: 'DELETE' })
-      router.push('/')
+      router.push('/map')
     } catch (error) {
       setNotice(errorMessage(error))
     }
@@ -125,7 +125,7 @@ export function PlaceDetailView({ place }: { place: PlaceDetail }) {
 
         <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3 pt-[max(env(safe-area-inset-top),0.75rem)]">
           <Link
-            href="/"
+            href="/map"
             aria-label="Back to map"
             className="glass glass-strong glass-press flex size-10 items-center justify-center rounded-full"
           >
