@@ -109,7 +109,12 @@ function agentResponse({
       let closed = false
       const send = (event: AiStreamEvent) => {
         if (closed) return
-        controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`))
+        try {
+          controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`))
+        } catch {
+          // The browser went away mid-answer; nothing left to write to.
+          closed = true
+        }
       }
 
       try {
@@ -137,7 +142,11 @@ function agentResponse({
         send({ type: 'error', message })
       } finally {
         closed = true
-        controller.close()
+        try {
+          controller.close()
+        } catch {
+          // Already closed or errored by the client disconnect.
+        }
       }
     },
   })

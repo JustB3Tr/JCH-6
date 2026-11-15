@@ -677,7 +677,7 @@ export function MapScreen({
             onClose={() => setAdding(false)}
             onAdded={async (name) => {
               setAdding(false)
-              await mutate()
+              await mutate().catch(() => {})
               setNotice(`${name} added to the map.`)
             }}
           />

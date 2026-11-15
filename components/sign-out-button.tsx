@@ -11,9 +11,12 @@ export function SignOutButton() {
       type="button"
       aria-label="Sign out"
       onClick={async () => {
-        await signOut({ redirect: false })
-        router.push('/sign-in')
-        router.refresh()
+        try {
+          await signOut({ redirect: false })
+        } finally {
+          router.push('/sign-in')
+          router.refresh()
+        }
       }}
       className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
     >

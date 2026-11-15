@@ -209,7 +209,7 @@ export function GuideChat() {
         setStreamText('')
         setStreamPlaces([])
         setStreamSteps([])
-        refreshHistory()
+        void refreshHistory().catch(() => {})
         if ((voiceReplies || speakReply) && text.trim()) void speak(replyId, text)
       } catch (err) {
         if ((err as Error).name === 'AbortError') {

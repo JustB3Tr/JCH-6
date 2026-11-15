@@ -161,17 +161,17 @@ export function useVoice() {
         if (event.data.size) chunks.push(event.data)
       }
       media.onstop = async () => {
-        if (recorderTimer.current) clearTimeout(recorderTimer.current)
-        recorderTimer.current = null
-        stream.getTracks().forEach((track) => track.stop())
-        recorder.current = null
-        setListening(false)
-
-        const blob = new Blob(chunks, { type: media.mimeType || 'audio/webm' })
-        if (blob.size < 1200) return
-
-        setTranscribing(true)
         try {
+          if (recorderTimer.current) clearTimeout(recorderTimer.current)
+          recorderTimer.current = null
+          stream.getTracks().forEach((track) => track.stop())
+          recorder.current = null
+          setListening(false)
+
+          const blob = new Blob(chunks, { type: media.mimeType || 'audio/webm' })
+          if (blob.size < 1200) return
+
+          setTranscribing(true)
           const form = new FormData()
           form.append('audio', blob, 'utterance.webm')
           const response = await fetch('/api/stt', { method: 'POST', body: form })
@@ -247,7 +247,13 @@ export function useVoice() {
       }
       recognition.current = instance
       setListening(true)
-      instance.start()
+      try {
+        instance.start()
+      } catch {
+        recognition.current = null
+        setListening(false)
+        setVoiceError('The microphone is busy. Try again in a moment.')
+      }
     },
     [startRecording, stopListening, stopSpeaking],
   )
