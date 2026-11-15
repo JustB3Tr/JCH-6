@@ -10,7 +10,14 @@ import './globals.css'
 const literata = Literata({ subsets: ['latin'], variable: '--font-literata', display: 'swap' })
 const nunito = Nunito_Sans({ subsets: ['latin'], variable: '--font-nunito', display: 'swap' })
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : 'http://localhost:3000')
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: `${BRAND.name} — Find fun things to do outside, with friendly people near you`,
   description: BRAND.description,
   applicationName: BRAND.name,
