@@ -39,7 +39,7 @@ type TextSearchResponse = {
   }[]
 }
 
-/** Text search biased to LA County, for places not on the Hangout map yet. */
+/** Text search biased to LA County, for places not on the Outly map yet. */
 export async function searchGooglePlaces(query: string, limit = 5): Promise<ExternalPlace[]> {
   const data = await placesFetch<TextSearchResponse>('/places:searchText', {
     method: 'POST',
@@ -70,6 +70,114 @@ export async function searchGooglePlaces(query: string, limit = 5): Promise<Exte
         ]
       : [],
   )
+}
+
+type LivePlaceDetailsResponse = {
+  places?: {
+    id: string
+    displayName?: { text?: string }
+    formattedAddress?: string
+    websiteUri?: string
+    nationalPhoneNumber?: string
+    rating?: number
+    userRatingCount?: number
+    editorialSummary?: { text?: string }
+    allowsDogs?: boolean
+    restroom?: boolean
+    goodForChildren?: boolean
+    currentOpeningHours?: {
+      openNow?: boolean
+      weekdayDescriptions?: string[]
+    }
+    regularOpeningHours?: {
+      openNow?: boolean
+      weekdayDescriptions?: string[]
+    }
+    parkingOptions?: {
+      freeParkingLot?: boolean
+      paidParkingLot?: boolean
+      freeStreetParking?: boolean
+      paidStreetParking?: boolean
+    }
+  }[]
+}
+
+export type LivePlaceDetails = {
+  name: string
+  address: string
+  openNow?: boolean
+  hours?: string[]
+  website?: string
+  phone?: string
+  rating?: number
+  reviewCount?: number
+  summary?: string
+  allowsDogs?: boolean
+  hasRestrooms?: boolean
+  goodForChildren?: boolean
+  parking?: string[]
+}
+
+/** Live hours, contact URL, dog policy and parking from Google Places (New). */
+export async function lookupLivePlaceDetails(query: string, limit = 3): Promise<LivePlaceDetails[]> {
+  const data = await placesFetch<LivePlaceDetailsResponse>('/places:searchText', {
+    method: 'POST',
+    fieldMask: [
+      'places.id',
+      'places.displayName',
+      'places.formattedAddress',
+      'places.websiteUri',
+      'places.nationalPhoneNumber',
+      'places.rating',
+      'places.userRatingCount',
+      'places.editorialSummary',
+      'places.allowsDogs',
+      'places.restroom',
+      'places.goodForChildren',
+      'places.currentOpeningHours',
+      'places.regularOpeningHours',
+      'places.parkingOptions',
+    ].join(','),
+    body: JSON.stringify({
+      textQuery: query,
+      maxResultCount: limit,
+      regionCode: 'US',
+      locationBias: {
+        rectangle: {
+          low: { latitude: LA_BOUNDS.south, longitude: LA_BOUNDS.west },
+          high: { latitude: LA_BOUNDS.north, longitude: LA_BOUNDS.east },
+        },
+      },
+    }),
+  })
+
+  return (data?.places ?? []).map((place) => {
+    const parking: string[] = []
+    if (place.parkingOptions?.freeParkingLot) parking.push('free parking lot')
+    if (place.parkingOptions?.paidParkingLot) parking.push('paid parking lot')
+    if (place.parkingOptions?.freeStreetParking) parking.push('free street parking')
+    if (place.parkingOptions?.paidStreetParking) parking.push('paid street parking')
+
+    const hours =
+      place.currentOpeningHours?.weekdayDescriptions ?? place.regularOpeningHours?.weekdayDescriptions
+    const openNow = place.currentOpeningHours?.openNow ?? place.regularOpeningHours?.openNow
+
+    return {
+      name: place.displayName?.text ?? query,
+      address: place.formattedAddress ?? '',
+      openNow,
+      hours: hours?.length ? hours : undefined,
+      website: place.websiteUri,
+      phone: place.nationalPhoneNumber,
+      rating: place.rating,
+      reviewCount: place.userRatingCount,
+      summary: place.editorialSummary?.text,
+      allowsDogs: place.allowsDogs,
+      hasRestrooms: place.restroom,
+      goodForChildren: place.goodForChildren,
+      parking: parking.length ? parking : undefined,
+    }
+  })
 }
 
 /** Photo resource name for a place, e.g. "places/abc/photos/xyz". */

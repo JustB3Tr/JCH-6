@@ -9,6 +9,7 @@ import { formatDateTime } from '@/lib/format'
 import { GlassCard, PageShell } from '@/components/shell/page-shell'
 import { CommunityIcon } from '@/components/communities/community-icon'
 import { JoinButton } from '@/components/communities/join-button'
+import { pageTitle } from '@/lib/brand'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -16,9 +17,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   try {
     const community = await getCommunity(slug, null)
-    return { title: `${community.name} — Hangout`, description: community.description }
+    return { title: pageTitle(community.name), description: community.description }
   } catch {
-    return { title: 'Group — Hangout' }
+    return { title: pageTitle('Group') }
   }
 }
 

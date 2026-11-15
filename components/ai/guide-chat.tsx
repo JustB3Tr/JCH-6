@@ -6,21 +6,35 @@ import { useSession } from 'next-auth/react'
 import {
   ArrowUp,
   BookOpen,
+  Check,
+  Globe,
   History,
   Loader2,
   Locate,
   LocateOff,
+  Mic,
   Plus,
   Sparkles,
   Square,
+  Volume2,
+  VolumeX,
   Wrench,
   X,
 } from 'lucide-react'
+import { useVoice } from '@/hooks/use-voice'
 import { api, errorMessage, useApi } from '@/lib/client'
 import { PLACE_TYPE_META, TINT_HEX } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { PlaceTypeIcon } from '@/components/place/place-type-icon'
-import type { AiChatInfo, AiMessageInfo, AiStreamEvent, AiToolInfo, PlaceSummary } from '@/lib/types'
+import type {
+  AiChatInfo,
+  AiMessageInfo,
+  AiStreamEvent,
+  AiToolInfo,
+  AiToolStep,
+  AiWebSource,
+  PlaceSummary,
+} from '@/lib/types'
 
 type ChatMessage = {
   id: string
@@ -28,6 +42,8 @@ type ChatMessage = {
   content: string
   places: PlaceSummary[]
   tools: string[]
+  sources?: AiWebSource[]
+  steps?: AiToolStep[]
 }
 
 const SUGGESTIONS = [
@@ -45,12 +61,15 @@ export function GuideChat() {
   const [streaming, setStreaming] = useState(false)
   const [streamText, setStreamText] = useState('')
   const [streamPlaces, setStreamPlaces] = useState<PlaceSummary[]>([])
-  const [activeTools, setActiveTools] = useState<string[]>([])
+  const [streamSteps, setStreamSteps] = useState<AiToolStep[]>([])
   const [error, setError] = useState<string | null>(null)
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [locating, setLocating] = useState(false)
   const [showTools, setShowTools] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
+  const [voiceReplies, setVoiceReplies] = useState(false)
+  const voice = useVoice()
+  const { speak, stopSpeaking } = voice
 
   const abort = useRef<AbortController | null>(null)
   const bottom = useRef<HTMLDivElement | null>(null)
@@ -62,7 +81,7 @@ export function GuideChat() {
 
   useEffect(() => {
     bottom.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
-  }, [messages.length, streamText, activeTools.length])
+  }, [messages.length, streamText, streamSteps.length])
 
   const shareLocation = useCallback(() => {
     if (location) {
@@ -82,14 +101,10 @@ export function GuideChat() {
   }, [location])
 
   const send = useCallback(
-    async (text: string) => {
+    async (text: string, speakReply = false) => {
       const message = text.trim()
       if (!message || streaming) return
-      if (status !== 'authenticated') {
-        setError('Sign in to talk to the guide.')
-        return
-      }
-
+      stopSpeaking()
       setError(null)
       setDraft('')
       setMessages((current) => [
@@ -99,7 +114,7 @@ export function GuideChat() {
       setStreaming(true)
       setStreamText('')
       setStreamPlaces([])
-      setActiveTools([])
+      setStreamSteps([])
 
       const controller = new AbortController()
       abort.current = controller
@@ -108,7 +123,12 @@ export function GuideChat() {
         const response = await fetch('/api/ai/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chatId, message, location }),
+          body: JSON.stringify({
+            chatId,
+            message,
+            location,
+            history: messages.slice(-12).map((m) => ({ role: m.role, content: m.content })),
+          }),
           signal: controller.signal,
         })
         if (!response.ok || !response.body) {
@@ -122,6 +142,8 @@ export function GuideChat() {
         let text = ''
         let places: PlaceSummary[] = []
         let tools: string[] = []
+        let steps: AiToolStep[] = []
+        let sources: AiWebSource[] = []
 
         for (;;) {
           const { done, value } = await reader.read()
@@ -149,26 +171,46 @@ export function GuideChat() {
               text = ''
               setStreamText('')
             } else if (event.type === 'tool') {
-              setActiveTools((current) => (current.includes(event.label) ? current : [...current, event.label]))
+              steps = [
+                ...steps,
+                {
+                  id: event.stepId,
+                  name: event.name,
+                  label: event.label,
+                  detail: event.detail,
+                  status: 'running',
+                },
+              ]
+              setStreamSteps(steps)
+            } else if (event.type === 'tool_done') {
+              steps = steps.map((step) =>
+                step.id === event.stepId ? { ...step, status: 'done', summary: event.summary } : step,
+              )
+              setStreamSteps(steps)
+            } else if (event.type === 'sources') {
+              sources = event.sources
             } else if (event.type === 'places') {
               places = event.places
               setStreamPlaces(event.places)
             } else if (event.type === 'done') {
               tools = event.tools
+              steps = event.steps
             } else if (event.type === 'error') {
               throw new Error(event.message)
             }
           }
         }
 
+        const replyId = `reply-${Date.now()}`
         setMessages((current) => [
           ...current,
-          { id: `reply-${Date.now()}`, role: 'assistant', content: text, places, tools },
+          { id: replyId, role: 'assistant', content: text, places, tools, steps, sources },
         ])
         setStreamText('')
         setStreamPlaces([])
-        setActiveTools([])
+        setStreamSteps([])
         refreshHistory()
+        if ((voiceReplies || speakReply) && text.trim()) void speak(replyId, text)
       } catch (err) {
         if ((err as Error).name === 'AbortError') {
           setStreamText('')
@@ -181,8 +223,18 @@ export function GuideChat() {
         abort.current = null
       }
     },
-    [chatId, location, refreshHistory, status, streaming],
+    [chatId, location, messages, refreshHistory, speak, stopSpeaking, streaming, voiceReplies],
   )
+
+  function dictate() {
+    voice.listen(
+      (transcript) => {
+        setDraft('')
+        void send(transcript, true)
+      },
+      (interim) => setDraft(interim),
+    )
+  }
 
   async function openChat(id: string) {
     setShowHistory(false)
@@ -197,6 +249,8 @@ export function GuideChat() {
           content: message.content,
           places: message.places,
           tools: message.tools,
+          sources: message.sources,
+          steps: message.steps,
         })),
       )
     } catch (err) {
@@ -206,11 +260,12 @@ export function GuideChat() {
 
   function newChat() {
     abort.current?.abort()
+    stopSpeaking()
     setChatId(null)
     setMessages([])
     setStreamText('')
     setStreamPlaces([])
-    setActiveTools([])
+    setStreamSteps([])
     setError(null)
     setShowHistory(false)
   }
@@ -218,18 +273,35 @@ export function GuideChat() {
   const empty = messages.length === 0 && !streaming
 
   return (
-    <div className="mx-auto flex h-dvh w-full max-w-3xl flex-col px-3">
-      <header className="flex items-center gap-2 pb-2 pt-[max(env(safe-area-inset-top),0.75rem)]">
-        <div className="glass glass-strong flex min-w-0 flex-1 items-center gap-2 rounded-[22px] px-3 py-2.5">
-          <span className="flex size-8 items-center justify-center rounded-full bg-primary/12 text-primary">
-            <Sparkles className="size-4" aria-hidden />
+    <div className="mx-auto flex h-dvh w-full max-w-3xl flex-col px-3 md:h-[calc(100dvh-4rem)]">
+      <header className="flex items-center gap-2 pb-2 pt-[max(env(safe-area-inset-top),0.75rem)] md:pt-5">
+        <div className="glass glass-strong flex min-w-0 flex-1 items-center gap-2 rounded-2xl px-3 py-2.5">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <Sparkles className="size-5" aria-hidden />
           </span>
           <div className="min-w-0 flex-1">
-            <h1 className="text-[16px] font-semibold leading-tight tracking-[-0.02em]">Guide</h1>
-            <p className="truncate text-[11.5px] text-muted-foreground">
-              Knows the map, the calendar and the city
+            <h1 className="font-heading text-lg font-bold leading-tight">Guide</h1>
+            <p className="truncate text-xs text-muted-foreground">
+              Knows the map, the calendar and the city. Talk or type.
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (voiceReplies) stopSpeaking()
+              setVoiceReplies((value) => !value)
+            }}
+            aria-pressed={voiceReplies}
+            aria-label={voiceReplies ? 'Stop reading replies aloud' : 'Read replies aloud'}
+            title={voiceReplies ? 'Voice replies on' : 'Voice replies off'}
+            className={cn(
+              'glass-press flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs font-bold transition-colors',
+              voiceReplies ? 'bg-accent text-accent-foreground' : 'bg-foreground/[0.06] text-foreground/70',
+            )}
+          >
+            {voiceReplies ? <Volume2 className="size-4" aria-hidden /> : <VolumeX className="size-4" aria-hidden />}
+            <span className="hidden sm:inline">Voice</span>
+          </button>
           <button
             type="button"
             onClick={() => setShowTools(true)}
@@ -264,8 +336,8 @@ export function GuideChat() {
               Where should we go?
             </h2>
             <p className="mt-1 max-w-[38ch] text-[13.5px] leading-relaxed text-muted-foreground">
-              Ask for a spot, a plan, or a fair place to meet. The guide searches the same map you do, and
-              can RSVP or save a place for you.
+              Ask for a spot, a plan, or a fair place to meet. The guide searches the same map you do, checks
+              the live web for hours and conditions, and can RSVP or save a place once you have an account.
             </p>
             <ul className="mt-4 flex flex-wrap gap-1.5">
               {SUGGESTIONS.map((suggestion) => (
@@ -284,21 +356,39 @@ export function GuideChat() {
         )}
 
         {messages.map((message) => (
-          <MessageBubble key={message.id} message={message} />
+          <MessageBubble
+            key={message.id}
+            message={message}
+            voiceState={
+              voice.loadingId === message.id ? 'loading' : voice.speakingId === message.id ? 'playing' : 'idle'
+            }
+            onSpeak={() =>
+              voice.speakingId === message.id || voice.loadingId === message.id
+                ? stopSpeaking()
+                : void speak(message.id, message.content)
+            }
+          />
         ))}
 
         {streaming && (
           <div className="flex justify-start">
             <div className="max-w-[88%]">
-              {activeTools.length > 0 && (
+              {streamSteps.length > 0 && (
                 <ul className="mb-1.5 flex flex-wrap gap-1.5">
-                  {activeTools.map((label) => (
+                  {streamSteps.map((step) => (
                     <li
-                      key={label}
-                      className="glass flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-medium text-muted-foreground"
+                      key={step.id}
+                      className="glass flex max-w-full items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-medium text-muted-foreground"
                     >
-                      <Loader2 className="size-3 animate-spin" aria-hidden />
-                      {label}
+                      {step.status === 'running' ? (
+                        <Loader2 className="size-3 shrink-0 animate-spin" aria-hidden />
+                      ) : (
+                        <Check className="size-3 shrink-0 text-primary" aria-hidden />
+                      )}
+                      <span className="truncate">
+                        {step.label}
+                        {step.detail ? ` · ${step.detail}` : ''}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -311,16 +401,16 @@ export function GuideChat() {
           </div>
         )}
 
-        {error && (
+        {(error || voice.voiceError) && (
           <p role="alert" className="glass rounded-2xl px-3.5 py-2 text-[12.5px] text-destructive">
-            {error}
+            {error ?? voice.voiceError}
           </p>
         )}
 
         <div ref={bottom} />
       </div>
 
-      <div className="pb-[calc(env(safe-area-inset-bottom)+5.5rem)]">
+      <div className="pb-[calc(env(safe-area-inset-bottom)+5rem)] md:pb-6">
         <form
           onSubmit={(event) => {
             event.preventDefault()
@@ -347,6 +437,31 @@ export function GuideChat() {
                 <LocateOff className="size-4" aria-hidden />
               )}
             </button>
+
+            {voice.canListen && (
+              <button
+                type="button"
+                onClick={dictate}
+                disabled={streaming || voice.transcribing}
+                aria-pressed={voice.listening}
+                aria-label={
+                  voice.transcribing ? 'Transcribing your voice' : voice.listening ? 'Stop listening' : 'Talk to the guide'
+                }
+                className={cn(
+                  'glass-press relative mb-0.5 flex size-9 shrink-0 items-center justify-center rounded-full transition-colors disabled:opacity-40',
+                  voice.listening ? 'bg-destructive text-white' : 'bg-foreground/[0.06] text-primary',
+                )}
+              >
+                {voice.listening && !voice.transcribing && (
+                  <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-destructive/40" />
+                )}
+                {voice.transcribing ? (
+                  <Loader2 className="relative size-4 animate-spin" aria-hidden />
+                ) : (
+                  <Mic className="relative size-4" aria-hidden />
+                )}
+              </button>
+            )}
 
             <textarea
               value={draft}
@@ -405,7 +520,15 @@ export function GuideChat() {
   )
 }
 
-function MessageBubble({ message }: { message: ChatMessage }) {
+function MessageBubble({
+  message,
+  voiceState,
+  onSpeak,
+}: {
+  message: ChatMessage
+  voiceState: 'idle' | 'loading' | 'playing'
+  onSpeak: () => void
+}) {
   if (message.role === 'user') {
     return (
       <div className="flex justify-end">
@@ -422,9 +545,71 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         <div className="glass rounded-[20px] rounded-bl-md px-3.5 py-2.5 text-[14px] leading-relaxed">
           <RichText text={message.content} />
         </div>
+        {message.content.trim() && (
+          <button
+            type="button"
+            onClick={onSpeak}
+            aria-label={voiceState === 'idle' ? 'Read this reply aloud' : 'Stop reading'}
+            className="mt-1 inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+          >
+            {voiceState === 'loading' ? (
+              <Loader2 className="size-3.5 animate-spin" aria-hidden />
+            ) : voiceState === 'playing' ? (
+              <Square className="size-3 fill-current" aria-hidden />
+            ) : (
+              <Volume2 className="size-3.5" aria-hidden />
+            )}
+            {voiceState === 'playing' ? 'Stop' : voiceState === 'loading' ? 'Preparing voice…' : 'Listen'}
+          </button>
+        )}
         {message.places.length > 0 && <PlaceCards places={message.places} />}
+        {message.sources && message.sources.length > 0 && <SourceChips sources={message.sources} />}
+        {message.steps && message.steps.length > 0 && <StepTrace steps={message.steps} />}
       </div>
     </div>
+  )
+}
+
+function SourceChips({ sources }: { sources: AiWebSource[] }) {
+  return (
+    <ul className="mt-1.5 flex flex-wrap gap-1.5">
+      {sources.map((source) => (
+        <li key={source.url} className="max-w-full">
+          <a
+            href={source.url}
+            target="_blank"
+            rel="noreferrer noopener"
+            title={source.title}
+            className="glass glass-press inline-flex max-w-[220px] items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-medium text-foreground/75"
+          >
+            <Globe className="size-3 shrink-0 text-primary" aria-hidden />
+            <span className="truncate">{source.domain}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function StepTrace({ steps }: { steps: AiToolStep[] }) {
+  return (
+    <details className="mt-1.5 rounded-2xl bg-foreground/[0.04] px-3 py-2 text-[11.5px] leading-relaxed text-muted-foreground">
+      <summary className="cursor-pointer list-none font-semibold text-foreground/70">
+        How I found this · {steps.length} step{steps.length === 1 ? '' : 's'}
+      </summary>
+      <ol className="mt-1.5 space-y-1">
+        {steps.map((step) => (
+          <li key={step.id} className="flex items-start gap-1.5">
+            <Check className="mt-0.5 size-3 shrink-0 text-primary" aria-hidden />
+            <span>
+              <span className="font-medium text-foreground/80">{step.label}</span>
+              {step.detail ? ` · ${step.detail}` : ''}
+              {step.summary ? ` — ${step.summary}` : ''}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </details>
   )
 }
 

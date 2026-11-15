@@ -1,31 +1,36 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { APIProvider, AdvancedMarker, Map as GoogleMap, useMap } from '@vis.gl/react-google-maps'
 import {
   CalendarDays,
   Check,
-  Layers,
+  Compass,
   Loader2,
   Locate,
   MapPin,
+  MessageCircle,
   Mic,
+  Minus,
   Plus,
   Search,
   SlidersHorizontal,
+  Sparkles,
   UserRound,
   Users,
   X,
 } from 'lucide-react'
+import { BRAND } from '@/lib/brand'
 import { PLACE_TYPES, PLACE_TYPE_META, TINT_HEX, type PlaceType } from '@/lib/constants'
 import { api, errorMessage, useApi } from '@/lib/client'
 import { formatDateTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { useColorScheme } from '@/hooks/use-color-scheme'
 import { PlaceTypeIcon } from '@/components/place/place-type-icon'
 import { PlaceSheet } from '@/components/map/place-sheet'
-import { DARK_MAP_STYLE, LIGHT_MAP_STYLE } from '@/components/map/map-style'
+import { LIGHT_MAP_STYLE } from '@/components/map/map-style'
 import type { ExternalPlace, Meta, PlaceSummary, SearchResults } from '@/lib/types'
 
 type LatLng = { lat: number; lng: number }
@@ -33,6 +38,17 @@ type LatLng = { lat: number; lng: number }
 // Apple Maps opens on your neighborhood, not the whole county.
 const HOME_CENTER = { lat: 34.1464, lng: -118.2478 }
 const HOME_ZOOM = 13
+
+type MapBounds = { north: number; south: number; east: number; west: number }
+
+// Roughly the viewport at HOME_ZOOM, so the first paint mounts only nearby pins
+// instead of all 500. The real bounds replace this as soon as the map is idle.
+const INITIAL_BOUNDS: MapBounds = {
+  north: HOME_CENTER.lat + 0.09,
+  south: HOME_CENTER.lat - 0.09,
+  east: HOME_CENTER.lng + 0.12,
+  west: HOME_CENTER.lng - 0.12,
+}
 
 function useDebounced<T>(value: T, delay = 220) {
   const [debounced, setDebounced] = useState(value)
@@ -48,7 +64,7 @@ function MapCamera({ target }: { target: (LatLng & { zoom?: number }) | null }) 
   useEffect(() => {
     if (!map || !target) return
     map.panTo({ lat: target.lat, lng: target.lng })
-    if (target.zoom) map.setZoom(target.zoom)
+    if (target.zoom && map.getZoom() !== target.zoom) map.setZoom(target.zoom)
   }, [map, target])
   return null
 }
@@ -66,87 +82,159 @@ function FitToPlaces({ places, fitKey }: { places: PlaceSummary[]; fitKey: strin
   return null
 }
 
-/**
- * Pins scale with the zoom level: at county scale they are small dots so the
- * map reads as a density of places, and they become full category pins once
- * the user is close enough for them to be individually useful.
- */
+type ZoomTier = 'compact' | 'pins' | 'labeled'
+
+function getZoomTier(zoom: number): ZoomTier {
+  if (zoom < 11) return 'compact'
+  if (zoom >= 13) return 'labeled'
+  return 'pins'
+}
+
+const PlacePin = memo(function PlacePin({
+  place,
+  position,
+  active,
+  compact,
+  showLabel,
+  onSelect,
+}: {
+  place: PlaceSummary
+  position: LatLng
+  active: boolean
+  compact: boolean
+  showLabel: boolean
+  onSelect: (place: PlaceSummary) => void
+}) {
+  const tint = TINT_HEX[PLACE_TYPE_META[place.type].tint]
+  const handleClick = useCallback(() => onSelect(place), [onSelect, place])
+
+  if (compact && !active) {
+    return (
+      <AdvancedMarker position={position} onClick={handleClick}>
+        <div
+          className="size-3 rounded-full border-[1.5px] border-white shadow-[0_2px_6px_rgba(46,50,48,0.35)]"
+          style={{ backgroundColor: tint }}
+        />
+      </AdvancedMarker>
+    )
+  }
+
+  return (
+    <AdvancedMarker position={position} onClick={handleClick} zIndex={active ? 10 : 1}>
+      <div className="flex flex-col items-center">
+        <div
+          className={cn(
+            'relative flex items-center justify-center rounded-full border-2 border-white text-white shadow-[0_6px_14px_-4px_rgba(46,50,48,0.45)] transition-transform duration-200',
+            active ? 'size-11 bg-primary' : 'size-8',
+          )}
+          style={active ? undefined : { backgroundColor: tint }}
+        >
+          <PlaceTypeIcon type={place.type} className={active ? 'size-5' : 'size-4'} />
+          {active && (
+            <span
+              aria-hidden
+              className="absolute -bottom-1 left-1/2 size-2 -translate-x-1/2 rotate-45 rounded-[2px] border-b-2 border-r-2 border-white bg-primary"
+            />
+          )}
+        </div>
+        {(showLabel || active) && (
+          <span
+            className={cn(
+              'map-pin-label mt-1 max-w-[140px] truncate rounded-full px-2 py-px text-[11px] font-semibold',
+              active && 'text-primary',
+            )}
+          >
+            {place.name}
+          </span>
+        )}
+      </div>
+    </AdvancedMarker>
+  )
+})
+
 function PlacePins({
-  places,
+  items,
   selectedId,
   onSelect,
-  zoom,
+  zoomTier,
 }: {
-  places: PlaceSummary[]
+  items: { place: PlaceSummary; position: LatLng }[]
   selectedId: string | null
   onSelect: (place: PlaceSummary) => void
-  zoom: number
+  zoomTier: ZoomTier
 }) {
-  const compact = zoom < 11
-  const showLabels = zoom >= 12
+  const compact = zoomTier === 'compact'
+  const showLabel = zoomTier === 'labeled'
   return (
     <>
-      {places.map((place) => {
-        const tint = TINT_HEX[PLACE_TYPE_META[place.type].tint]
-        const active = selectedId === place.id
-
-        if (compact && !active) {
-          return (
-            <AdvancedMarker
-              key={place.id}
-              position={{ lat: place.lat, lng: place.lng }}
-              onClick={() => onSelect(place)}
-            >
-              <div
-                className="size-3 rounded-full border-[1.5px] border-white shadow-[0_2px_6px_rgba(0,0,0,0.35)]"
-                style={{ backgroundColor: tint }}
-              />
-            </AdvancedMarker>
-          )
-        }
-
-        return (
-          <AdvancedMarker
-            key={place.id}
-            position={{ lat: place.lat, lng: place.lng }}
-            onClick={() => onSelect(place)}
-            zIndex={active ? 10 : 1}
-          >
-            <div className="flex flex-col items-center">
-              <div
-                className={cn(
-                  'relative flex items-center justify-center rounded-full border-2 border-white text-white shadow-[0_4px_12px_-2px_rgba(0,0,0,0.4)] transition-transform duration-200',
-                  active ? 'size-11 scale-105' : 'size-7',
-                )}
-                style={{ backgroundColor: tint }}
-              >
-                <PlaceTypeIcon type={place.type} className={active ? 'size-5' : 'size-3.5'} />
-                {active && (
-                  <span
-                    aria-hidden
-                    className="absolute -bottom-1 left-1/2 size-2 -translate-x-1/2 rotate-45 rounded-[2px] border-b-2 border-r-2 border-white"
-                    style={{ backgroundColor: tint }}
-                  />
-                )}
-              </div>
-              {(showLabels || active) && (
-                <span className="map-pin-label mt-1 max-w-[132px] truncate text-[11px] font-semibold tracking-[-0.01em]">
-                  {place.name}
-                </span>
-              )}
-            </div>
-          </AdvancedMarker>
-        )
-      })}
+      {items.map(({ place, position }) => (
+        <PlacePin
+          key={place.id}
+          place={place}
+          position={position}
+          active={selectedId === place.id}
+          compact={compact}
+          showLabel={showLabel}
+          onSelect={onSelect}
+        />
+      ))}
     </>
   )
 }
 
-export function MapScreen({ apiKey, mapId, meta }: { apiKey: string; mapId?: string; meta: Meta }) {
-  const dark = useColorScheme()
-  const [query, setQuery] = useState('')
+function ZoomButtons() {
+  const map = useMap()
+  const zoomBy = (delta: number) => {
+    if (!map) return
+    map.setZoom((map.getZoom() ?? HOME_ZOOM) + delta)
+  }
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => zoomBy(1)}
+        aria-label="Zoom in"
+        className="glass-press flex size-11 items-center justify-center text-foreground/80 hover:text-primary"
+      >
+        <Plus className="size-5" aria-hidden />
+      </button>
+      <span aria-hidden className="mx-2.5 h-px bg-border" />
+      <button
+        type="button"
+        onClick={() => zoomBy(-1)}
+        aria-label="Zoom out"
+        className="glass-press flex size-11 items-center justify-center text-foreground/80 hover:text-primary"
+      >
+        <Minus className="size-5" aria-hidden />
+      </button>
+    </>
+  )
+}
+
+const MAP_NAV = [
+  { href: '/map', label: 'Map Explorer', icon: Compass },
+  { href: '/events', label: 'Gatherings', icon: CalendarDays },
+  { href: '/communities', label: 'Groups', icon: Users },
+  { href: '/guide', label: 'Guide', icon: Sparkles },
+]
+
+export function MapScreen({
+  apiKey,
+  mapId,
+  meta,
+  initialQuery = '',
+  initialType = 'all',
+}: {
+  apiKey: string
+  mapId?: string
+  meta: Meta
+  initialQuery?: string
+  initialType?: PlaceType | 'all'
+}) {
+  const { status } = useSession()
+  const [query, setQuery] = useState(initialQuery)
   const debouncedQuery = useDebounced(query)
-  const [type, setType] = useState<PlaceType | 'all'>('all')
+  const [type, setType] = useState<PlaceType | 'all'>(initialType)
   const [amenities, setAmenities] = useState<string[]>([])
   const [selected, setSelected] = useState<PlaceSummary | null>(null)
   const [camera, setCamera] = useState<(LatLng & { zoom?: number }) | null>(null)
@@ -156,8 +244,9 @@ export function MapScreen({ apiKey, mapId, meta }: { apiKey: string; mapId?: str
   const [searchOpen, setSearchOpen] = useState(false)
   const [savingId, setSavingId] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
-  const [center, setCenter] = useState<LatLng>(HOME_CENTER)
-  const [zoom, setZoom] = useState(HOME_ZOOM)
+  const centerRef = useRef<LatLng>(HOME_CENTER)
+  const [zoomTier, setZoomTier] = useState<ZoomTier>(() => getZoomTier(HOME_ZOOM))
+  const [bounds, setBounds] = useState<MapBounds>(INITIAL_BOUNDS)
   const [satellite, setSatellite] = useState(false)
   const [notice, setNotice] = useState<string | null>(null)
 
@@ -172,6 +261,26 @@ export function MapScreen({ apiKey, mapId, meta }: { apiKey: string; mapId?: str
 
   const { data, mutate, isLoading } = useApi<{ places: PlaceSummary[] }>(placesPath)
   const places = data?.places ?? []
+  const markerItems = useMemo(
+    () => places.map((place) => ({ place, position: { lat: place.lat, lng: place.lng } })),
+    [places],
+  )
+
+  // Only mount pins inside the viewport (plus a small margin). The selected
+  // place always stays mounted so its card never loses its pin.
+  const visibleItems = useMemo(() => {
+    const padLat = (bounds.north - bounds.south) * 0.12
+    const padLng = (bounds.east - bounds.west) * 0.12
+    return markerItems.filter(({ place, position }) => {
+      if (place.id === selected?.id) return true
+      return (
+        position.lat >= bounds.south - padLat &&
+        position.lat <= bounds.north + padLat &&
+        position.lng >= bounds.west - padLng &&
+        position.lng <= bounds.east + padLng
+      )
+    })
+  }, [markerItems, bounds, selected?.id])
 
   const searchPath =
     debouncedQuery.trim().length >= 2
@@ -274,25 +383,51 @@ export function MapScreen({ apiKey, mapId, meta }: { apiKey: string; mapId?: str
           disableDefaultUI
           gestureHandling="greedy"
           clickableIcons={false}
-          styles={mapId ? undefined : dark ? DARK_MAP_STYLE : LIGHT_MAP_STYLE}
+          styles={mapId ? undefined : LIGHT_MAP_STYLE}
           onCameraChanged={(event) => {
-            setCenter(event.detail.center)
-            setZoom(event.detail.zoom)
+            centerRef.current = event.detail.center
+            const nextTier = getZoomTier(event.detail.zoom)
+            setZoomTier((current) => (current === nextTier ? current : nextTier))
+          }}
+          onIdle={(event) => {
+            const next = event.map.getBounds()
+            if (!next) return
+            const ne = next.getNorthEast()
+            const sw = next.getSouthWest()
+            const box = { north: ne.lat(), east: ne.lng(), south: sw.lat(), west: sw.lng() }
+            setBounds((current) =>
+              Math.abs(current.north - box.north) < 0.0008 &&
+              Math.abs(current.south - box.south) < 0.0008 &&
+              Math.abs(current.east - box.east) < 0.0008 &&
+              Math.abs(current.west - box.west) < 0.0008
+                ? current
+                : box,
+            )
           }}
           onClick={() => setSelected(null)}
           className={cn('map-canvas absolute inset-0', satellite && 'satellite')}
         >
-          <PlacePins places={places} selectedId={selected?.id ?? null} onSelect={selectPlace} zoom={zoom} />
+          <PlacePins items={visibleItems} selectedId={selected?.id ?? null} onSelect={selectPlace} zoomTier={zoomTier} />
           <MapCamera target={camera} />
           <FitToPlaces places={places} fitKey={fitKey} />
         </GoogleMap>
+        {!satellite && <div aria-hidden className="pointer-events-none absolute inset-0 bg-[#f6efe2]/20" />}
 
         {/* Top controls */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex flex-col gap-2 px-3 pt-[max(env(safe-area-inset-top),0.75rem)]">
-          <div className="pointer-events-auto mx-auto w-full max-w-[520px]">
-            <div className="flex items-center gap-2">
-              <div className="glass glass-strong flex h-11 flex-1 items-center gap-2 rounded-full px-3.5">
-                <Search className="size-[18px] shrink-0 text-muted-foreground" aria-hidden />
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-start justify-between gap-3 px-3 pt-[max(env(safe-area-inset-top),0.75rem)] md:px-6 md:pt-6">
+          <div className="pointer-events-auto flex w-full min-w-0 flex-col gap-2 md:w-[min(500px,40vw)]">
+            <div className="glass glass-strong flex h-14 items-center gap-2.5 rounded-full pl-4 pr-2">
+              <Link href="/" className="hidden shrink-0 items-center xl:flex" aria-label={`${BRAND.name} home`}>
+                <Image
+                  src="/images/outly-wordmark.png"
+                  alt={BRAND.name}
+                  width={1014}
+                  height={421}
+                  className="h-7 w-auto"
+                />
+              </Link>
+              <span aria-hidden className="hidden h-6 w-px shrink-0 bg-border xl:block" />
+              <Search className="size-[18px] shrink-0 text-muted-foreground" aria-hidden />
               <input
                 value={query}
                 onChange={(event) => {
@@ -300,69 +435,62 @@ export function MapScreen({ apiKey, mapId, meta }: { apiKey: string; mapId?: str
                   setSearchOpen(true)
                 }}
                 onFocus={() => setSearchOpen(true)}
-                placeholder="Search places, events, groups"
+                placeholder="Search parks, green spaces, gatherings…"
                 aria-label="Search places, events and groups"
-                className="min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-muted-foreground"
+                className="min-w-0 flex-1 bg-transparent text-[15px] text-foreground outline-none placeholder:text-muted-foreground"
               />
-                {query ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setQuery('')
-                      setSearchOpen(false)
-                    }}
-                    aria-label="Clear search"
-                    className="flex size-6 items-center justify-center rounded-full bg-foreground/10 text-muted-foreground"
-                  >
-                    <X className="size-3.5" aria-hidden />
-                  </button>
-                ) : (
-                  <Link
-                    href="/guide"
-                    aria-label="Talk to the guide"
-                    className="glass-press flex size-7 items-center justify-center rounded-full text-primary"
-                  >
-                    <Mic className="size-[18px]" aria-hidden />
-                  </Link>
-                )}
-              </div>
-              <Link
-                href="/profile"
-                aria-label="Your profile"
-                className="glass glass-strong glass-press flex size-11 shrink-0 items-center justify-center rounded-full text-foreground/75"
-              >
-                <UserRound className="size-5" aria-hidden />
-              </Link>
-            </div>
-
-            <div className="no-scrollbar mt-2 flex items-center gap-1.5 overflow-x-auto pb-0.5">
+              {query ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery('')
+                    setSearchOpen(false)
+                  }}
+                  aria-label="Clear search"
+                  className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground hover:text-foreground"
+                >
+                  <X className="size-3.5" aria-hidden />
+                </button>
+              ) : (
+                <Link
+                  href="/guide"
+                  aria-label="Talk to the guide"
+                  className="glass-press flex size-9 shrink-0 items-center justify-center rounded-full text-primary hover:bg-accent/50"
+                >
+                  <Mic className="size-[18px]" aria-hidden />
+                </Link>
+              )}
               <button
                 type="button"
                 onClick={() => setFiltersOpen(true)}
+                aria-label={activeFilters ? `Filters, ${activeFilters} active` : 'Filters'}
                 className={cn(
-                  'glass glass-press flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-semibold',
-                  activeFilters ? 'text-primary' : 'text-foreground/80',
+                  'glass-press relative flex size-10 shrink-0 items-center justify-center rounded-full transition-colors',
+                  activeFilters ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground/75 hover:text-primary',
                 )}
               >
-                <SlidersHorizontal className="size-3.5" aria-hidden />
-                Filters
+                <SlidersHorizontal className="size-[18px]" aria-hidden />
                 {activeFilters > 0 && (
-                  <span className="flex size-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
+                  <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-tertiary text-[10px] font-bold text-white">
                     {activeFilters}
                   </span>
                 )}
               </button>
+            </div>
 
+            <div className="no-scrollbar -mx-3 flex items-center gap-1.5 overflow-x-auto px-3 pb-1 md:mx-0 md:px-0">
               <button
                 type="button"
                 onClick={() => setType('all')}
                 aria-pressed={type === 'all'}
                 className={cn(
-                  'glass glass-press shrink-0 rounded-full px-3 py-1.5 text-[12.5px] font-semibold',
-                  type === 'all' ? 'bg-primary text-primary-foreground' : 'text-foreground/80',
+                  'glass-press shrink-0 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold shadow-sm',
+                  type === 'all'
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border bg-card text-foreground/80 hover:border-primary/50',
                 )}
               >
-                All
+                All spots
               </button>
 
               {meta.types.map((entry) => {
@@ -375,67 +503,136 @@ export function MapScreen({ apiKey, mapId, meta }: { apiKey: string; mapId?: str
                     onClick={() => setType(active ? 'all' : entry.type)}
                     aria-pressed={active}
                     className={cn(
-                      'glass glass-press flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-semibold',
-                      active ? 'text-white' : 'text-foreground/80',
+                      'glass-press flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold shadow-sm',
+                      active
+                        ? 'border-primary bg-primary text-primary-foreground'
+                        : 'border-border bg-card text-foreground/80 hover:border-primary/50',
                     )}
-                    style={active ? { backgroundColor: TINT_HEX[info.tint] } : undefined}
                   >
-                    <PlaceTypeIcon type={entry.type} className="size-3.5" />
+                    <PlaceTypeIcon
+                      type={entry.type}
+                      className="size-3.5"
+                      style={active ? undefined : { color: TINT_HEX[info.tint] }}
+                    />
                     {info.plural}
                   </button>
                 )
               })}
             </div>
           </div>
-        </div>
 
-        {/* Right-side map controls */}
-        <div className="absolute right-3 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-2">
-          <div className="glass flex flex-col overflow-hidden rounded-2xl">
-            <button
-              type="button"
-              onClick={locate}
-              aria-label="Show my location"
-              className="glass-press flex size-11 items-center justify-center text-primary"
-            >
-              {locating ? (
-                <Loader2 className="size-5 animate-spin" aria-hidden />
+          <div className="pointer-events-auto hidden shrink-0 items-center gap-2 md:flex">
+            <nav aria-label="Main" className="glass glass-strong flex items-center gap-0.5 rounded-full p-1.5">
+              {MAP_NAV.map((item) => {
+                const active = item.href === '/map'
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? 'page' : undefined}
+                    title={item.label}
+                    className={cn(
+                      'flex h-10 items-center gap-2 rounded-full px-3 text-sm font-semibold transition-colors lg:px-4',
+                      active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
+                    )}
+                  >
+                    <item.icon className="size-[18px] lg:hidden" aria-hidden />
+                    <span className="sr-only lg:not-sr-only">{item.label}</span>
+                  </Link>
+                )
+              })}
+            </nav>
+            <div className="glass glass-strong flex items-center gap-1 rounded-full p-1.5">
+              <Link
+                href="/chat"
+                aria-label="Group chat"
+                className="flex size-10 items-center justify-center rounded-full text-foreground/75 transition-colors hover:bg-muted hover:text-primary"
+              >
+                <MessageCircle className="size-[18px]" aria-hidden />
+              </Link>
+              {status === 'authenticated' ? (
+                <Link
+                  href="/profile"
+                  aria-label="Your profile"
+                  className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary-hover"
+                >
+                  <UserRound className="size-[18px]" aria-hidden />
+                </Link>
               ) : (
-                <Locate className="size-5" aria-hidden />
+                <Link
+                  href="/sign-in"
+                  className="flex h-10 items-center rounded-full bg-primary px-4 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary-hover"
+                >
+                  Sign in
+                </Link>
               )}
-            </button>
-            <span aria-hidden className="mx-2.5 h-px bg-foreground/10" />
-            <button
-              type="button"
-              onClick={() => setSatellite((value) => !value)}
-              aria-label={satellite ? 'Show standard map' : 'Show satellite map'}
-              aria-pressed={satellite}
-              className={cn(
-                'glass-press flex size-11 items-center justify-center',
-                satellite ? 'text-primary' : 'text-foreground/75',
-              )}
-            >
-              <Layers className="size-5" aria-hidden />
-            </button>
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={() => setAdding(true)}
-            aria-label="Add a place"
-            className="glass glass-press flex size-11 items-center justify-center rounded-2xl text-foreground/80"
-          >
-            <Plus className="size-5" aria-hidden />
-          </button>
         </div>
 
-        {/* Result count */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] z-20 flex justify-center">
-          {!selected && (isLoading || debouncedQuery.trim() || activeFilters > 0) && (
-            <span className="glass glass-thin rounded-full px-3 py-1.5 text-[12px] font-medium text-foreground/70">
-              {isLoading ? 'Loading spots…' : `${places.length} ${places.length === 1 ? 'spot' : 'spots'}`}
-              {location ? ' near you' : ' across LA County'}
-            </span>
+        {/* Bottom-right map controls */}
+        <div
+          className={cn(
+            'absolute bottom-[calc(env(safe-area-inset-bottom)+5.25rem)] right-3 z-20 flex-col items-end gap-2 md:bottom-6 md:right-6',
+            selected ? 'hidden md:flex' : 'flex',
           )}
+        >
+          <div className="glass glass-strong flex items-center gap-0.5 rounded-full p-1" role="group" aria-label="Map style">
+            {[
+              { label: 'Map', value: false },
+              { label: 'Satellite', value: true },
+            ].map((option) => (
+              <button
+                key={option.label}
+                type="button"
+                onClick={() => setSatellite(option.value)}
+                aria-pressed={satellite === option.value}
+                className={cn(
+                  'rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors',
+                  satellite === option.value
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-end gap-2">
+            <span
+              role="status"
+              className="glass glass-strong flex items-center gap-2 rounded-full px-3.5 py-2 text-[13px] font-semibold text-foreground"
+            >
+              <span aria-hidden className="size-2 rounded-full bg-primary" />
+              {isLoading ? 'Loading spots…' : `${places.length.toLocaleString()} ${places.length === 1 ? 'spot' : 'spots'}`}
+              <span className="hidden font-normal text-tertiary sm:inline">
+                {location ? 'near you' : 'across LA County'}
+              </span>
+            </span>
+
+            <div className="glass glass-strong flex flex-col overflow-hidden rounded-2xl">
+              <ZoomButtons />
+              <span aria-hidden className="mx-2.5 h-px bg-border" />
+              <button
+                type="button"
+                onClick={locate}
+                aria-label="Show my location"
+                className="glass-press flex size-11 items-center justify-center text-primary"
+              >
+                {locating ? <Loader2 className="size-5 animate-spin" aria-hidden /> : <Locate className="size-5" aria-hidden />}
+              </button>
+              <span aria-hidden className="mx-2.5 h-px bg-border" />
+              <button
+                type="button"
+                onClick={() => setAdding(true)}
+                aria-label="Add a place"
+                className="glass-press flex size-11 items-center justify-center text-foreground/80 hover:text-primary"
+              >
+                <MapPin className="size-5" aria-hidden />
+              </button>
+            </div>
+          </div>
         </div>
 
         {selected && (
@@ -476,7 +673,7 @@ export function MapScreen({ apiKey, mapId, meta }: { apiKey: string; mapId?: str
 
         {adding && (
           <AddPlacePanel
-            center={center}
+            center={centerRef.current}
             onClose={() => setAdding(false)}
             onAdded={async (name) => {
               setAdding(false)
@@ -523,7 +720,7 @@ function SearchPanel({
   return (
     <div className="absolute inset-0 z-40 flex flex-col bg-black/10 backdrop-blur-[2px]" onClick={onClose}>
       <div
-        className="glass glass-strong animate-sheet-in mx-auto mt-[calc(env(safe-area-inset-top)+4.75rem)] w-[calc(100%-1.5rem)] max-w-[520px] overflow-hidden rounded-[26px]"
+        className="glass glass-strong animate-sheet-in mx-auto mt-[calc(env(safe-area-inset-top)+4.5rem)] w-[calc(100%-1.5rem)] max-w-[520px] overflow-hidden rounded-3xl md:ml-6 md:mt-[5.5rem] md:w-[min(500px,40vw)]"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="max-h-[62vh] overflow-y-auto overscroll-contain p-2">

@@ -9,7 +9,7 @@ const EMPTY: SearchResults = { places: [], events: [], communities: [], external
 
 /**
  * GET /api/search?q=&near=lat,lng&external=1
- * Places, events and communities on Hangout, plus Google results for spots
+ * Places, events and communities on Outly, plus Google results for spots
  * that are not listed yet when `external=1`.
  */
 export const GET = handle(async (request) => {

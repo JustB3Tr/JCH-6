@@ -149,6 +149,29 @@ export type SearchResults = {
 
 export type AiChatInfo = { id: string; title: string; updatedAt: string }
 
+export type AiWebSource = {
+  title: string
+  url: string
+  domain: string
+  snippet?: string
+}
+
+export type AiToolStep = {
+  id: string
+  name: string
+  label: string
+  detail?: string
+  summary?: string
+  status: 'running' | 'done'
+}
+
+export type ConversationalVoice = {
+  id: string
+  name: string
+  persona: string
+  accent: string
+}
+
 export type AiMessageInfo = {
   id: string
   role: 'user' | 'assistant'
@@ -156,6 +179,8 @@ export type AiMessageInfo = {
   createdAt: string
   places: PlaceSummary[]
   tools: string[]
+  sources?: AiWebSource[]
+  steps?: AiToolStep[]
 }
 
 export type AiToolInfo = { name: string; label: string; description: string; core: boolean; changesData: boolean }
@@ -163,9 +188,11 @@ export type AiToolInfo = { name: string; label: string; description: string; cor
 // One JSON object per line on the /api/ai/chat response stream.
 export type AiStreamEvent =
   | { type: 'chat'; chatId: string }
-  | { type: 'tool'; name: string; label: string }
+  | { type: 'tool'; stepId: string; name: string; label: string; detail?: string }
+  | { type: 'tool_done'; stepId: string; name: string; summary?: string }
   | { type: 'reset' }
   | { type: 'delta'; text: string }
   | { type: 'places'; places: PlaceSummary[] }
-  | { type: 'done'; messageId: string; tools: string[] }
+  | { type: 'sources'; sources: AiWebSource[] }
+  | { type: 'done'; messageId: string; tools: string[]; steps: AiToolStep[] }
   | { type: 'error'; message: string }

@@ -8,7 +8,7 @@ import type { SearchResults } from '@/lib/types'
 
 /**
  * One search across everything on the map, plus optional Google results for
- * places Hangout does not list yet (so people can add them).
+ * places Outly does not list yet (so people can add them).
  */
 export async function searchEverything(options: {
   q: string

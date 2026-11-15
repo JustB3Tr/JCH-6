@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
-import { AuthForm } from '@/components/auth/auth-form'
+import { pageTitle } from '@/lib/brand'
+import { OnboardingFlow } from '@/components/auth/onboarding-flow'
 
-export const metadata: Metadata = { title: 'Create an account — Hangout' }
+export const metadata: Metadata = { title: pageTitle('Get started') }
 
 export default function SignUpPage() {
-  return <AuthForm mode="sign-up" />
+  return <OnboardingFlow />
 }
